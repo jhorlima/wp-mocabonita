@@ -1,8 +1,15 @@
 {
   "name": "Jhorzyto/wp-mocabonita",
   "description": "Framework para desenvolvimento de plugins wordpress",
-  "keywords": ["wordpress", "plugin", "mocabonita", "wp-mocabonita", "uema"],
+  "keywords": [
+    "wordpress",
+    "plugin",
+    "mocabonita",
+    "wp-mocabonita",
+    "uema"
+  ],
   "homepage": "https://github.com/Jhorzyto/wp-mocabonita",
+  "type": "wordpress-framework-plugin",
   "license": "GPLv3",
   "version": "3.0.0",
   "authors": [
@@ -13,10 +20,19 @@
   ],
   "autoload": {
     "psr-4": {
-      "MocaBonita\\" : "./"
+      "MocaBonita\\": "./"
     }
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "php": ">=5.5"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "johnpbloch/wordpress": "4.2"
+  },
+  "extra": {
+    "wordpress-install-dir": "wp"
   }
 }
