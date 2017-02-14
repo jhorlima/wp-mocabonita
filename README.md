@@ -33,12 +33,14 @@ Depois de instalado, crie um arquivo `composer.json` na pasta do plugin e depois
 ```json
 {
     "require": {
-        "jhorlima/wp-mocabonita": "3.0.0"
+        "jhorlima/wp-mocabonita": "dev-master"
     }
 }
 ```
 
-Após isso, agora execute `$ composer.phar install –no-dev`.
+Após isso, agora execute `$ composer.phar install --no-dev`.
+
+ou resumidamente com `$ echo '{"require": {"jhorlima/wp-mocabonita": "dev-master"}}' > composer.json; composer.phar install --no-dev` no terminal.
 
 ####3º Configurar o plugin ####
 Depois de instalado as dependencias do composer corretamente, crie o arquivo `index.php` na pasta do plugin e adicione o seguinte conteudo nele:

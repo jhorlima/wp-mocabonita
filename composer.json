@@ -24,7 +24,7 @@
       "MocaBonita\\": "./"
     }
   },
-  "minimum-stability": "dev",
+  "minimum-stability": "beta",
   "prefer-stable": true,
   "require": {
     "php": ">=5.5"
