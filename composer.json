@@ -15,7 +15,8 @@
   "authors": [
     {
       "name": "Jhordan Lima",
-      "email": "jhordanlima.uema.dpd@gmail.com"
+      "email": "jhordanlima.uema.dpd@gmail.com",
+      "role": "Developer"
     }
   ],
   "autoload": {
