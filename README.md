@@ -33,7 +33,7 @@ Depois de instalado, crie um arquivo `composer.json` na pasta do plugin e depois
 ```json
 {
     "require": {
-        "Jhorzyto/wp-mocabonita": "*"
+        "jhorlima/wp-mocabonita": "3.0.0"
     }
 }
 ```
