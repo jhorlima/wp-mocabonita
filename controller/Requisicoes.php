@@ -86,15 +86,13 @@ abstract class Requisicoes
         //Obter o método de requisição atual
         $this->metodoRequisicao = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
         //Obter o a página de requisição atual
-        $this->page = isset($_GET['page']) ? $_GET['page'] : 'no_page';
+        $this->page = isset($_GET['page']) ? $_GET['page'] : null;
         //Obter a ação atual e depois valida-la
         $this->action = isset($_GET['action']) ? $_GET['action'] : null;
-        $this->action = $this->isGet() && is_null($this->action) ? 'index' : $this->action;
-        $this->action = !$this->isGet() && is_null($this->action) ? 'no_action' : $this->action;
         //Obter a resposta se a página é administrativa
-        $this->admin = (bool) is_admin();
+        $this->admin = (bool)is_admin();
         //Obter a resposta se o usuario tá logado
-        $this->login = (bool) is_user_logged_in();
+        $this->login = (bool)is_user_logged_in();
         //Obter a resposta se a página é ajax
         $this->ajax = defined('DOING_AJAX') && DOING_AJAX;
         //Obter dados da requisição
@@ -106,7 +104,7 @@ abstract class Requisicoes
      */
     public function isAdmin()
     {
-        return (bool) $this->admin;
+        return (bool)$this->admin;
     }
 
     /**
@@ -116,7 +114,7 @@ abstract class Requisicoes
      */
     public function isAjax()
     {
-        return (bool) $this->ajax;
+        return (bool)$this->ajax;
     }
 
     /**
@@ -146,14 +144,15 @@ abstract class Requisicoes
         //Inicializar o conteudo como array vazio, para posteriormente adicionar
         $this->conteudo = [];
         //Inicializar o de httpGet através da váriavel global $_GET
-        $this->httpGet  = $_GET;
+        $this->httpGet = $_GET;
 
         //Verificar se o método de requisição é POST e obtém o conteudo se existir. A requisição RAW DATA tem prioridade
         if ($this->isPost()) {
             $post = file_get_contents('php://input');
 
-            if (ServicosJSON::verificarJSON($post))
+            if (ServicosJSON::verificarJSON($post)) {
                 $_POST = json_decode($post, true);
+            }
 
             $this->conteudo = $_POST;
         }
@@ -162,21 +161,22 @@ abstract class Requisicoes
         if ($this->isPut()) {
             $put = file_get_contents("php://input");
 
-            if (ServicosJSON::verificarJSON($put))
+            if (ServicosJSON::verificarJSON($put)) {
                 $this->conteudo = ServicosJSON::decodificar($put);
-
-            else
+            } else {
                 $this->conteudo = [];
+            }
         }
 
         //Verificar se o método de requisição é DELETE e obtém o conteudo se existir
         if ($this->isDelete()) {
             $delete = file_get_contents("php://input");
 
-            if (ServicosJSON::verificarJSON($delete))
+            if (ServicosJSON::verificarJSON($delete)) {
                 $this->conteudo = ServicosJSON::decodificar($delete);
-            else
+            } else {
                 $this->conteudo = [];
+            }
         }
     }
 
@@ -230,21 +230,20 @@ abstract class Requisicoes
         //Verificar se a página atual é ajax
         if ($this->isAjax()) {
             //Se os dados for um array, é convertido para JSON na estrutura do Moca Bonita
-            if (is_array($dados))
+            if (is_array($dados)) {
                 ServicosJSON::respostaHTTP($dados, $this);
-
-            //Se os dados for uma string, é adicionado ao atributo content do Moça Bonita
-            elseif (is_string($dados))
+            } //Se os dados for uma string, é adicionado ao atributo content do Moça Bonita
+            elseif (is_string($dados)) {
                 ServicosJSON::respostaHTTP(['content' => $dados], $this);
-
-            //Se não for array ou string, então retorna vázio
-            else
+            } //Se não for array ou string, então retorna vázio
+            else {
                 ServicosJSON::respostaHTTP(
                     HTTPRespostas::obterHttpResposta(HTTPRespostas::REQUEST_UNAVAIABLE, 'Nenhum dado foi retornado!'),
                     $this
                 );
+            }
 
-        //Verificar se os dados é um objeto View e renderiza a página
+            //Verificar se os dados é um objeto View e renderiza a página
         } elseif ($dados instanceof View)
             $dados->render();
 

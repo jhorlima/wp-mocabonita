@@ -28,19 +28,13 @@ Acesse a pasta `wp-content/plugins` dentro da pasta onde o **wordpress** está i
 ####2º Importar o MocaBonita ####
 Em primeiro lugar é necessário ter o composer instalado no computador. 
 
-Depois de instalado, crie um arquivo `composer.json` na pasta do plugin e depois adicione o seguinte conteudo nele  
+Depois de instalado, execute 
 
-```json
-{
-    "require": {
-        "jhorlima/wp-mocabonita": "dev-master"
-    }
-}
-```
+```sh
+$ composer require jhorlima/wp-mocabonita:dev-master --update-no-dev
+``` 
 
-Após isso, agora execute `$ composer.phar install --no-dev`.
-
-ou resumidamente com `$ echo '{"require": {"jhorlima/wp-mocabonita": "dev-master"}}' > composer.json; composer.phar install --no-dev` no terminal.
+pelo terminal na pasta do seu plugin do wordpress.
 
 ####3º Configurar o plugin ####
 Depois de instalado as dependencias do composer corretamente, crie o arquivo `index.php` na pasta do plugin e adicione o seguinte conteudo nele:
@@ -57,12 +51,15 @@ Depois de instalado as dependencias do composer corretamente, crie o arquivo `in
     License: Licença do Plugin
 */
 
+//Use das classes usadas
 namespace ExemploPlugin;
 
 use MocaBonita\MocaBonita;
 
-$loader = require "./vendor/autoload.php";
-$loader->addPsr4(__NAMESPACE__ . '\\', './');
+//Carregar o autoload do composer
+$pluginPath = plugin_dir_path(__FILE__);
+$loader = require $pluginPath . "vendor/autoload.php";
+$loader->addPsr4(__NAMESPACE__ . '\\', $pluginPath);
 
 MocaBonita::loader(function (MocaBonita $mocabonita){
     
@@ -73,7 +70,7 @@ MocaBonita::loader(function (MocaBonita $mocabonita){
     * 
     */
     
-});
+}, true);
 ```
 
 Lembre-se de editar as anotações para o reconhecimento do plugin por conta do wordpres. Recomendamos que o namespace do plugin seja semelhante ao nome da pasta, mas em **`UpperCamelCase`**.

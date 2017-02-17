@@ -192,7 +192,7 @@ final class MocaBonita extends Requisicoes
                 $this->processarServicos($this->getServicosPlugin());
 
                 //Verificar se a página atual é adminstradora
-                if ($this->isAdmin()) {
+                if ($this->isLogin()) {
                     //Verificar se a página atual é requisitada via ajax
                     if ($this->isAjax()) {
                         //Adicionar o action AdminAjax
@@ -205,7 +205,7 @@ final class MocaBonita extends Requisicoes
                     //Caso a página atual não é adminstradora
                 } else {
                     //Adicionar o action NoAdminAjax
-                    if ($this->ajax == 1) {
+                    if ($this->isAjax()) {
                         WPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'mocaBonita');
                     } else {
                         //Adicionar o action NoAdminPost
@@ -269,22 +269,20 @@ final class MocaBonita extends Requisicoes
                 throw new MBException(
                     "A Ação {$this->action} da página {$this->page} não foi instânciada no objeto da página!"
                 );
-            }
-
-            //Verificar se a Ação tem capacidade, se não, obtem a capacidade da página
-            if (is_null($acao->getCapacidade())) {
+            } //Verificar se a Ação tem capacidade, se não, obtem a capacidade da página
+            elseif (is_null($acao->getCapacidade())) {
                 $acao->setCapacidade($pagina->getCapacidade());
             }
 
-            //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
-            if ($acao->isAdmin() && !current_user_can($acao->getCapacidade())) {
-                throw new MBException(
-                    "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
-                );
-            } //Caso a ação precise do login e não tenha nenhum usuário logado no wordpress
-            elseif ($acao->isAdmin() && !$this->isLogin()) {
+            //Caso a ação precise do login e não tenha nenhum usuário logado no wordpress
+            if ($acao->isAdmin() && !$this->isLogin()) {
                 throw new MBException(
                     "A Ação {$this->action} da página {$this->page} requer o login do wordpress!"
+                );
+            } //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
+            elseif ($acao->isAdmin() && !current_user_can($acao->getCapacidade())) {
+                throw new MBException(
+                    "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
                 );
             } //Caso a ação precise ser chamada via admin-ajax.php no wordpress e esta sendo chamado de outra forma
             elseif ($acao->isAjax() && !$this->isAjax()) {
@@ -423,8 +421,16 @@ final class MocaBonita extends Requisicoes
      */
     public function isPaginaPlugin()
     {
-        if (is_null($this->paginaPlugin)) {
+        if(is_null($this->page)){
+            return false;
+        } if (is_null($this->paginaPlugin)) {
             $this->paginaPlugin = in_array($this->page, array_keys($this->paginas));
+        }
+
+        if($this->paginaPlugin && is_null($this->action)){
+            $url = admin_url($GLOBALS['pagenow']) . "?" . http_build_query(['page' => $this->page,'action' => 'index']);
+            header("Location: {$url}");
+            exit();
         }
 
         return $this->paginaPlugin;
