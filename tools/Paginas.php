@@ -139,7 +139,7 @@ class Paginas
      * @param bool $subMenu
      * @param int $posicao
      */
-    public function __construct(Paginas $paginaParente = null, $menuPrincipal = false, $subMenu = true, $posicao = 100)
+    public function __construct(Paginas $paginaParente = null, $menuPrincipal = true, $subMenu = false, $posicao = 100)
     {
         $this->setNome("Moça Bonita")
             ->setCapacidade("manage_options")
@@ -149,7 +149,7 @@ class Paginas
             ->setAssets(new Assets())
             ->setPaginaParente($paginaParente)
             ->setMenuPrincipal($menuPrincipal)
-            ->setSubmenu($this->submenu)
+            ->setSubmenu($subMenu)
             ->setPosicao($posicao)
             ->adicionarAcao('index');
     }
@@ -389,8 +389,9 @@ class Paginas
      */
     public function getController()
     {
-        if(is_null($this->controller))
+        if(is_null($this->controller)){
             throw new MBException("Nenhum Controller foi definido para a página {$this->getNome()}.");
+        }
         return $this->controller;
     }
 
@@ -498,23 +499,35 @@ class Paginas
     public function adicionarMenuWordpress()
     {
         //Adicionar menu principal
-        if ($this->isMenuPrincipal()) {
+        if ($this->isEsconderMenu()) {
 
-            add_menu_page(
+            add_submenu_page(
+                null,
                 $this->getNome(),
                 $this->getNome(),
                 $this->getCapacidade(),
                 $this->getSlug(),
-                [$this->getMocaBonita(), 'mocaBonita'],
-                $this->getIcone(),
-                $this->getPosicao()
+                [$this->getMocaBonita(), 'mocaBonita']
             );
+
+        //Adicionar menu principal
+        } elseif ($this->isMenuPrincipal()) {
+
+                add_menu_page(
+                    $this->getNome(),
+                    $this->getNome(),
+                    $this->getCapacidade(),
+                    $this->getSlug(),
+                    [$this->getMocaBonita(), 'mocaBonita'],
+                    $this->getIcone(),
+                    $this->getPosicao()
+                );
 
         //Adicionar submenu
         } elseif ($this->isSubmenu()) {
 
             add_submenu_page(
-                $this->isEsconderMenu() ? null : $this->getPaginaParente()->getSlug(),
+                $this->getPaginaParente()->getSlug(),
                 $this->getNome(),
                 $this->getNome(),
                 $this->getCapacidade(),

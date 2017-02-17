@@ -148,8 +148,9 @@ final class MocaBonita extends Requisicoes
      */
     public static function loader(\Closure $plugin, $emDesenvolvimento = false)
     {
-        if (!defined('ABSPATH'))
+        if (!defined('ABSPATH')) {
             die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
+        }
 
         WPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $emDesenvolvimento) {
             try {
@@ -169,6 +170,8 @@ final class MocaBonita extends Requisicoes
     public function launcher()
     {
         try {
+            //Organizar as paginas e subpagina do moca bonita
+            $this->processarPaginas();
 
             //Adicionar os menus do wordpress
             WPAction::adicionarAction('admin_menu', $this, 'processarMenu');
@@ -191,21 +194,23 @@ final class MocaBonita extends Requisicoes
                 //Verificar se a página atual é adminstradora
                 if ($this->isAdmin()) {
                     //Verificar se a página atual é requisitada via ajax
-                    if ($this->isAjax())
+                    if ($this->isAjax()) {
                         //Adicionar o action AdminAjax
                         WPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'mocaBonita');
-                    else
+                    } else {
                         //Adicionar o action AdminPost
                         WPAction::adicionarAction("admin_post_{$this->action}", $this, 'mocaBonita');
+                    }
 
                     //Caso a página atual não é adminstradora
                 } else {
                     //Adicionar o action NoAdminAjax
-                    if ($this->ajax == 1)
+                    if ($this->ajax == 1) {
                         WPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'mocaBonita');
-                    else
+                    } else {
                         //Adicionar o action NoAdminPost
                         WPAction::adicionarAction("admin_post_nopriv_{$this->action}", $this, 'mocaBonita');
+                    }
                 }
 
                 //Adicionar os Assets da página
@@ -248,102 +253,84 @@ final class MocaBonita extends Requisicoes
         try {
 
             //Verificar se a página atual pertence ao plugin
-            if (!$this->isPaginaPlugin())
+            if (!$this->isPaginaPlugin()) {
                 return null;
+            }
 
             //Obter as configurações da página atual
             $pagina = $this->getPagina($this->page);
             $nomeController = get_class($pagina->getController());
 
-            //Verificar se a ação atual da página não é index GET. A index GET por padrão precisa ser chamada
-            // com usuario conectado e de forma GET
-            if (!$this->isGet() || $this->action != 'index') {
+            //Obter a ação atual da página
+            $acao = $pagina->getAcao($this->action);
 
-                //Obter a ação atual da página
-                $acao = $pagina->getAcao($this->action);
+            //Caso a ação não seja definida no objeto página, lançar uma exception
+            if (is_null($acao)) {
+                throw new MBException(
+                    "A Ação {$this->action} da página {$this->page} não foi instânciada no objeto da página!"
+                );
+            }
 
-                //Caso a ação não seja definida no objeto página, lançar uma exception
-                if (is_null($acao))
-                    throw new MBException(
-                        "A Ação {$this->action} da página {$this->page} não foi instânciada no objeto da página!"
-                    );
+            //Verificar se a Ação tem capacidade, se não, obtem a capacidade da página
+            if (is_null($acao->getCapacidade())) {
+                $acao->setCapacidade($pagina->getCapacidade());
+            }
 
-                //Caso a ação precise do login e não tenha nenhum usuário logado no wordpress
-                if ($acao->isAdmin() && !$this->isLogin())
-                    throw new MBException(
-                        "A Ação {$this->action} da página {$this->page} requer o login do wordpress!"
-                    );
-
-                //Caso a ação precise ser chamada via admin-ajax.php no wordpress e esta sendo chamado de outra forma
-                elseif ($acao->isAjax() && !$this->isAjax())
-                    throw new MBException(
-                        "A Ação {$this->action} da página {$this->page} precisa ser requisitada em admin-ajax.php!"
-                    );
-
-                //Caso a ação tenha um método de requisição diferente da requisição atual
-                elseif ($acao->getRequisicao() != $this->metodoRequisicao && $acao->getRequisicao() != '*')
-                    throw new MBException(
-                        "A Ação {$this->action} da página {$this->page} precisa ser requisitada 
-                        via {$acao->getRequisicao()}!"
-                    );
-
-                //Caso a ação não tenha um método criado ou publico na controller
-                elseif (!$acao->metodoValido())
-                    throw new MBException(
-                        "A Ação {$this->action} da página {$this->page} não tem um método publico na
-                         controller {$nomeController}. Por favor, criar ou tornar public o método {$acao->getMetodo()} 
-                         em {$nomeController}!"
-                    );
-
-                //Caso a action seja index, criada por padrão
-            } else
-                $acao = $pagina->getAcao('index');
-
-            //Caso a action seja index, é verificado se o usuário tem capacidade suficiente
-            if ($acao->isAdmin() && !current_user_can($pagina->getCapacidade())){
+            //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
+            if ($acao->isAdmin() && !current_user_can($acao->getCapacidade())) {
                 throw new MBException(
                     "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
+                );
+            } //Caso a ação precise do login e não tenha nenhum usuário logado no wordpress
+            elseif ($acao->isAdmin() && !$this->isLogin()) {
+                throw new MBException(
+                    "A Ação {$this->action} da página {$this->page} requer o login do wordpress!"
+                );
+            } //Caso a ação precise ser chamada via admin-ajax.php no wordpress e esta sendo chamado de outra forma
+            elseif ($acao->isAjax() && !$this->isAjax()) {
+                throw new MBException(
+                    "A Ação {$this->action} da página {$this->page} precisa ser requisitada em admin-ajax.php!"
+                );
+            } //Caso a ação tenha um método de requisição diferente da requisição atual
+            elseif ($acao->getRequisicao() != $this->metodoRequisicao && !is_null($acao->getRequisicao())) {
+                throw new MBException(
+                    "A Ação {$this->action} da página {$this->page} precisa ser requisitada via {$acao->getRequisicao()}!"
+                );
+            } //Caso a ação não tenha um método criado ou publico na controller
+            elseif (!$acao->metodoValido()) {
+                throw new MBException(
+                    "A Ação {$this->action} da página {$this->page} não tem um método publico na controller {$nomeController}. 
+                    Por favor, criar ou tornar public o método {$acao->getMetodo()} em {$nomeController}!"
                 );
             }
 
             //Carregar dados da controller
-            $acao->getPagina()
-                ->getController()
-                ->mocabonita($this->dadosRequisicao);
+            $acao->getPagina()->getController()->mocabonita($this->dadosRequisicao);
 
             //Definir página principal
-            $acao->getPagina()
-                ->getController()
-                ->getView()
-                ->setPage($this->page);
+            $acao->getPagina()->getController()->getView()->setPage($this->page);
 
             //Definir acao metodo
-            $acao->getPagina()
-                ->getController()
-                ->getView()
-                ->setAction($this->action);
+            $acao->getPagina()->getController()->getView()->setAction($this->action);
 
             //Começar a processar a controller
             ob_start();
 
-            $respostaController = $acao->getPagina()
-                ->getController()
-                ->{$acao->getMetodo()}();
+            $respostaController = $acao->getPagina()->getController()->{$acao->getMetodo()}();
 
             $conteudoController = ob_get_contents();
 
             ob_end_clean();
 
             //Verificar se a controller imprimiu alguma coisa e exibir no erro_log
-            if ($conteudoController != "")
+            if ($conteudoController != "") {
                 error_log($conteudoController);
+            }
 
             //Verificar se a resposta é nula e a requisicao não é ajax e então ele pega a view da controller
-            if (is_null($respostaController) && !$this->isAjax())
-                $respostaController = $acao
-                    ->getPagina()
-                    ->getController()
-                    ->getView();
+            if (is_null($respostaController) && !$this->isAjax()) {
+                $respostaController = $acao->getPagina()->getController()->getView();
+            }
 
             $this->enviarDadosNavegador($respostaController);
 
@@ -365,8 +352,9 @@ final class MocaBonita extends Requisicoes
     public function __construct($emDesenvolvimento = false)
     {
         register_activation_hook(__FILE__, function () {
-            if (version_compare(PHP_VERSION, '5.5', '<') || version_compare(get_bloginfo('version'), '4.5', '<'))
+            if (version_compare(PHP_VERSION, '5.5', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
                 deactivate_plugins(basename(__FILE__));
+            }
         });
 
         //Chamar o contruct da classe HTTPService
@@ -435,8 +423,9 @@ final class MocaBonita extends Requisicoes
      */
     public function isPaginaPlugin()
     {
-        if (is_null($this->paginaPlugin))
+        if (is_null($this->paginaPlugin)) {
             $this->paginaPlugin = in_array($this->page, array_keys($this->paginas));
+        }
 
         return $this->paginaPlugin;
     }
@@ -450,9 +439,11 @@ final class MocaBonita extends Requisicoes
      */
     public function getPagina($nomePagina)
     {
-        if (isset($this->paginas[$nomePagina]))
-            return $this->paginas[$nomePagina];
-        throw new MBException("A página {$nomePagina} não foi adicionada na lista de páginas do MocaBonita!");
+        if (!isset($this->paginas[$nomePagina])) {
+            throw new MBException("A página {$nomePagina} não foi adicionada na lista de páginas do MocaBonita!");
+        }
+
+        return $this->paginas[$nomePagina];
     }
 
     /**
@@ -464,9 +455,30 @@ final class MocaBonita extends Requisicoes
      */
     public function getShortcode($nomeShortcode)
     {
-        if (isset($this->shortcodes[$nomeShortcode]))
-            return $this->shortcodes[$nomeShortcode];
-        throw new MBException("O shortcode {$nomeShortcode} não foi adicionado na lista de shortcode do MocaBonita!");
+        if (!isset($this->shortcodes[$nomeShortcode])) {
+            throw new MBException("O shortcode {$nomeShortcode} não foi adicionado na lista de shortcode do MocaBonita!");
+        }
+
+        return $this->shortcodes[$nomeShortcode];
+    }
+
+    /**
+     * Processar e organizar todas as páginas do Moçabonita para melhor exibição
+     *
+     * @throws MBException
+     */
+    private function processarPaginas()
+    {
+        foreach ($this->paginas as $pagina) {
+            if ($pagina->isMenuPrincipal()) {
+                foreach ($pagina->getSubPaginas() as $subPagina) {
+                    $subPagina->setPaginaParente($pagina);
+                    $this->adicionarSubPagina($subPagina);
+                }
+            } else {
+                $this->adicionarPagina($pagina->getPaginaParente());
+            }
+        }
     }
 
     /**
@@ -485,13 +497,6 @@ final class MocaBonita extends Requisicoes
 
         $pagina->setMocaBonita($this);
 
-        if (count($pagina->getSubPaginas())) {
-            foreach ($pagina->getSubPaginas() as $subPagina) {
-                $subPagina->setPaginaParente($pagina);
-                $this->adicionarSubPagina($subPagina);
-            }
-        }
-
         return $this;
     }
 
@@ -506,9 +511,6 @@ final class MocaBonita extends Requisicoes
         $pagina->setMenuPrincipal(false);
 
         $pagina->setSubmenu(true);
-
-        if ($pagina->isEsconderMenu() == false && is_null($pagina->getPaginaParente()))
-            $pagina->setEsconderMenu(true);
 
         $this->paginas[$pagina->getSlug()] = $pagina;
 
@@ -537,7 +539,6 @@ final class MocaBonita extends Requisicoes
     public function adicionarServicosWordPress($servico, array $metodos)
     {
         $this->servicosWordPress[] = Service::configuracoesServicos($servico, $metodos);
-
         return $this;
     }
 
@@ -552,8 +553,7 @@ final class MocaBonita extends Requisicoes
     {
         $acao = new Acoes($pagina, $metodo);
 
-        $acao->setShortcode(true)
-            ->setComplemento('Shortcode');
+        $acao->setShortcode(true)->setComplemento('Shortcode');
 
         $this->shortcodes[$nome] = new ShortCode($nome, $acao, is_null($assets) ? new Assets() : $assets);
 
@@ -566,8 +566,9 @@ final class MocaBonita extends Requisicoes
     public function processarMenu()
     {
         if ($this->isAdmin()) {
-            foreach ($this->paginas as $pagina)
+            foreach ($this->paginas as $pagina) {
                 $pagina->adicionarMenuWordpress();
+            }
         }
     }
 }

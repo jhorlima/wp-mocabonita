@@ -73,6 +73,13 @@ class Acoes
     private $shortcode;
 
     /**
+     * Capacidade da ação
+     *
+     * @var string
+     */
+    private $capacidade;
+
+    /**
      * @return Paginas
      * @throws MBException
      */
@@ -157,7 +164,9 @@ class Acoes
     }
 
     /**
-     * @param string $requisicao
+     * Método de requisição da ação, se null, permite todos os métodos
+     *
+     * @param string|null $requisicao
      * @return Acoes
      */
     public function setRequisicao($requisicao)
@@ -223,6 +232,24 @@ class Acoes
     }
 
     /**
+     * @return string
+     */
+    public function getCapacidade()
+    {
+        return $this->capacidade;
+    }
+
+    /**
+     * @param string $capacidade
+     * @return Acoes
+     */
+    public function setCapacidade($capacidade)
+    {
+        $this->capacidade = $capacidade;
+        return $this;
+    }
+
+    /**
      * Construtor da Classe Ações
      *
      * @param Paginas $pagina
@@ -231,7 +258,7 @@ class Acoes
      * @param bool $ajax
      * @param string $requisicao
      */
-    public function __construct(Paginas $pagina, $nome, $admin = true, $ajax = false, $requisicao = 'GET')
+    public function __construct(Paginas $pagina, $nome, $admin = true, $ajax = false, $requisicao = null)
     {
         $this->setPagina($pagina)
             ->setNome($nome)
@@ -240,7 +267,8 @@ class Acoes
             ->setRequisicao($requisicao)
             ->setMetodo($nome)
             ->setShortcode(false)
-            ->setComplemento('Action');
+            ->setComplemento('Action')
+            ->setCapacidade(null);
     }
 
     /**
