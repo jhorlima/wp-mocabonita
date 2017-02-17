@@ -384,10 +384,13 @@ class Paginas
     }
 
     /**
+     * @throws MBException caso não exista controller definido
      * @return Controller
      */
     public function getController()
     {
+        if(is_null($this->controller))
+            throw new MBException("Nenhum Controller foi definido para a página {$this->getNome()}.");
         return $this->controller;
     }
 
