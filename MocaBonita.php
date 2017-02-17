@@ -299,6 +299,13 @@ final class MocaBonita extends Requisicoes
             } else
                 $acao = $pagina->getAcao('index');
 
+            //Caso a action seja index, é verificado se o usuário tem capacidade suficiente
+            if ($acao->isAdmin() && !current_user_can($pagina->getCapacidade())){
+                throw new MBException(
+                    "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
+                );
+            }
+
             //Carregar dados da controller
             $acao->getPagina()
                 ->getController()
