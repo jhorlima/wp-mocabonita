@@ -31,7 +31,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "*",
-    "johnpbloch/wordpress": "4.2"
+    "johnpbloch/wordpress": "4.2",
+    "phpdocumentor/phpdocumentor": "2.*"
   },
   "extra": {
     "wordpress-install-dir": "wp"

@@ -275,12 +275,12 @@ final class MocaBonita extends Requisicoes
             }
 
             //Caso a ação precise do login e não tenha nenhum usuário logado no wordpress
-            if ($acao->isAdmin() && !$this->isLogin()) {
+            if ($acao->isLogin() && !$this->isLogin()) {
                 throw new MBException(
                     "A Ação {$this->action} da página {$this->page} requer o login do wordpress!"
                 );
             } //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
-            elseif ($acao->isAdmin() && !current_user_can($acao->getCapacidade())) {
+            elseif ($acao->isLogin() && !current_user_can($acao->getCapacidade())) {
                 throw new MBException(
                     "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
                 );

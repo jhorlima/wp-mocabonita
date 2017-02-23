@@ -37,7 +37,8 @@ $ composer require jhorlima/wp-mocabonita:dev-master --update-no-dev
 pelo terminal na pasta do seu plugin do wordpress.
 
 ####3º Configurar o plugin ####
-Depois de instalado as dependencias do composer corretamente, crie o arquivo `index.php` na pasta do plugin e adicione o seguinte conteudo nele:
+Depois de instalado as dependencias do composer corretamente, 
+crie o arquivo `index.php` na pasta do plugin e adicione o seguinte conteudo nele:
 
 ```php
 <?php
@@ -71,6 +72,7 @@ MocaBonita::loader(function (MocaBonita $mocabonita){
     */
     
 }, true);
+//O ultimo parâmetro de MocaBonita::loader é opcional e define se o plugin está em desenvolvimento.
 ```
 
 Lembre-se de editar as anotações para o reconhecimento do plugin por conta do wordpres. Recomendamos que o namespace do plugin seja semelhante ao nome da pasta, mas em **`UpperCamelCase`**.
@@ -95,4 +97,65 @@ Crie também as pastas `images`, `css` e `js` dentro da pasta `public`
 
 ####4º Configuração das Páginas ####
 
-As páginas do MoçaBonita são
+As páginas do MoçaBonita é uma espécie de container cheio de ações que serão executadas pelo wordpress. 
+Cada página precisa ter um `nome`, `capacity` do wordpress, `slug` (link da página no wordpress), `icone do menu`, 
+`posição no menu`, sua `controller` (Instancia de MocaBonita\controller\Controller), `assets` e suas `ações`, 
+por padrão já vem a indexAction.
+
+O MocaBonita precisa de no mínimo uma página para funcionar corretamente. 
+
+Para criar uma página no MocaBonita, crie uma instância de `MocaBonita\tools\Paginas` e depois adicione ao MocaBonita.
+Veja o exemplo abaixo:
+
+```php
+use MocaBonita\tools\Paginas;
+
+MocaBonita::loader(function (MocaBonita $mocabonita){
+    
+    $exemploPagina = new Paginas();
+    
+    $mocabonita->adicionarPagina($exemploPagina);
+    
+}, true);
+```
+
+Com isso, você já vera o resultado ao acessar o painel adminstrativo do wordpress `wp-admin/admin.php` 
+e clicar no menu `Moça Bonita`.
+
+Por padrão, a página já vem com essas definições:
+
+```php
+    $exemploPagina
+        ->setNome("Moça Bonita")            //Nome da Página
+        ->setCapacidade("manage_options")   //Capacity do WP quando acessar pelo painel administrativo (https://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table)
+        ->setSlug("moca_bonita")            //Slug da Página (wp-admin/admin.php?page=moca_bonita)
+        ->setIcone("dashicons-editor-code") //Icone do Menu (https://developer.wordpress.org/resource/dashicons/)
+        ->setEsconderMenu(false)            //Esconder menu no WordPress
+        ->setAssets(new Assets())           //Assets que aparecerão quando acessar a página de alguma forma (CSS e JS)
+        ->setPaginaParente(null)            //Página pai, caso esta seja uma subpágina
+        ->setMenuPrincipal(true)            //Definir página como menu principal no wordpress 
+        ->setSubmenu(false)                 //Definir página como submenu no wordpress, necessário uma página parente
+        ->setPosicao(100)                   //Posição da página no menu do wordpress
+        ->adicionarAcao('index');           //Adicionar a indexAction para a página
+        
+    $acaoIndex = $exemploPagina->getAcao('index');
+```
+
+Por padrão, a Ação index já vem com essas definições:
+
+```php
+     
+    $acaoIndex = $exemploPagina->getAcao('index'); //Obter MocaBonita\tools\Acoes('index') da página
+    
+    $acaoIndex
+        ->setPagina(MocaBonita\tools\Paginas('Moça Bonita')) //Página atual da ação
+        ->setNome('index')                                   //Nome da ação que é enviado pela rota (wp-admin/admin.php?page=moca_bonita&action=index)
+        ->isLogin(true)                                      //Definir se a Ação precisa acessar com usuário conectado ao wordpress
+        ->setAjax(false)                                     //Definir se a Ação precisa acessar pelo admin-ajax.php 
+        ->setRequisicao(null)                                //Definir um método de requisição exclusivo para a ação, ex: POST, DELETE, PUT, GET
+        ->setMetodo('index')                                 //Nome do método do Controller da página sem o complemento Action
+        ->setShortcode(false)                                //Definir se a Ação é um shortcode do wordpress
+        ->setComplemento('Action')                           //Complemento do método, por padrão esta "Action" para diferenciar os métodos que são ações nas controllers 
+        ->setCapacidade(null);                               //Caso o islogin seja true, a capacidade do usuário logado é precisa atender a capacidade definida, caso a capacidade seja null, a capacidade da página é comparada.
+```
+

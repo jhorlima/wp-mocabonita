@@ -31,11 +31,11 @@ class Acoes
     private $nome;
 
     /**
-     * Verificar se a página é admin
+     * Verificar se a página precisa de login
      *
      * @var bool
      */
-    private $admin;
+    private $login;
 
     /**
      * Verificar se a página é ajax
@@ -122,18 +122,18 @@ class Acoes
     /**
      * @return boolean
      */
-    public function isAdmin()
+    public function isLogin()
     {
-        return $this->admin;
+        return $this->login;
     }
 
     /**
-     * @param boolean $admin
+     * @param boolean $login
      * @return Acoes
      */
-    public function setAdmin($admin)
+    public function setLogin($login)
     {
-        $this->admin = $admin;
+        $this->login = $login;
         return $this;
     }
 
@@ -254,15 +254,15 @@ class Acoes
      *
      * @param Paginas $pagina
      * @param string $nome
-     * @param bool $admin
+     * @param bool $login
      * @param bool $ajax
      * @param string $requisicao
      */
-    public function __construct(Paginas $pagina, $nome, $admin = true, $ajax = false, $requisicao = null)
+    public function __construct(Paginas $pagina, $nome, $login = true, $ajax = false, $requisicao = null)
     {
         $this->setPagina($pagina)
             ->setNome($nome)
-            ->setAdmin($admin)
+            ->setLogin($login)
             ->setAjax($ajax)
             ->setRequisicao($requisicao)
             ->setMetodo($nome)

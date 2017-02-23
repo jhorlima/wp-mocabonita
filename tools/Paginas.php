@@ -136,10 +136,9 @@ class Paginas
      *
      * @param Paginas $paginaParente
      * @param bool $menuPrincipal
-     * @param bool $subMenu
      * @param int $posicao
      */
-    public function __construct(Paginas $paginaParente = null, $menuPrincipal = true, $subMenu = false, $posicao = 100)
+    public function __construct(Paginas $paginaParente = null, $menuPrincipal = true, $posicao = 100)
     {
         $this->setNome("Moça Bonita")
             ->setCapacidade("manage_options")
@@ -149,7 +148,7 @@ class Paginas
             ->setAssets(new Assets())
             ->setPaginaParente($paginaParente)
             ->setMenuPrincipal($menuPrincipal)
-            ->setSubmenu($subMenu)
+            ->setSubmenu(!$menuPrincipal)
             ->setPosicao($posicao)
             ->adicionarAcao('index');
     }
