@@ -428,7 +428,9 @@ final class MocaBonita extends Requisicoes
         }
 
         if($this->paginaPlugin && is_null($this->action)){
-            $url = admin_url($GLOBALS['pagenow']) . "?" . http_build_query(['page' => $this->page,'action' => 'index']);
+            $this->httpGet['page']   = $this->page;
+            $this->httpGet['action'] = 'index';
+            $url = admin_url($GLOBALS['pagenow']) . "?" . http_build_query($this->httpGet);
             header("Location: {$url}");
             exit();
         }
