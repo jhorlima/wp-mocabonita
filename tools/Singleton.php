@@ -19,7 +19,7 @@ namespace MocaBonita\tools;
  *
  * @category PHP
  *
- * @package Documentacao\DesignPatterns\Singleton
+ * @package MocaBonita\tools
  * @version 1.0.0
  * @copyright Copyright (c) 2017 NTI UEMA
  * @date 31/01/2017
