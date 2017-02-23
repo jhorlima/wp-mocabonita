@@ -15,11 +15,15 @@ Vantagens:
 - Fácil curva de aprendizado
 - Outros..
 
-[1º Criando o plugin](#criar-plugin)
+[Documentação PHP](https://jhorlima.github.io/wp-mocabonita/)
 
-[2º Importar o MocaBonita](#importar-mocabonita)
+[1º Criando o plugin](#1º-criando-o-plugin)
 
-[3º Configurar o plugin](#configurar-mocabonita)
+[2º Importar o MocaBonita](#2º-importar-o-mocabonita)
+
+[3º Configurar o plugin](#3º-configurar-o-plugin)
+
+[4º Configuração das Páginas](#4º-configuração-das-páginas)
 
 
 ####1º Criando o plugin ####
