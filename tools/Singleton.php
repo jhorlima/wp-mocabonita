@@ -6,7 +6,7 @@
  *
  */
 
-namespace Documentacao\DesignPatterns;
+namespace MocaBonita\tools;
 
 /**
  * Classe Singleton - Implementar o design pattern Singleton
