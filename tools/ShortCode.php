@@ -116,8 +116,8 @@ class ShortCode
         add_shortcode($this->getNome(), function ($atributos, $conteudo, $tags) use ($shortCode, $dadosPlugin) {
 
             //Adicionar assets do plugin
-            $dadosPlugin['assets']->adicionarCssWordpress('plugin');
-            $dadosPlugin['assets']->adicionarJsWordpress('plugin');
+            $dadosPlugin['assets']->processarCssWordpress('plugin');
+            $dadosPlugin['assets']->processarJsWordpress('plugin');
 
             //Adicionar assets do shortcode
             $shortCode->getAssets()->processarCssWordpress($shortCode->getNome());
