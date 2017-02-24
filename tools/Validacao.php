@@ -164,8 +164,8 @@ class Validacao
      * @return null
      */
     private static function carregarRegras()
-    {
-        if(!empty(self::$regras))
+    {        
+        if(isset(self::$regras['required']))
             return null;
 
         /**
