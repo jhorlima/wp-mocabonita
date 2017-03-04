@@ -315,14 +315,14 @@ final class MocaBonita extends Requisicoes
             ob_start();
 
             try{
-
-                $respostaController = $acao->getPagina()->getController()->{$acao->getMetodo()}();
-
-                $conteudoController = ob_get_contents();
-
+                $respostaController = $acao->getPagina()
+                    ->getController()
+                    ->{$acao->getMetodo()}();
             //Caso a controller lance alguma exception, ela será lançada abaixo!
             } catch (\Exception $e){
                 $respostaController = $e;
+            } finally {
+                $conteudoController = ob_get_contents();                
             }
 
             ob_end_clean();

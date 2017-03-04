@@ -168,10 +168,10 @@ class ShortCode
                         ->getController()
                         ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
 
-                    $conteudoController = ob_get_contents();
-
                 } catch (\Exception $e){
                     $respostaController = $e->getMessage();
+                } finally {
+                    $conteudoController = ob_get_contents();                
                 }
 
                 ob_end_clean();
