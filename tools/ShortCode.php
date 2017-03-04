@@ -162,33 +162,38 @@ class ShortCode
                 //Começar a processar a controller
                 ob_start();
 
-                $res = $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
+                try{
+                    $respostaController = $shortCode->getAcao()
+                        ->getPagina()
+                        ->getController()
+                        ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
 
-                $_content = ob_get_contents();
+                    $conteudoController = ob_get_contents();
+
+                } catch (\Exception $e){
+                    $respostaController = $e->getMessage();
+                }
 
                 ob_end_clean();
 
                 //Verificar se a controller imprimiu alguma coisa e exibir no errolog
-                if ($_content != "")
-                    error_log($_content);
+                if ($conteudoController != "")
+                    error_log($conteudoController);
 
                 //Verificar se a resposta é nula e então ele pega a view da controller
-                if(is_null($res))
-                    $res = $shortCode->getAcao()
+                if(is_null($respostaController))
+                    $respostaController = $shortCode->getAcao()
                         ->getPagina()
                         ->getController()
                         ->getView();
 
                 //Verificar se o retorno é uma view e redenriza
-                if ($res instanceof View)
-                    $res->render();
+                if ($respostaController instanceof View)
+                    $respostaController->render();
 
                 //Verificar se a resposta é uma string e imprime
-                elseif (is_string($res))
-                    echo $res;
+                elseif (is_string($respostaController))
+                    echo $respostaController;
 
                 //Mensagem quando o shortcode não atender os requisitos
                 else
