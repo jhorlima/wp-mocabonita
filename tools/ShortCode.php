@@ -177,32 +177,38 @@ class ShortCode
                 ob_end_clean();
 
                 //Verificar se a controller imprimiu alguma coisa e exibir no errolog
-                if ($conteudoController != "")
+                if ($conteudoController != ""){
                     error_log($conteudoController);
+                }
 
                 //Verificar se a resposta é nula e então ele pega a view da controller
-                if(is_null($respostaController))
+                if(is_null($respostaController)){
                     $respostaController = $shortCode->getAcao()
                         ->getPagina()
                         ->getController()
                         ->getView();
+                }
 
                 //Verificar se o retorno é uma view e redenriza
-                if ($respostaController instanceof View)
+                if ($respostaController instanceof View){
                     $respostaController->render();
+                }
 
                 //Verificar se a resposta é uma string e imprime
-                elseif (is_string($respostaController))
+                elseif (is_string($respostaController)){
                     echo $respostaController;
+                }
 
                 //Mensagem quando o shortcode não atender os requisitos
-                else
+                else {
                     echo "Nenhum conteudo foi retornado!";
+                }
 
             } else {
                 echo "O shortcode {$shortCode->getNome()} não foi definido!", "<br>";
-                if ($dadosPlugin['em_desenvolvimento'])
+                if ($dadosPlugin['em_desenvolvimento']){
                     echo "Shortcode: {$shortCode->getNome()}; Método: {$shortCode->getAcao()->getMetodo()}.";
+                }
             }
 
         });

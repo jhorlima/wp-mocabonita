@@ -314,9 +314,16 @@ final class MocaBonita extends Requisicoes
             //Começar a processar a controller
             ob_start();
 
-            $respostaController = $acao->getPagina()->getController()->{$acao->getMetodo()}();
+            try{
 
-            $conteudoController = ob_get_contents();
+                $respostaController = $acao->getPagina()->getController()->{$acao->getMetodo()}();
+
+                $conteudoController = ob_get_contents();
+
+            //Caso a controller lance alguma exception, ela será lançada abaixo!
+            } catch (\Exception $e){
+                $respostaController = $e;
+            }
 
             ob_end_clean();
 
@@ -325,8 +332,13 @@ final class MocaBonita extends Requisicoes
                 error_log($conteudoController);
             }
 
+            //Verificar se a resposta é uma Exception e então trata-la
+            if($respostaController instanceof \Exception){
+                throw $respostaController;                    
+            }
+
             //Verificar se a resposta é nula e a requisicao não é ajax e então ele pega a view da controller
-            if (is_null($respostaController) && !$this->isAjax()) {
+            elseif (is_null($respostaController) && !$this->isAjax()) {
                 $respostaController = $acao->getPagina()->getController()->getView();
             }
 
