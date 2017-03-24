@@ -3,6 +3,8 @@
 namespace MocaBonita\service;
 
 use MocaBonita\tools\MBException;
+use MocaBonita\tools\Requisicoes;
+use MocaBonita\tools\Respostas;
 
 /**
  * Classe de gerenciamento de services do moçabonita.
@@ -20,73 +22,55 @@ abstract class Service
 {
 
     /**
-     * Contém o método de request utilizando para acessar a página. Geralmente 'GET', 'POST', 'PUT' ou 'DELETE'.
+     * Váriavel que armazenda o request
      *
-     * @var string
+     * @var Requisicoes
      */
-    protected $metodoRequisicao;
+    protected $request;
 
     /**
-     * Um array associativo de variáveis passados para o script atual via método HTTP POST, PUT ou DELETE
-     * quando utilizado application/x-www-form-urlencoded ou multipart/form-data como valor do cabeçalho
-     * HTTP Content-Type na requisição ou RAW Data enviando um JSON
+     * Váriavel que armazenda a resposta
      *
-     * @var string[]
+     * @var Respostas
      */
-    protected $conteudo;
+    protected $response;
 
     /**
-     * Um array associativo de variáveis passadas para o script atual via o método HTTP GET
-     *
-     * @var string[]
+     * @return Requisicoes
      */
-    protected $httpGet = [];
-
-    /**
-     * Contém a página atual do wordpress obtida atráves do método httpGet['page']
-     *
-     * @var string
-     */
-    protected $page;
-
-    /**
-     * Contém a ação atual da página do wordpress obtida atráves do método httpGet['action']
-     *
-     * @var string
-     */
-    protected $action;
-
-    /**
-     * Contém a informação se está em uma página administrativa do Wordpress
-     *
-     * @var boolean
-     */
-    protected $admin;
-
-    /**
-     * Contém a informação se está em uma página ajax do Wordpress
-     *
-     * @var boolean
-     */
-    protected $ajax;
-
-    /**
-     * Construtor do Service.
-     */
-    public final function __construct()
+    public function getRequest()
     {
-        $this->metodoRequisicao = 'GET';
-        $this->conteudo = [];
-        $this->httpGet = [];
-        $this->page = 'no_page';
-        $this->action = 'no_action';
-        $this->admin = false;
-        $this->ajax = false;
+        return $this->request;
+    }
 
-        //Verificar se existe algum método inicializar no service para executa-lo
-        if (method_exists($this, 'inicializar')) {
-            $this->inicializar();
-        }
+    /**
+     * @param Requisicoes $request
+     *
+     * @return Service
+     */
+    public function setRequest(Requisicoes $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return Respostas
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param Respostas $response
+     *
+     * @return Service
+     */
+    public function setResponse(Respostas $response)
+    {
+        $this->response = $response;
+        return $this;
     }
 
     /**
@@ -94,37 +78,24 @@ abstract class Service
      */
     public final function getMetodoRequisicao()
     {
-        return $this->metodoRequisicao;
+        return $this->request->method();
     }
 
     /**
-     * @param string $metodoRequisicao
-     */
-    public final function setMetodoRequisicao($metodoRequisicao)
-    {
-        $this->metodoRequisicao = $metodoRequisicao;
-    }
-
-    /**
+     * Receber conteudo enviado no corpo da requisição
+     *
      * @param string|null $key
      * @return array|string|null
      */
     public final function getConteudo($key = null)
     {
-        if (is_null($key))
-            return $this->conteudo;
-        elseif (isset($this->conteudo[$key]))
-            return $this->conteudo[$key];
-        else
+        if (is_null($key)) {
+            return $this->request->input();
+        } elseif ($this->request->has($key)) {
+            return $this->request->input($key);
+        } else {
             return null;
-    }
-
-    /**
-     * @param array $conteudo
-     */
-    public final function setConteudo(array $conteudo)
-    {
-        $this->conteudo = $conteudo;
+        }
     }
 
     /**
@@ -133,20 +104,13 @@ abstract class Service
      */
     public final function getHttpGet($key = null)
     {
-        if (is_null($key))
-            return $this->httpGet;
-        elseif (isset($this->httpGet[$key]))
-            return $this->httpGet[$key];
-        else
+        if (is_null($key)) {
+            return $this->request->query();
+        } elseif (!is_null($this->request->query($key))) {
+            return $this->request->query($key);
+        } else {
             return null;
-    }
-
-    /**
-     * @param array $httpGet
-     */
-    public final function setHttpGet(array $httpGet)
-    {
-        $this->httpGet = $httpGet;
+        }
     }
 
     /**
@@ -154,15 +118,7 @@ abstract class Service
      */
     public final function getPage()
     {
-        return $this->page;
-    }
-
-    /**
-     * @param string $page
-     */
-    public final function setPage($page)
-    {
-        $this->page = $page;
+        return $this->request->query('page');
     }
 
     /**
@@ -170,15 +126,7 @@ abstract class Service
      */
     public final function getAction()
     {
-        return $this->action;
-    }
-
-    /**
-     * @param string $action
-     */
-    public final function setAction($action)
-    {
-        $this->action = $action;
+        return $this->request->query('action');
     }
 
     /**
@@ -186,15 +134,7 @@ abstract class Service
      */
     public final function isAdmin()
     {
-        return $this->admin;
-    }
-
-    /**
-     * @param bool $isAdmin
-     */
-    public final function setAdmin($isAdmin)
-    {
-        $this->admin = $isAdmin;
+        return $this->request->isAdmin();
     }
 
     /**
@@ -202,73 +142,43 @@ abstract class Service
      */
     public final function isAjax()
     {
-        return $this->ajax;
+        return $this->request->isAjax();
     }
 
     /**
-     * @param bool $isAjax
+     * @return bool
      */
-    public final function setAjax($isAjax)
+    public final function isShortcode()
     {
-        $this->ajax = $isAjax;
+        return $this->request->isShortcode();
     }
 
     /**
-     * Metodo para carregamento pelo MocaBonita]
+     * Redirecionar uma página
      *
-     * @param array $data
-     */
-    public final function mocabonita(array $data)
-    {
-        foreach ($data as $method => $value)
-            $this->{$method} = $value;
-    }
-
-    /**
      * @param string $url
-     * @param array $params
      */
     protected final function redirect($url, array $params = [])
     {
         if (is_string($url)) {
             $url .= !empty($params) ? "?" . http_build_query($params) : "";
-            header("Location: {$url}");
-            exit();
+            $this->response->redirect($url);
         }
     }
 
     /**
-     * Array de configuração de Services
+     * Construtor de Controller
      *
-     * @param string $servico
-     * @param array $metodos
-     * @return array
-     */
-    public final static function configuracoesServicos($servico, array $metodos)
-    {
-        return [
-            'class' => $servico,
-            'service' => null,
-            'metodos' => $metodos,
-        ];
-    }
-
-    /**
-     * Construtor de Services atraves da configuracao
-     *
-     * @param array $configuracoes
      * @throws MBException
      * @return Service
      */
-    public final static function factory(array $configuracoes)
+    public static function create($class)
     {
-        if (!isset($configuracoes['class']))
-            throw new MBException('As configurações do Service são inválidas!');
+        $servico = new $class();
 
-        $servico = new $configuracoes['class']();
-
-        if (!$servico instanceof Service)
-            throw new MBException("O Serviço {$configuracoes['class']} não extendeu o Service do MocaBonita!");
+        if (!$servico instanceof Service){
+            throw new MBException("O Serviço {$class} não extendeu o Service do MocaBonita!");
+        }
 
         return $servico;
     }
@@ -291,5 +201,47 @@ abstract class Service
      */
     private function __wakeup()
     {
+    }
+
+    /**
+     * Array de configuração de Services
+     *
+     * @param string $servico
+     * @param array $metodos
+     * @return array
+     */
+    public final static function configuracoesServicos($servico, array $metodos)
+    {
+        return [
+            'class' => $servico,
+            'service' => null,
+            'metodos' => $metodos,
+        ];
+    }
+
+    /**
+     * Processar serviços da página
+     *
+     * @param array $servicos
+     * @param Requisicoes $request
+     * @param Respostas $response
+     *
+     * @throws MBException
+     */
+    public static function processarServicos(array $servicos, Requisicoes $request, Respostas $response)
+    {
+        foreach ($servicos as $configuracao) {
+            $servico = Service::create($configuracao['class']);
+
+            foreach ($configuracao['metodos'] as $metodos) {
+                $nomeMetodo = "{$metodos}Dispatcher";
+
+                if (method_exists($servico, $nomeMetodo)) {
+                    $servico->setRequest($request);
+                    $servico->setResponse($response);
+                    $servico->{$nomeMetodo}($request, $response);
+                }
+            }
+        }
     }
 }

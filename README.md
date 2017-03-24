@@ -126,40 +126,83 @@ MocaBonita::loader(function (MocaBonita $mocabonita){
 Com isso, você já vera o resultado ao acessar o painel adminstrativo do wordpress `wp-admin/admin.php` 
 e clicar no menu `Moça Bonita`.
 
-Por padrão, a página já vem com essas definições:
+Por padrão, a página já vem com essas definições mas podem ser editáveis:
 
 ```php
-    $exemploPagina
-        ->setNome("Moça Bonita")            //Nome da Página
-        ->setCapacidade("manage_options")   //Capacity do WP quando acessar pelo painel administrativo (https://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table)
-        ->setSlug("moca_bonita")            //Slug da Página (wp-admin/admin.php?page=moca_bonita)
-        ->setIcone("dashicons-editor-code") //Icone do Menu (https://developer.wordpress.org/resource/dashicons/)
-        ->setEsconderMenu(false)            //Esconder menu no WordPress
-        ->setAssets(new Assets())           //Assets que aparecerão quando acessar a página de alguma forma (CSS e JS)
-        ->setPaginaParente(null)            //Página pai, caso esta seja uma subpágina
-        ->setMenuPrincipal(true)            //Definir página como menu principal no wordpress 
-        ->setSubmenu(false)                 //Definir página como submenu no wordpress, necessário uma página parente
-        ->setPosicao(100)                   //Posição da página no menu do wordpress
-        ->adicionarAcao('index');           //Adicionar a indexAction para a página
-        
-    $acaoIndex = $exemploPagina->getAcao('index');
+$exemploPagina
+    ->setNome("Moça Bonita")            //Nome da Página
+    ->setCapacidade("manage_options")   //Capacity do WP quando acessar pelo painel administrativo (https://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table)
+    ->setSlug("moca_bonita")            //Slug da Página (wp-admin/admin.php?page=moca_bonita)
+    ->setIcone("dashicons-editor-code") //Icone do Menu (https://developer.wordpress.org/resource/dashicons/)
+    ->setEsconderMenu(false)            //Esconder menu no WordPress
+    ->setAssets(new Assets())           //Assets que aparecerão quando acessar a página de alguma forma (CSS e JS)
+    ->setPaginaParente(null)            //Página pai, caso esta seja uma subpágina
+    ->setMenuPrincipal(true)            //Definir página como menu principal no wordpress 
+    ->setSubmenu(false)                 //Definir página como submenu no wordpress, necessário uma página parente
+    ->setPosicao(100)                   //Posição da página no menu do wordpress
+    ->adicionarAcao('index');           //Adicionar a indexAction para a página
 ```
 
-Por padrão, a Ação index já vem com essas definições:
+Por padrão, a Ação index já vem com essas definições mas podem ser editáveis:
 
 ```php
-     
-    $acaoIndex = $exemploPagina->getAcao('index'); //Obter MocaBonita\tools\Acoes('index') da página
+$acaoIndex = $exemploPagina->getAcao('index'); //Obter MocaBonita\tools\Acoes('index') da página
+
+$acaoIndex
+    ->setNome('index')         //Nome da ação que é enviado pela rota (wp-admin/admin.php?page=moca_bonita&action=index)
+    ->isLogin(true)            //Definir se a Ação precisa acessar com usuário conectado ao wordpress
+    ->setAjax(false)           //Definir se a Ação precisa acessar pelo admin-ajax.php 
+    ->setRequisicao(null)      //Definir um método de requisição exclusivo para a ação, ex: POST, DELETE, PUT, GET. Caso for null, aceitará todos
+    ->setMetodo('index')       //Nome do método do Controller da página sem o complemento Action
+    ->setShortcode(false)      //Definir se a Ação é um shortcode do wordpress
+    ->setComplemento('Action') //Complemento do método, por padrão esta "Action" para diferenciar os métodos que são ações nas controllers 
+    ->setCapacidade(null);     //Caso o islogin seja true, a capacidade do usuário logado é precisa atender a capacidade definida, caso a capacidade seja null, a capacidade da página é comparada.
+```
+
+A página pode ter diversas ações, cada ação com seu próprio link exclusivo, além de definir método de requisição, 
+capacidade exclusiva e validação de login se necessário.
+
+Para que a página funcione corretamente, é necessário ter um Controller, então crie uma Classe para Controller na pasta controller e 
+extenda a Controller do MocaBonita. Veja abaixo:
+
+
+```php
+<?php
+
+namespace ExemploPlugin\controller;
+
+use MocaBonita\controller\Controller;
+
+class Exemplo extends Controller {
     
-    $acaoIndex
-        ->setPagina(MocaBonita\tools\Paginas('Moça Bonita')) //Página atual da ação
-        ->setNome('index')                                   //Nome da ação que é enviado pela rota (wp-admin/admin.php?page=moca_bonita&action=index)
-        ->isLogin(true)                                      //Definir se a Ação precisa acessar com usuário conectado ao wordpress
-        ->setAjax(false)                                     //Definir se a Ação precisa acessar pelo admin-ajax.php 
-        ->setRequisicao(null)                                //Definir um método de requisição exclusivo para a ação, ex: POST, DELETE, PUT, GET
-        ->setMetodo('index')                                 //Nome do método do Controller da página sem o complemento Action
-        ->setShortcode(false)                                //Definir se a Ação é um shortcode do wordpress
-        ->setComplemento('Action')                           //Complemento do método, por padrão esta "Action" para diferenciar os métodos que são ações nas controllers 
-        ->setCapacidade(null);                               //Caso o islogin seja true, a capacidade do usuário logado é precisa atender a capacidade definida, caso a capacidade seja null, a capacidade da página é comparada.
+    /**
+     * Ação da controller
+     *
+     * Se a requisição for para admin.php ou admin-post.php 
+     * Se o retorno for null, ele irá chamar a view desta controller e redenrizar
+     * Se o retorno for string, ele irá imprimir a string na tela
+     * Se o retorno for View, ele irá redenrizar a view desta controller
+     * Se o retorno for qualquer outro tipo, ele irá fazer um var_dump do retorno
+     * Se existir uma exception, retonará a mensagem de erro do exception 
+     * 
+     * Se a requisição for para admin-ajax.php 
+     * Se o retorno for string, ele retornará um JSON com chave "content" contendo a string
+     * Se o retorno for Array, ele retornará um JSON desse array
+     * Se o retorno for qualquer outro tipo, ele retornará uma requisição de erro, informando "Nenhum dado foi retornado!"
+     * Se existir uma exception, ele retornará uma requisição de erro, informando o erro do exception 
+     * 
+     * @return null|string|View|array[]|void
+     */
+    public function indexAction()
+    {
+        return $this->view;
+    }
+
+}
 ```
+
+Por padrão, a Controller já vem com alguns métodos definidos para obter o slug da página atual, o nome da ação, o 
+tipo de requisição, se a requisição é ajax, se for shortcode, a query http get e os dados enviados pela requisição 
+como `$_POST` ou `JSON`. O nome da ação definida na página é o mesmo nome do método, contudo pode ser alterado pelo método 
+`setMetodo($metodo)`, além do complemento Action que pode ser substituido por `setComplemento()`.
 

@@ -2,6 +2,7 @@
 namespace MocaBonita\tools;
 
 use \Exception;
+use \Closure;
 
 /**
  * Classe de Validação do Moça Bonita.

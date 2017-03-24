@@ -1,6 +1,7 @@
 <?php
 namespace MocaBonita\tools;
 
+use MocaBonita\service\Service;
 use MocaBonita\view\View;
 
 
@@ -107,30 +108,43 @@ class ShortCode
             ->setAssets($assets);
     }
 
-    public function processarShorcode(array $dadosPlugin)
+    public function processarShorcode(Assets $assets, Requisicoes $request, Respostas $response)
     {
         //Adicionar a instancia da class para uma váriavel
         $shortCode = $this;
 
         //Inicializar Shorcode
-        add_shortcode($this->getNome(), function ($atributos, $conteudo, $tags) use ($shortCode, $dadosPlugin) {
+        add_shortcode($this->getNome(), function ($atributos, $conteudo, $tags) use ($shortCode, $assets, $request, $response) {
+
+            $request->setShortcode(true);
 
             //Adicionar assets do plugin
-            $dadosPlugin['assets']->processarCssWordpress('plugin');
-            $dadosPlugin['assets']->processarJsWordpress('plugin');
+            $assets->processarCssWordpress('plugin', $request);
+            $assets->processarJsWordpress('plugin', $request);
 
             //Adicionar assets do shortcode
-            $shortCode->getAssets()->processarCssWordpress($shortCode->getNome());
-            $shortCode->getAssets()->processarJsWordpress($shortCode->getNome());
+            $shortCode->getAssets()->processarCssWordpress($shortCode->getNome(), $request);
+            $shortCode->getAssets()->processarJsWordpress($shortCode->getNome(), $request);
+
+            Service::processarServicos($shortCode->getAcao()->getPagina()->getServicos(), $request, $response);
 
             //Verificar se é uma ação valida
             if ($shortCode->getAcao()->metodoValido()) {
+
+                //Atribuir request e response pra view
+                $shortCode->getAcao()
+                    ->getPagina()
+                    ->getController()
+                    ->getView()
+                    ->setRequest($request)
+                    ->setResponse($response);
 
                 //Carregar dados da controller
                 $shortCode->getAcao()
                     ->getPagina()
                     ->getController()
-                    ->mocabonita($dadosPlugin['dados_requisicao']);
+                    ->setRequest($request)
+                    ->setResponse($response);
 
                 //Definir controller como shortcode
                 $shortCode->getAcao()
@@ -162,45 +176,41 @@ class ShortCode
                 //Começar a processar a controller
                 ob_start();
 
-                $res = $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
-
-                $_content = ob_get_contents();
+                try{
+                    $respostaController = $shortCode->getAcao()
+                        ->getPagina()
+                        ->getController()
+                        ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
+                } catch (\Exception $e){
+                    $respostaController = $e->getMessage();
+                } finally {
+                    $conteudoController = ob_get_contents();
+                }
 
                 ob_end_clean();
 
                 //Verificar se a controller imprimiu alguma coisa e exibir no errolog
-                if ($_content != "")
-                    error_log($_content);
+                if ($conteudoController != ""){
+                    error_log($conteudoController);
+                }
 
                 //Verificar se a resposta é nula e então ele pega a view da controller
-                if(is_null($res))
-                    $res = $shortCode->getAcao()
+                if(is_null($respostaController)){
+                    $respostaController = $shortCode->getAcao()
                         ->getPagina()
                         ->getController()
                         ->getView();
-
-                //Verificar se o retorno é uma view e redenriza
-                if ($res instanceof View)
-                    $res->render();
-
-                //Verificar se a resposta é uma string e imprime
-                elseif (is_string($res))
-                    echo $res;
-
-                //Mensagem quando o shortcode não atender os requisitos
-                else
-                    echo "Nenhum conteudo foi retornado!";
+                }
+                //Processar a página
+                $response->processarResposta($respostaController, $request);
 
             } else {
-                echo "O shortcode {$shortCode->getNome()} não foi definido!", "<br>";
-                if ($dadosPlugin['em_desenvolvimento'])
-                    echo "Shortcode: {$shortCode->getNome()}; Método: {$shortCode->getAcao()->getMetodo()}.";
+                //Processar a página
+                $response->processarResposta(
+                    "O shortcode {$shortCode->getNome()} não foi definido! Método: {$shortCode->getAcao()->getMetodo()}.",
+                    $request
+                );
             }
-
         });
     }
-
 }

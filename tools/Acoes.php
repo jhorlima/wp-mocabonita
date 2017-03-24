@@ -131,7 +131,7 @@ class Acoes
      * @param boolean $login
      * @return Acoes
      */
-    public function setLogin($login)
+    public function setLogin($login = true)
     {
         $this->login = $login;
         return $this;
@@ -149,7 +149,7 @@ class Acoes
      * @param boolean $ajax
      * @return Acoes
      */
-    public function setAjax($ajax)
+    public function setAjax($ajax = true)
     {
         $this->ajax = $ajax;
         return $this;
@@ -169,7 +169,7 @@ class Acoes
      * @param string|null $requisicao
      * @return Acoes
      */
-    public function setRequisicao($requisicao)
+    public function setRequisicao($requisicao = "GET")
     {
         $this->requisicao = $requisicao;
         return $this;
@@ -225,7 +225,7 @@ class Acoes
      * @param boolean $shortcode
      * @return Acoes
      */
-    public function setShortcode($shortcode)
+    public function setShortcode($shortcode = true)
     {
         $this->shortcode = $shortcode;
         return $this;
@@ -243,7 +243,7 @@ class Acoes
      * @param string $capacidade
      * @return Acoes
      */
-    public function setCapacidade($capacidade)
+    public function setCapacidade($capacidade = "read")
     {
         $this->capacidade = $capacidade;
         return $this;

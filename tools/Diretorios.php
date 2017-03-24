@@ -73,4 +73,70 @@ class Diretorios {
 	 * @var string
 	 */
 	const PLUGIN_BOWER_DIR = mb_plg_bower;
+
+    /**
+     * Diretório do plugin
+     *
+     * @param $diretorio
+     * @return string
+     */
+    public static function pDir($diretorio)
+    {
+        return self::PLUGIN_DIRETORIO . $diretorio;
+	}
+
+    /**
+     * Diretório view do plugin
+     *
+     * @param $diretorio
+     * @return string
+     */
+    public static function pViewDir($diretorio)
+    {
+        return self::PLUGIN_VIEW_DIR . $diretorio;
+    }
+
+    /**
+     * Diretório js do plugin
+     *
+     * @param $diretorio
+     * @return string
+     */
+    public static function pJsDir($diretorio)
+    {
+        return self::PLUGIN_JS_DIR . $diretorio;
+    }
+
+    /**
+     * Diretório css do plugin
+     *
+     * @param $diretorio
+     * @return string
+     */
+    public static function pCssDir($diretorio)
+    {
+        return self::PLUGIN_CSS_DIR . $diretorio;
+    }
+
+    /**
+     * Diretório imagens do plugin
+     *
+     * @param $diretorio
+     * @return string
+     */
+    public static function pImgDir($diretorio)
+    {
+        return self::PLUGIN_IMAGENS_DIR . $diretorio;
+    }
+
+    /**
+     * Diretório bower_components do plugin
+     *
+     * @param $diretorio
+     * @return string
+     */
+    public static function pBwDir($diretorio)
+    {
+        return self::PLUGIN_BOWER_DIR . $diretorio;
+    }
 }

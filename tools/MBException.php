@@ -2,7 +2,7 @@
 
 namespace MocaBonita\tools;
 
-use MocaBonita\controller\Requisicoes;
+use Katzgrau\KLogger\Logger;
 
 /**
  * Classe de Exceção do Moça Bonita.
@@ -17,44 +17,14 @@ use MocaBonita\controller\Requisicoes;
  */
 class MBException extends \Exception
 {
-    /**
-     * objeto Requisições
-     *
-     * @var Requisicoes
-     */
-    private $requisicoes;
-
-    /**
-     * @return Requisicoes
-     */
-    public function getRequisicoes()
-    {
-        return $this->requisicoes;
-    }
-
-    /**
-     * @param Requisicoes $requisicoes
-     * @return MBException
-     */
-    public function setRequisicoes(Requisicoes $requisicoes)
-    {
-        $this->requisicoes = $requisicoes;
-        return $this;
-    }
-
-    /**
-     * Processar a Exceção para retornar ao navegador os dados
-     *
-     * @return void
-     */
-    public function processarExcecao(){
-        if($this->requisicoes->isAjax())
-            ServicosJSON::respostaHTTP(HTTPRespostas::obterHttpResposta(
-                HTTPRespostas::REQUEST_UNAVAIABLE,
-                $this->getMessage()
-            ), $this->requisicoes);
-        else
-            echo "<div class='notice notice-error'><p>{$this->getMessage()}</p></div>";
-        return null;
+    public static function adminNotice(\Exception $e){
+        WPAction::adicionarCallbackAction('admin_notices', function () use ($e){
+            echo "<div class='notice notice-error'><p>{$e->getMessage()}</p></div>";
+        });
+        WPAction::adicionarCallbackAction('shutdown', function () use ($e){
+            echo "<div class='notice notice-error'><p>{$e->getMessage()}</p></div>";
+            $logger = new Logger(Diretorios::PLUGIN_DIRETORIO . '/logs');
+            $logger->error($e->getMessage());
+        });
     }
 }

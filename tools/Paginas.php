@@ -99,7 +99,7 @@ class Paginas
     /**
      * Controller da página
      *
-     * @var Controller
+     * @var Controller|string
      */
     private $controller;
 
@@ -388,17 +388,20 @@ class Paginas
      */
     public function getController()
     {
-        if(is_null($this->controller)){
+        if (is_string($this->controller)) {
+            $this->controller = Controller::create($this->controller);
+        } elseif (is_null($this->controller) || !$this->controller instanceof Controller) {
             throw new MBException("Nenhum Controller foi definido para a página {$this->getNome()}.");
         }
+
         return $this->controller;
     }
 
     /**
-     * @param Controller $controller
+     * @param Controller|string $controller
      * @return Paginas
      */
-    public function setController(Controller $controller)
+    public function setController($controller)
     {
         $this->controller = $controller;
         return $this;

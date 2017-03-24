@@ -2,6 +2,8 @@
 namespace MocaBonita\view;
 
 use MocaBonita\tools\Diretorios;
+use MocaBonita\tools\Requisicoes;
+use MocaBonita\tools\Respostas;
 
 /**
  * Classe de View do MocaBonita
@@ -67,7 +69,21 @@ class View
     protected $caminhoView;
 
     /**
-     * Construtor da Controller.
+     * Váriavel que armazenda o request
+     *
+     * @var Requisicoes
+     */
+    protected $request;
+
+    /**
+     * Váriavel que armazenda a resposta
+     *
+     * @var Respostas
+     */
+    protected $response;
+
+    /**
+     * Construtor da View.
      */
     public function __construct()
     {
@@ -192,6 +208,42 @@ class View
     }
 
     /**
+     * @return Requisicoes
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param Requisicoes $request
+     * @return View
+     */
+    public function setRequest(Requisicoes $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return Respostas
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param Respostas $response
+     * @return View
+     */
+    public function setResponse(Respostas $response)
+    {
+        $this->response = $response;
+        return $this;
+    }
+
+    /**
      * Definir atributos da view em uma unica instância
      *
      * @param string $template Template da página atual, é recomendado que no template seja chamado a função $this->getConteudo()
@@ -239,8 +291,9 @@ class View
 
         //Atribuir variaveis definidas para a view e template
         foreach ($this->variaveis as $attr => $value) {
-            if (is_string($attr))
+            if (is_string($attr)){
                 $$attr = $value;
+            }
         }
 
         //Verificar se a view existe e processa-la
@@ -269,7 +322,7 @@ class View
                          </div>";
 
         //Mostrar o conteudo na tela
-        echo $conteudo;
+        return $conteudo;
     }
 
 }

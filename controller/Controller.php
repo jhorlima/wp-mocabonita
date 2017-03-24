@@ -2,9 +2,10 @@
 
 namespace MocaBonita\controller;
 
+use MocaBonita\tools\Respostas;
+use MocaBonita\tools\Requisicoes;
 use MocaBonita\tools\MBException;
 use MocaBonita\view\View;
-
 
 /**
  * Classe de gerenciamento de controller do moçabonita.
@@ -29,84 +30,18 @@ abstract class Controller
     protected $view;
 
     /**
-     * Contém o método de request utilizando para acessar a página. Geralmente 'GET', 'POST', 'PUT' ou 'DELETE'.
+     * Váriavel que armazenda o request
      *
-     * @var string
+     * @var Requisicoes
      */
-    protected $metodoRequisicao;
+    protected $request;
 
     /**
-     * Um array associativo de variáveis passados para o script atual via método HTTP POST, PUT ou DELETE
-     * quando utilizado application/x-www-form-urlencoded ou multipart/form-data como valor do cabeçalho
-     * HTTP Content-Type na requisição ou RAW Data enviando um JSON
+     * Váriavel que armazenda a resposta
      *
-     * @var string[]
+     * @var Respostas
      */
-    protected $conteudo;
-
-    /**
-     * Um array associativo de variáveis passadas para o script atual via o método HTTP GET
-     *
-     * @var string[]
-     */
-    protected $httpGet = [];
-
-    /**
-     * Contém a página atual do wordpress obtida atráves do método httpGet['page']
-     *
-     * @var string
-     */
-    protected $page;
-
-    /**
-     * Contém a ação atual da página do wordpress obtida atráves do método httpGet['action']
-     *
-     * @var string
-     */
-    protected $action;
-
-    /**
-     * Contém a informação se está em uma página administrativa do Wordpress
-     *
-     * @var boolean
-     */
-    protected $admin;
-
-    /**
-     * Contém a informação se está em uma página ajax do Wordpress
-     *
-     * @var boolean
-     */
-    protected $ajax;
-
-    /**
-     * Contém a informação se está em uma página shortcode do Wordpress
-     *
-     * @var boolean
-     */
-    protected $shortcode;
-
-    /**
-     * Construtor da Controller.
-     */
-    protected final function __construct()
-    {
-        $this->view = new View();
-        $this->view->setTemplate('index');
-        $this->metodoRequisicao = 'GET';
-        $this->conteudo = [];
-        $this->httpGet = [];
-        $this->page = 'no_page';
-        $this->action = 'no_action';
-        $this->admin = false;
-        $this->ajax = false;
-        $this->shortcode = false;
-
-        //Verificar se existe algum método inicializar no service para executa-lo
-        if (method_exists($this, 'inicializar')) {
-            $this->inicializar();
-        }
-    }
+    protected $response;
 
     /**
      * Ação principal da controller
@@ -116,11 +51,52 @@ abstract class Controller
      * Se o retorno for View, ele irá redenrizar a view desta controller
      * Se o retorno for qualquer outro tipo, ele irá fazer um var_dump do retorno
      *
+     * @param Requisicoes $request
+     * @param Respostas $response
+     *
      * @return null|string|View|void
      */
-    public function indexAction()
+    public function indexAction(Requisicoes $request, Respostas $response)
     {
 
+    }
+
+    /**
+     * @return Requisicoes
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param Requisicoes $request
+     *
+     * @return Controller
+     */
+    public function setRequest(Requisicoes $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return Respostas
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param Respostas $response
+     *
+     * @return Controller
+     */
+    public function setResponse(Respostas $response)
+    {
+        $this->response = $response;
+        return $this;
     }
 
     /**
@@ -133,10 +109,13 @@ abstract class Controller
 
     /**
      * @param View $view
+     *
+     * @return Controller
      */
     public final function setView(View $view)
     {
         $this->view = $view;
+        return $this;
     }
 
     /**
@@ -144,15 +123,7 @@ abstract class Controller
      */
     public final function getMetodoRequisicao()
     {
-        return $this->metodoRequisicao;
-    }
-
-    /**
-     * @param string $metodoRequisicao
-     */
-    public final function setMetodoRequisicao($metodoRequisicao)
-    {
-        $this->metodoRequisicao = $metodoRequisicao;
+        return $this->request->method();
     }
 
     /**
@@ -163,20 +134,13 @@ abstract class Controller
      */
     public final function getConteudo($key = null)
     {
-        if (is_null($key))
-            return $this->conteudo;
-        elseif (isset($this->conteudo[$key]))
-            return $this->conteudo[$key];
-        else
+        if (is_null($key)) {
+            return $this->request->input();
+        } elseif ($this->request->has($key)) {
+            return $this->request->input($key);
+        } else {
             return null;
-    }
-
-    /**
-     * @param array $conteudo
-     */
-    public final function setConteudo(array $conteudo)
-    {
-        $this->conteudo = $conteudo;
+        }
     }
 
     /**
@@ -185,20 +149,13 @@ abstract class Controller
      */
     public final function getHttpGet($key = null)
     {
-        if (is_null($key))
-            return $this->httpGet;
-        elseif (isset($this->httpGet[$key]))
-            return $this->httpGet[$key];
-        else
+        if (is_null($key)) {
+            return $this->request->query();
+        } elseif (!is_null($this->request->query($key))) {
+            return $this->request->query($key);
+        } else {
             return null;
-    }
-
-    /**
-     * @param array $httpGet
-     */
-    public final function setHttpGet(array $httpGet)
-    {
-        $this->httpGet = $httpGet;
+        }
     }
 
     /**
@@ -206,15 +163,7 @@ abstract class Controller
      */
     public final function getPage()
     {
-        return $this->page;
-    }
-
-    /**
-     * @param string $page
-     */
-    public final function setPage($page)
-    {
-        $this->page = $page;
+        return $this->request->query('page');
     }
 
     /**
@@ -222,15 +171,7 @@ abstract class Controller
      */
     public final function getAction()
     {
-        return $this->action;
-    }
-
-    /**
-     * @param string $action
-     */
-    public final function setAction($action)
-    {
-        $this->action = $action;
+        return $this->request->query('action');
     }
 
     /**
@@ -238,15 +179,7 @@ abstract class Controller
      */
     public final function isAdmin()
     {
-        return $this->admin;
-    }
-
-    /**
-     * @param bool $isAdmin
-     */
-    public final function setAdmin($isAdmin)
-    {
-        $this->admin = $isAdmin;
+        return $this->request->isAdmin();
     }
 
     /**
@@ -254,15 +187,7 @@ abstract class Controller
      */
     public final function isAjax()
     {
-        return $this->ajax;
-    }
-
-    /**
-     * @param bool $isAjax
-     */
-    public final function setAjax($isAjax)
-    {
-        $this->ajax = $isAjax;
+        return $this->request->isAjax();
     }
 
     /**
@@ -270,59 +195,35 @@ abstract class Controller
      */
     public final function isShortcode()
     {
-        return $this->shortcode;
+        return $this->request->isShortcode();
     }
 
     /**
-     * @param bool $isShortcode
-     */
-    public final function setShortcode($isShortcode)
-    {
-        $this->shortcode = $isShortcode;
-    }
-
-    /**
-     * Metodo para carregamento pelo MocaBonita
+     * Redirecionar uma página
      *
-     * @param array $data
-     */
-    public final function mocabonita(array $data)
-    {
-        foreach ($data as $method => $value)
-            $this->{$method} = $value;
-    }
-
-    /**
      * @param string $url
-     * @param array $params
      */
     protected final function redirect($url, array $params = [])
     {
         if (is_string($url)) {
             $url .= !empty($params) ? "?" . http_build_query($params) : "";
-            header("Location: {$url}");
-            exit();
+            $this->response->redirect($url);
         }
     }
 
     /**
      * Construtor de Controller
      *
-     * @param string|null $controllerNome
      * @throws MBException
      * @return Controller
      */
-    public static function factory($controllerNome = null)
+    public static function create($class)
     {
-        if (is_null($controllerNome)) {
-            $controllerNome = get_called_class();
-            return new $controllerNome();
+        $controller = new $class();
+
+        if (!$controller instanceof Controller) {
+            throw new MBException("O Controller {$class} não extendeu o Controller do MocaBonita!");
         }
-
-        $controller = new $controllerNome();
-
-        if (!$controller instanceof Controller)
-            throw new MBException("O Controller {$controllerNome} definido não extendeu a controller do MocaBonita!");
 
         return $controller;
     }
