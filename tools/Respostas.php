@@ -19,65 +19,85 @@ class Respostas extends Response
 {
 
     /**
+     * Váriavel que armazenda o request
+     *
+     * @var Requisicoes
+     */
+    protected $request;
+
+    /**
+     * @return Requisicoes
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param Requisicoes $request
+     * @return Respostas
+     */
+    public function setRequest(Requisicoes $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
      * Processar resposta para o navegador
      *
      * @param mixed $dados Resposta para enviar ao navegador
-     * @param Requisicoes $request Requisição da página
      *
-     * @return void
+     * @return Respostas
      */
-    public function processarResposta($resposta, Requisicoes $request){
+    public function setContent($content){
 
-        if($request->method() == "GET"){
+        if($this->request->method() == "GET"){
             $this->statusCode = 200;
-        } elseif($request->method() == "POST" || $request->method() == "PUT") {
+        } elseif($this->request->method() == "POST" || $this->request->method() == "PUT") {
             $this->statusCode = 201;
-        } elseif ($resposta instanceof \Exception){
-            $this->statusCode = $resposta->getCode();
+        } elseif ($content instanceof \Exception){
+            $this->statusCode = $content->getCode();
         } else {
             $this->statusCode = 204;
         }
 
         //Verificar se a página atual é ajax
-        if ($request->isAjax()) {
+        if ($this->request->isAjax()) {
 
             //Se os dados for um array, é convertido para JSON na estrutura do Moca Bonita
-            if (is_array($resposta)) {
-                $resposta = $this->respostaJson($resposta);
+            if (is_array($content)) {
+                $content = $this->respostaJson($content);
             } //Se os dados for uma string, é adicionado ao atributo content do Moça Bonita
-            elseif (is_string($resposta)) {
-                $resposta = $this->respostaJson(['content' => $resposta]);
+            elseif (is_string($content)) {
+                $content = $this->respostaJson(['content' => $content]);
             } //Se não for array ou string, então retorna vázio
-            elseif ($resposta instanceof \Exception) {
-                $resposta = $this->respostaJson($resposta);
+            elseif ($content instanceof \Exception) {
+                $content = $this->respostaJson($content);
             } else {
-                $resposta = $this->respostaJson(new \Exception("Nenhum conteúdo foi enviado!"));
+                $content = $this->respostaJson(new \Exception("Nenhum conteúdo foi enviado!"));
             }
             //Caso a requisição não seja ajax
         } else {
             //Caso a resposta seja uma exception
-            if($resposta instanceof \Exception){
-                MBException::adminNotice($resposta);
+            if($content instanceof \Exception){
+                MBException::adminNotice($content);
                 //Caso seja uma view
-            } elseif ($resposta instanceof View){
-                $resposta = $resposta->render();
+            } elseif ($content instanceof View){
+                $content = $content->render();
                 //Caso seja algum valor diferente de string
-            } elseif (!is_string($resposta)){
+            } elseif (!is_string($content)){
                 ob_start();
-                var_dump($resposta);
-                $resposta = ob_get_contents();
+                var_dump($content);
+                $content = ob_get_contents();
                 ob_end_clean();
             }
         }
 
         //Tratar resposta
-        $this->setContent($resposta);
+        parent::setContent($content);
 
-        //Tratar cabeçalho
-        $this->processarHeaders();
-
-        //Imprimir conteudo
-        echo $this->getContent();
+        return $this;
     }
 
     /**
@@ -121,8 +141,11 @@ class Respostas extends Response
     public function processarHeaders(){
         $headers = $this->headers->all();
 
-        foreach ($headers as $key => &$header){
-            header("{$key}: {$header[0]}");
-        }
+        WPAction::adicionarCallbackAction('send_headers', function () use ($headers) {
+            error_log("chamou");
+            foreach ($headers as $key => &$header){
+                header("{$key}: {$header[0]}");
+            }
+        });
     }
 }

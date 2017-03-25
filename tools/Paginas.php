@@ -509,7 +509,7 @@ class Paginas
                 $this->getNome(),
                 $this->getCapacidade(),
                 $this->getSlug(),
-                [$this->getMocaBonita(), 'mocaBonita']
+                [$this->getMocaBonita(), 'getConteudo']
             );
 
         //Adicionar menu principal
@@ -520,7 +520,7 @@ class Paginas
                     $this->getNome(),
                     $this->getCapacidade(),
                     $this->getSlug(),
-                    [$this->getMocaBonita(), 'mocaBonita'],
+                    [$this->getMocaBonita(), 'getConteudo'],
                     $this->getIcone(),
                     $this->getPosicao()
                 );
@@ -534,7 +534,7 @@ class Paginas
                 $this->getNome(),
                 $this->getCapacidade(),
                 $this->getSlug(),
-                [$this->getMocaBonita(), 'mocaBonita']
+                [$this->getMocaBonita(), 'getConteudo']
             );
 
             //Remover submenu semelhante ao menu principal

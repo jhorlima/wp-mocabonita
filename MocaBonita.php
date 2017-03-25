@@ -280,7 +280,9 @@ final class MocaBonita
                 $plugin($mocaBonita);
                 $mocaBonita->launcher();
             } catch (\Exception $e) {
-                $mocaBonita->response->processarResposta($e, $mocaBonita->request);
+                $mocaBonita->response->setContent($e);
+            } finally {
+                $mocaBonita->response->processarHeaders();
             }
         });
     }
@@ -303,7 +305,7 @@ final class MocaBonita
             try {
                 $active($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->processarResposta($e, $mocaBonita->request);
+                $mocaBonita->response->setContent($e);
             }
         });
     }
@@ -325,7 +327,7 @@ final class MocaBonita
             try {
                 $desactive($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->processarResposta($e, $mocaBonita->request);
+                $mocaBonita->response->setContent($e);
             }
         });
     }
@@ -347,7 +349,7 @@ final class MocaBonita
             try {
                 $unistall($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->processarResposta($e, $mocaBonita->request);
+                $mocaBonita->response->setContent($e);
             }
         });
     }
@@ -366,80 +368,92 @@ final class MocaBonita
             WPAction::adicionarAction('admin_menu', $this, 'processarMenu');
 
             //Adicionar os Assets do wordpress
-            $this->getAssetsWordpress()->processarCssWordpress('*');
-            $this->getAssetsWordpress()->processarJsWordpress('*');
+            $this->getAssets(true)->processarCssWordpress('*');
+            $this->getAssets(true)->processarJsWordpress('*');
 
             //Adicionar os serviços do wordpress
-            Service::processarServicos($this->getServicosWordPress(), $this->request, $this->response);
+            Service::processarServicos($this->getServicos(true), $this->request, $this->response);
+
+            //Processar shortcodes
+            foreach ($this->shortcodes as $shortcode) {
+                $shortcode->processarShorcode($this->getAssets(), $this->request, $this->response);
+            }
 
             //Verificar se a página atual é do plugin
             if ($this->isPaginaPlugin()) {
 
                 //Adicionar os Assets do plugin
-                $this->getAssetsPlugin()->processarCssWordpress('plugin');
-                $this->getAssetsPlugin()->processarJsWordpress('plugin');
+                $this->getAssets()->processarCssWordpress('plugin');
+                $this->getAssets()->processarJsWordpress('plugin');
                 //Adicionar os serviços do plugin
-                Service::processarServicos($this->getServicosPlugin(), $this->request, $this->response);
+                Service::processarServicos($this->getServicos(), $this->request, $this->response);
+
+                //Adicionar os Assets da página
+                $this->getPagina($this->page)->getAssets()->processarCssWordpress($this->page);
+                $this->getPagina($this->page)->getAssets()->processarJsWordpress($this->page);
+
+                //Adicionar os serviços da página
+                Service::processarServicos($this->getPagina($this->page)->getServicos(), $this->request, $this->response);
+
+                //Processar a página
+                $this->mocaBonita();
 
                 //Verificar se a página atual é adminstradora
                 if ($this->request->isLogin()) {
                     //Verificar se a página atual é requisitada via ajax
                     if ($this->request->isAjax()) {
                         //Adicionar o action AdminAjax
-                        WPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'mocaBonita');
+                        WPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'getConteudo');
                     } else {
                         //Adicionar o action AdminPost
-                        WPAction::adicionarAction("admin_post_{$this->action}", $this, 'mocaBonita');
+                        WPAction::adicionarAction("admin_post_{$this->action}", $this, 'getConteudo');
                     }
 
                     //Caso a página atual não é adminstradora
                 } else {
                     //Adicionar o action NoAdminAjax
                     if ($this->request->isAjax()) {
-                        WPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'mocaBonita');
+                        WPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'getConteudo');
                     } else {
                         //Adicionar o action NoAdminPost
-                        WPAction::adicionarAction("admin_post_nopriv_{$this->action}", $this, 'mocaBonita');
+                        WPAction::adicionarAction("admin_post_nopriv_{$this->action}", $this, 'getConteudo');
                     }
                 }
-
-                //Adicionar os Assets da página
-                $this->getPagina($this->page)->getAssets()->processarCssWordpress($this->page);
-                $this->getPagina($this->page)->getAssets()->processarJsWordpress($this->page);
-                //Adicionar os serviços da página
-                Service::processarServicos($this->getPagina($this->page)->getServicos(), $this->request, $this->response);
-            }
-
-            foreach ($this->shortcodes as $shortcode) {
-                $shortcode->processarShorcode($this->getAssetsPlugin(), $this->request, $this->response);
             }
 
             //Caso ocorra algum erro durante o processamento do plugin
         } catch (\Exception $e) {
-            $mocaBonita = $this;
-
-            $callback = function () use ($mocaBonita, $e){
-                $mocaBonita->paginaPlugin = false;
-                $mocaBonita->response->processarResposta($e, $this->request);
-            };
-
-            WPAction::adicionarCallbackAction("wp_ajax_{$this->action}", $callback);
-            WPAction::adicionarCallbackAction("wp_ajax_nopriv_{$this->action}", $callback);
+            if ($this->request->isAjax()) {
+                WPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'getConteudo');
+                WPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'getConteudo');
+            }
+            $this->response->setContent($e);
         }
     }
 
     /**
-     * Método executado pelo wordpress automaticamente através das action
+     * Método para exibir conteudo da página
      *
      */
-    public function mocaBonita()
+    public function getConteudo(){
+        try {
+            if(!$this->isPaginaPlugin()){
+                throw new \Exception("Você não pode exibir está página!");
+            }
+        } catch (\Exception $e){
+            $this->response->setContent($e);
+        } finally {
+            echo $this->response->getContent();
+        }
+    }
+
+    /**
+     * Método que processará a controller e validar a página
+     *
+     */
+    private function mocaBonita()
     {
         try {
-
-            //Verificar se a página atual pertence ao plugin
-            if (!$this->isPaginaPlugin()) {
-                return null;
-            }
 
             //Obter as configurações da página atual
             $pagina = $this->getPagina($this->page);
@@ -531,11 +545,11 @@ final class MocaBonita
             }
 
             //Processar a página
-            $this->response->processarResposta($respostaController, $this->request);
+            $this->response->setContent($respostaController);
 
             //Caso ocorra algum erro no moca bonita
         } catch (\Exception $e) {
-            $this->response->processarResposta($e, $this->request);
+            $this->response->setContent($e);
         }
     }
 
@@ -547,6 +561,7 @@ final class MocaBonita
     {
         $this->response = Respostas::create();
         $this->request  = Requisicoes::capture();
+        $this->response->setRequest($this->request);
         $this->page     = $this->request->query('page');
         $this->action   = $this->request->query('action');
 
@@ -743,4 +758,37 @@ final class MocaBonita
             }
         }
     }
+
+    /**
+     * @return Requisicoes
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param Requisicoes $request
+     */
+    public function setRequest(Requisicoes $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * @return Respostas
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param Respostas $response
+     */
+    public function setResponse(Respostas $response)
+    {
+        $this->response = $response;
+    }
+
 }
