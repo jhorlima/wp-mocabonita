@@ -53,6 +53,13 @@ class Requisicoes extends Request
     protected $pageLogin;
 
     /**
+     * Contém a página atual do wordpress
+     *
+     * @var string
+     */
+    protected $pageNow;
+
+    /**
      * @return boolean
      */
     public function isAdmin()
@@ -106,7 +113,7 @@ class Requisicoes extends Request
     public function isPageLogin()
     {
         if(is_null($this->pageLogin)){
-            $this->pageLogin = (bool) in_array($GLOBALS['pagenow'], ['wp-login.php', 'wp-register.php']);
+            $this->pageLogin = (bool) in_array($this->getPageNow(), ['wp-login.php', 'wp-register.php']);
         }
         return $this->pageLogin;
     }
@@ -117,6 +124,27 @@ class Requisicoes extends Request
     public function setPageLogin($pageLogin)
     {
         $this->pageLogin = $pageLogin;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPageNow(): string
+    {
+        if (is_null($this->pageNow)){
+            $this->pageNow = $GLOBALS['pagenow'];
+        }
+        return $this->pageNow;
+    }
+
+    /**
+     * @param string $pageNow
+     * @return Requisicoes
+     */
+    public function setPageNow(string $pageNow): Requisicoes
+    {
+        $this->pageNow = $pageNow;
+        return $this;
     }
 
     /**
