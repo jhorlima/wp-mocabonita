@@ -31,6 +31,13 @@ class Assets
     private $javascript = [];
 
     /**
+     * Enqueue de Javascript
+     *
+     * @var string
+     */
+    private $actionEnqueue;
+
+    /**
      * @return array
      */
     public function getCss()
@@ -56,20 +63,6 @@ class Assets
     public function getJavascript()
     {
         return $this->javascript;
-    }
-
-    public function getAction(){
-        $request = MocaBonita::getInstance()->getRequest();
-
-        if($request->isPageLogin()){
-            $action = "login_enqueue_scripts";
-        } elseif ($request->isAdmin()){
-            $action = "admin_enqueue_scripts";
-        } else {
-            $action = "wp_enqueue_scripts";
-        }
-
-        return $action;
     }
 
     /**
@@ -101,7 +94,7 @@ class Assets
     {
         $style = $this->css;
 
-        WPAction::adicionarCallbackAction($this->getAction(), function () use ($slug, $style){
+        WPAction::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $style){
             foreach ($style as $i => $css) {
                 wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
             }
@@ -118,10 +111,60 @@ class Assets
     {
         $javascript = $this->javascript;
 
-        WPAction::adicionarCallbackAction($this->getAction(), function () use ($slug, $javascript){
+        WPAction::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $javascript){
             foreach ($javascript as $i => $js) {
                 wp_enqueue_script("script_mb_{$slug}_{$i}", $js['caminho'], [], $js['versao'], $js['footer']);
             }
         });
+    }
+
+    /**
+     * Obter a action do enqueue
+     *
+     * @return string
+     */
+    public function getActionEnqueue(){
+        if(is_null($this->actionEnqueue)){
+            $this->autoEnqueue();
+        }
+
+        return $this->actionEnqueue;
+    }
+
+    /**
+     * Gerar action de acordo com a requisição atual
+     *
+     */
+    private function autoEnqueue(){
+        $request = MocaBonita::getInstance()->getRequest();
+
+        if($request->isPageLogin()){
+            $this->actionEnqueue = "login_enqueue_scripts";
+        } elseif ($request->isAdmin()){
+            $this->actionEnqueue = "admin_enqueue_scripts";
+        } else {
+            $this->actionEnqueue = "wp_enqueue_scripts";
+        }
+    }
+
+    /**
+     * Definir em qual action o assets será executado
+     *
+     * @param $actionEnqueue
+     * @return $this
+     */
+    public function setActionEnqueue($actionEnqueue){
+        switch ($actionEnqueue) {
+            case 'admin' :
+                $this->actionEnqueue = "admin_enqueue_scripts";
+                break;
+            case 'login' :
+                $this->actionEnqueue = "login_enqueue_scripts";
+                break;
+            default :
+                $this->actionEnqueue = "wp_enqueue_scripts";
+                break;
+        }
+        return $this;
     }
 }
