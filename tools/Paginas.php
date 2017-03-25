@@ -277,7 +277,7 @@ class Paginas
      * @param boolean $removerSubMenuPagina
      * @return Paginas
      */
-    public function setRemoverSubMenuPagina($removerSubMenuPagina)
+    public function setRemoverSubMenuPagina($removerSubMenuPagina = true)
     {
         $this->removerSubMenuPagina = $removerSubMenuPagina;
         return $this;
@@ -340,7 +340,7 @@ class Paginas
      * @param boolean $menuPrincipal
      * @return Paginas
      */
-    public function setMenuPrincipal($menuPrincipal)
+    public function setMenuPrincipal($menuPrincipal = true)
     {
         $this->menuPrincipal = $menuPrincipal;
         return $this;
@@ -358,7 +358,7 @@ class Paginas
      * @param boolean $submenu
      * @return Paginas
      */
-    public function setSubmenu($submenu)
+    public function setSubmenu($submenu = true)
     {
         $this->submenu = $submenu;
         return $this;
@@ -419,7 +419,7 @@ class Paginas
      * @param boolean $esconderMenu
      * @return Paginas
      */
-    public function setEsconderMenu($esconderMenu)
+    public function setEsconderMenu($esconderMenu = true)
     {
         $this->esconderMenu = $esconderMenu;
         return $this;
