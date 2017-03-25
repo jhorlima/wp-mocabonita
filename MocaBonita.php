@@ -31,7 +31,7 @@ final class MocaBonita
     /**
      * Versão do Moca Bonita.
      */
-    const VERSION = '0.9.13';
+    const VERSION = '3.0.0';
 
     /**
      * Instancia da classe.
@@ -269,9 +269,9 @@ final class MocaBonita
             die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
         }
 
-        register_activation_hook(Diretorios::PLUGIN_DIRETORIO, function () {
+        register_activation_hook(Diretorios::PLUGIN_BASENAME, function () {
             if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
-                deactivate_plugins(Diretorios::PLUGIN_DIRETORIO);
+                deactivate_plugins(Diretorios::PLUGIN_BASENAME);
             }
         });
 
@@ -301,7 +301,7 @@ final class MocaBonita
             die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
         }
 
-        register_activation_hook(Diretorios::PLUGIN_DIRETORIO, function () use ($active, $mocaBonita) {
+        register_activation_hook(Diretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
                 $active($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
@@ -312,9 +312,10 @@ final class MocaBonita
 
     /**
      * Callback para ser executado ao desativar o plugin
-     * @param $desactive \Closure callback de inicialização do plugin
+     * @param $deactive \Closure callback de inicialização do plugin
+     * @param bool $emDesenvolvimento Definir plugin em desenvolvimento
      */
-    public static function desactive(\Closure $desactive, $emDesenvolvimento = false)
+    public static function deactive(\Closure $deactive, $emDesenvolvimento = false)
     {
         $mocaBonita = self::getInstance();
         $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
@@ -323,9 +324,9 @@ final class MocaBonita
             die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
         }
 
-        register_deactivation_hook(Diretorios::PLUGIN_DIRETORIO, function () use ($desactive, $mocaBonita) {
+        register_deactivation_hook(Diretorios::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
             try {
-                $desactive($mocaBonita->request, $mocaBonita->response);
+                $deactive($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
                 $mocaBonita->response->setConteudo($e);
             }
@@ -335,6 +336,7 @@ final class MocaBonita
     /**
      * Callback para ser executado ao apagar o plugin
      * @param $unistall \Closure callback de inicialização do plugin
+     * @param bool $emDesenvolvimento Definir plugin em desenvolvimento
      */
     public static function uninstall(\Closure $unistall, $emDesenvolvimento = false)
     {
@@ -345,7 +347,7 @@ final class MocaBonita
             die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
         }
 
-        register_uninstall_hook(Diretorios::PLUGIN_DIRETORIO, function () use ($unistall, $mocaBonita) {
+        register_uninstall_hook(Diretorios::PLUGIN_BASENAME, function () use ($unistall, $mocaBonita) {
             try {
                 $unistall($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
@@ -435,12 +437,13 @@ final class MocaBonita
      * Método para exibir conteudo da página
      *
      */
-    public function getConteudo(){
+    public function getConteudo()
+    {
         try {
-            if(!$this->isPaginaPlugin()){
+            if (!$this->isPaginaPlugin()) {
                 throw new \Exception("Você não pode exibir está página!");
             }
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
             $this->response->setConteudo($e);
         } finally {
             $this->response->getContent();
@@ -560,18 +563,18 @@ final class MocaBonita
     private function __construct($emDesenvolvimento = false)
     {
         $this->response = Respostas::create();
-        $this->request  = Requisicoes::capture();
+        $this->request = Requisicoes::capture();
         $this->response->setRequest($this->request);
-        $this->page     = $this->request->query('page');
-        $this->action   = $this->request->query('action');
+        $this->page = $this->request->query('page');
+        $this->action = $this->request->query('action');
 
         $this->assets = [
-            'plugin'    => new Assets(),
+            'plugin' => new Assets(),
             'wordpress' => new Assets(),
         ];
 
         $this->servicos = [
-            'plugin'    => [],
+            'plugin' => [],
             'wordpress' => [],
         ];
 
@@ -622,18 +625,20 @@ final class MocaBonita
      */
     public function isPaginaPlugin()
     {
-        if(is_null($this->page)){
+        if (is_null($this->page)) {
             return false;
-        } if (is_null($this->paginaPlugin)) {
+        }
+
+        if (is_null($this->paginaPlugin)) {
             $this->paginaPlugin = in_array($this->page, array_keys($this->paginas));
         }
 
-        if($this->paginaPlugin && is_null($this->action)){
+        if ($this->paginaPlugin && is_null($this->action)) {
             $query = http_build_query([
                 'page' => $this->page,
                 'action' => 'index',
             ]);
-            $url = admin_url($GLOBALS['pagenow']) . "?" . $query;
+            $url = admin_url($this->request->getPageNow()) . "?" . $query;
             $this->response->redirect($url);
         }
 
