@@ -173,6 +173,9 @@ namespace ExemploPlugin\controller;
 
 use MocaBonita\controller\Controller;
 
+use MocaBonita\tools\Requisicoes;
+use MocaBonita\tools\Respostas;
+
 class Exemplo extends Controller {
     
     /**
@@ -191,9 +194,12 @@ class Exemplo extends Controller {
      * Se o retorno for qualquer outro tipo, ele retornará uma requisição de erro, informando "Nenhum dado foi retornado!"
      * Se existir uma exception, ele retornará uma requisição de erro, informando o erro do exception 
      * 
-     * @return null|string|View|array[]|void
+     * @param Requisicoes $request
+     * @param Respostas $response
+     *
+     * @return null|string|View|void
      */
-    public function indexAction()
+    public function indexAction(Requisicoes $request, Respostas $response)
     {
         return $this->view;
     }

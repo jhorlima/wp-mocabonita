@@ -1,6 +1,7 @@
 <?php
 
 namespace MocaBonita\tools;
+use MocaBonita\MocaBonita;
 
 /**
  * Classe de Componentes do Wordpress
@@ -57,6 +58,20 @@ class Assets
         return $this->javascript;
     }
 
+    public function getAction(){
+        $request = MocaBonita::getInstance()->getRequest();
+
+        if($request->isPageLogin()){
+            $action = "login_enqueue_scripts";
+        } elseif ($request->isAdmin()){
+            $action = "admin_enqueue_scripts";
+        } else {
+            $action = "wp_enqueue_scripts";
+        }
+
+        return $action;
+    }
+
     /**
      * Adicionar Javascript
      *
@@ -84,9 +99,13 @@ class Assets
      */
     public function processarCssWordpress($slug)
     {
-        foreach ($this->css as $i => $css){
-            wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
-        }
+        $style = $this->css;
+
+        WPAction::adicionarCallbackAction($this->getAction(), function () use ($slug, $style){
+            foreach ($style as $i => $css) {
+                wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
+            }
+        });
     }
 
     /**
@@ -97,8 +116,12 @@ class Assets
      */
     public function processarJsWordpress($slug)
     {
-        foreach ($this->javascript as $i => $js){
-            wp_enqueue_script("script_mb_{$slug}_{$i}", $js['caminho'], [], $js['versao'], $js['footer']);
-        }
+        $javascript = $this->javascript;
+
+        WPAction::adicionarCallbackAction($this->getAction(), function () use ($slug, $javascript){
+            foreach ($javascript as $i => $js) {
+                wp_enqueue_script("script_mb_{$slug}_{$i}", $js['caminho'], [], $js['versao'], $js['footer']);
+            }
+        });
     }
 }
