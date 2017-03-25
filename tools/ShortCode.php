@@ -119,12 +119,10 @@ class ShortCode
             $request->setShortcode(true);
 
             //Adicionar assets do plugin
-            $assets->processarCssWordpress('plugin');
-            $assets->processarJsWordpress('plugin');
+            $assets->processarAssets('plugin');
 
             //Adicionar assets do shortcode
-            $shortCode->getAssets()->processarCssWordpress($shortCode->getNome());
-            $shortCode->getAssets()->processarJsWordpress($shortCode->getNome());
+            $shortCode->getAssets()->setActionEnqueue('front')->processarAssets($shortCode->getNome());
 
             Service::processarServicos($shortCode->getAcao()->getPagina()->getServicos(), $request, $response);
 

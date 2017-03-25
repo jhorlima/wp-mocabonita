@@ -90,28 +90,16 @@ class Assets
      * @param string $slug Slug da página
      *
      */
-    public function processarCssWordpress($slug)
+    public function processarAssets($slug)
     {
         $style = $this->css;
+        $javascript = $this->javascript;
 
-        WPAction::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $style){
+        WPAction::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $style, $javascript){
             foreach ($style as $i => $css) {
                 wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
             }
-        });
-    }
 
-    /**
-     * Adicionar o JS no Wordpress
-     *
-     * @param string $slug Slug da página
-     *
-     */
-    public function processarJsWordpress($slug)
-    {
-        $javascript = $this->javascript;
-
-        WPAction::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $javascript){
             foreach ($javascript as $i => $js) {
                 wp_enqueue_script("script_mb_{$slug}_{$i}", $js['caminho'], [], $js['versao'], $js['footer']);
             }
