@@ -80,33 +80,25 @@ class Assets
      * Adicionar o CSS no Wordpress
      *
      * @param string $slug Slug da página
-     * @param Requisicoes $request Requisição da página
      *
      */
-    public function processarCssWordpress($slug, Requisicoes $request)
+    public function processarCssWordpress($slug)
     {
-        $cssList = $this->css;
-        WPAction::adicionarCallbackAction('wp_enqueue_style', function () use (&$cssList, $slug, $request){
-            foreach ($cssList as $i => $css){
-                wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
-            }
-        });
+        foreach ($this->css as $i => $css){
+            wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
+        }
     }
 
     /**
      * Adicionar o JS no Wordpress
      *
      * @param string $slug Slug da página
-     * @param Requisicoes $request Requisição da página
      *
      */
-    public function processarJsWordpress($slug, Requisicoes $request)
+    public function processarJsWordpress($slug)
     {
-        $jsList = $this->javascript;
-        WPAction::adicionarCallbackAction('wp_enqueue_script', function () use (&$jsList, $slug, $request){
-            foreach ($jsList as $i => $js){
-                wp_enqueue_script("script_mb_{$slug}_{$i}", $js['caminho'], [], $js['versao'], $js['footer']);
-            }
-        });
+        foreach ($this->javascript as $i => $js){
+            wp_enqueue_script("script_mb_{$slug}_{$i}", $js['caminho'], [], $js['versao'], $js['footer']);
+        }
     }
 }

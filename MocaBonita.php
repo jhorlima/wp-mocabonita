@@ -366,8 +366,8 @@ final class MocaBonita
             WPAction::adicionarAction('admin_menu', $this, 'processarMenu');
 
             //Adicionar os Assets do wordpress
-            $this->getAssetsWordpress()->processarCssWordpress('*', $this->request);
-            $this->getAssetsWordpress()->processarJsWordpress('*', $this->request);
+            $this->getAssetsWordpress()->processarCssWordpress('*');
+            $this->getAssetsWordpress()->processarJsWordpress('*');
 
             //Adicionar os serviços do wordpress
             Service::processarServicos($this->getServicosWordPress(), $this->request, $this->response);
@@ -376,8 +376,8 @@ final class MocaBonita
             if ($this->isPaginaPlugin()) {
 
                 //Adicionar os Assets do plugin
-                $this->getAssetsPlugin()->processarCssWordpress('plugin', $this->request);
-                $this->getAssetsPlugin()->processarJsWordpress('plugin', $this->request);
+                $this->getAssetsPlugin()->processarCssWordpress('plugin');
+                $this->getAssetsPlugin()->processarJsWordpress('plugin');
                 //Adicionar os serviços do plugin
                 Service::processarServicos($this->getServicosPlugin(), $this->request, $this->response);
 
@@ -404,8 +404,8 @@ final class MocaBonita
                 }
 
                 //Adicionar os Assets da página
-                $this->getPagina($this->page)->getAssets()->processarCssWordpress($this->page, $this->request);
-                $this->getPagina($this->page)->getAssets()->processarJsWordpress($this->page, $this->request);
+                $this->getPagina($this->page)->getAssets()->processarCssWordpress($this->page);
+                $this->getPagina($this->page)->getAssets()->processarJsWordpress($this->page);
                 //Adicionar os serviços da página
                 Service::processarServicos($this->getPagina($this->page)->getServicos(), $this->request, $this->response);
             }
