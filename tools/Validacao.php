@@ -21,18 +21,39 @@ class Validacao
 {
 
     /**
+     * Separador de regras padrão
+     *
+     * @var string
+     */
+    protected static $rolesSeparator  = "|";
+
+    /**
+     * Separador de parametros padrão
+     *
+     * @var string
+     */
+    protected static $paramsSeparator = ":";
+
+    /**
+     * Regras para verificar se as regras já foram carregadas
+     *
+     * @var bool
+     */
+    protected static $iniciada = false;
+
+    /**
      * Regras adicionadas para validação
      *
      * @var \Closure[]
      */
-    private static $regras = [];
+    protected static $regras = [];
 
     /**
      * Mensagens de erros da validação
      *
      * @var array[]
      */
-    private static $mensagens = [];
+    protected static $mensagens = [];
 
     /**
      * O método mágico __clone() é declarado como private para impedir a clonagem de uma instância da classe através
@@ -52,6 +73,62 @@ class Validacao
     final private function __wakeup()
     {
         //
+    }
+
+    /**
+     * @return string
+     */
+    public static function getRolesSeparator()
+    {
+        return self::$rolesSeparator;
+    }
+
+    /**
+     * @param string $rolesSeparator
+     */
+    public static function setRolesSeparator($rolesSeparator = "|")
+    {
+        self::$rolesSeparator = $rolesSeparator;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getParamsSeparator()
+    {
+        return self::$paramsSeparator;
+    }
+
+    /**
+     * @param string $paramsSeparator
+     */
+    public static function setParamsSeparator($paramsSeparator = ":")
+    {
+        self::$paramsSeparator = $paramsSeparator;
+    }
+
+    /**
+     * @return boolean
+     */
+    public static function isIniciada()
+    {
+        return self::$iniciada;
+    }
+
+    /**
+     * @param boolean $iniciada
+     */
+    public static function setIniciada($iniciada = true)
+    {
+        self::$iniciada = $iniciada;
+    }
+
+    /**
+     * @return \Closure[]
+     */
+    public static function getRegras()
+    {
+        return self::$regras;
     }
 
     /**
@@ -80,7 +157,7 @@ class Validacao
      *
      * @param array $mensagens
      */
-    private static function setMensagens(array $mensagens)
+    protected static function setMensagens(array $mensagens)
     {
         self::$mensagens = $mensagens;
     }
@@ -91,7 +168,7 @@ class Validacao
      * @param string $atributo
      * @param string $mensagem
      */
-    private static function setMensagem($atributo, $mensagem)
+    protected static function setMensagem($atributo, $mensagem)
     {
         if (!isset(self::$mensagens[$atributo]))
             self::$mensagens[$atributo] = [];
@@ -125,26 +202,35 @@ class Validacao
         foreach ($atributos as &$atributo) {
 
             $existeAtributo = array_key_exists($atributo, $dados);
-            $atributoNulo = $existeAtributo ? is_null($dados[$atributo]) : true;
+            $atributoNulo   = $existeAtributo ? is_null($dados[$atributo]) : true;
+            $regrasAtributo = $regras[$atributo];
+
+            if(is_string($regrasAtributo) || is_array((array) $regrasAtributo)){
+
+                if(is_string($regrasAtributo)){
+                    $regrasAtributo = explode(self::$rolesSeparator, $regras[$atributo]);
+                } else {
+                    self::setMensagem($atributo, "O atributo '{$atributo}' não tem uma regra válida!");
+                    $regrasAtributo = [];
+                }
+
+                $regrasAtributo = (array) $regrasAtributo;
+            }
 
             if ((!$existeAtributo && !$permitirNulos) || ($atributoNulo && !$permitirNulos)) {
 
                 self::setMensagem($atributo, "O atributo '{$atributo}' não foi encontrado ou é nulo!");
 
-            } elseif (!$existeAtributo && $permitirNulos) {
-                $dados[$atributo] = !$existeAtributo ? null : $dados[$atributo];
-                $regrasAtributo = explode("|", $regras[$atributo]);
-                foreach ($regrasAtributo as $regraAtributo) {
-                    self::processarRegra($regraAtributo, $dados[$atributo], $atributo);
-                }
-
             } else {
-                $regrasAtributo = explode("|", $regras[$atributo]);
+
+                $dados[$atributo] = !$existeAtributo && $permitirNulos ? null : $dados[$atributo];
+
+                $regrasAtributo = (array) $regrasAtributo;
+
                 foreach ($regrasAtributo as $regraAtributo) {
                     self::processarRegra($regraAtributo, $dados[$atributo], $atributo);
                 }
             }
-
         }
 
         if ($tratarRetorno) {
@@ -162,12 +248,13 @@ class Validacao
     /**
      * Carregar as regras padrões do MocaBonita
      *
-     * @return null
+     * @return void
      */
-    private static function carregarRegras()
+    protected static function carregarRegras()
     {        
-        if(isset(self::$regras['required']))
+        if(self::isIniciada()){
             return null;
+        }
 
         /**
          * Validação de String e contagem de seus caracteres podendo ser definido como parametros[].
@@ -638,11 +725,17 @@ class Validacao
          *
          */
         self::adicionarRegra('date', function ($valor, $atributo){
-            if(strtotime($valor)){
-                return $valor;
-            } else{
-                throw new Exception("O atributo '{$atributo}' é uma data inválida!");
+            $isNull = is_null($valor);
+
+            if (!$isNull) {
+                if (strtotime($valor)) {
+                    return $valor;
+                } else {
+                    throw new Exception("O atributo '{$atributo}' é uma data inválida!");
+                }
             }
+
+            return $valor;
         });
 
         /**
@@ -651,11 +744,17 @@ class Validacao
          */
         self::adicionarRegra('date_ts', function ($valor, $atributo){
             $date = strtotime($valor);
-            if($date){
-                return $date;
-            } else{
-                throw new Exception("O atributo '{$atributo}' é uma data inválida!");
+            $isNull = is_null($valor);
+
+            if (!$isNull) {
+                if ($date) {
+                    return $date;
+                } else {
+                    throw new Exception("O atributo '{$atributo}' é uma data inválida!");
+                }
             }
+
+            return $valor;
         });
 
         /**
@@ -666,42 +765,49 @@ class Validacao
          */
         self::adicionarRegra('date_object', function ($valor, $atributo, array $parametros){
             $date = strtotime($valor);
+            $isNull = is_null($valor);
 
-            if($date){
-                $date = (new \DateTime())->setTimestamp($date);
+            if (!$isNull) {
+                if ($date) {
+                    $date = (new \DateTime())->setTimestamp($date);
 
-                $timezone = array_shift($parametros);
-                $format   = array_shift($parametros);
+                    $timezone = array_shift($parametros);
+                    $format = array_shift($parametros);
 
-                if(!is_null($timezone)){
-                    $date->setTimezone(new \DateTimeZone($timezone));
-                }
-
-                if(!is_null($format)){
-                    $dateFormat = $date->format($format);
-                    if(!$dateFormat){
-                        throw new Exception("O atributo '{$atributo}' têm formato de data inválida!");
+                    if (!is_null($timezone)) {
+                        $date->setTimezone(new \DateTimeZone($timezone));
                     }
-                }
 
-                return $date;
-            } else{
-                throw new Exception("O atributo '{$atributo}' é uma data inválida!");
+                    if (!is_null($format)) {
+                        $dateFormat = $date->format($format);
+                        if (!$dateFormat) {
+                            throw new Exception("O atributo '{$atributo}' têm formato de data inválida!");
+                        }
+                    }
+
+                    return $date;
+                } else {
+                    throw new Exception("O atributo '{$atributo}' é uma data inválida!");
+                }
             }
+
+            return $valor;
         });
 
-        return null;
+        self::setIniciada();
     }
 
     /**
      * Adicionar uma nova regra à validação do MocaBonita
      *
-     * @param $nome
+     * @param string $nome
      * @param \Closure $callback
      * @param bool $substituir
      */
     public static function adicionarRegra($nome, \Closure $callback, $substituir = false)
     {
+        self::carregarRegras();
+
         $regraExiste = isset(self::$regras[$nome]);
 
         if (!$regraExiste || ($regraExiste && $substituir)) {
@@ -712,13 +818,13 @@ class Validacao
     /**
      * Processar regras individualmente
      *
-     * @param $regraAtributo
-     * @param $valor
-     * @param $atributo
+     * @param array $regraAtributo
+     * @param mixed $valor
+     * @param string $atributo
      */
-    private static function processarRegra($regraAtributo, &$valor, $atributo)
+    protected static function processarRegra($regraAtributo, &$valor, $atributo)
     {
-        $parametrosRegra = explode(":", $regraAtributo);
+        $parametrosRegra = explode(self::$paramsSeparator, $regraAtributo);
 
         foreach ($parametrosRegra as &$parametro) {
             $parametro = trim($parametro);
