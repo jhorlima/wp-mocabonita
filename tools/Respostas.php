@@ -58,7 +58,6 @@ class Respostas extends Response
             //Caso a resposta seja uma exception
             if($resposta instanceof \Exception){
                 MBException::adminNotice($resposta);
-                $resposta = $resposta->getMessage();
                 //Caso seja uma view
             } elseif ($resposta instanceof View){
                 $resposta = $resposta->render();
