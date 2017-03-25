@@ -139,13 +139,8 @@ class Respostas extends Response
     }
 
     public function processarHeaders(){
-        $headers = $this->headers->all();
-
-        WPAction::adicionarCallbackAction('send_headers', function () use ($headers) {
-            error_log("chamou");
-            foreach ($headers as $key => &$header){
-                header("{$key}: {$header[0]}");
-            }
-        });
+        foreach ($this->headers->all() as $key => &$header){
+            header("{$key}: {$header[0]}");
+        }
     }
 }
