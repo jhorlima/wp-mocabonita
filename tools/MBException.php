@@ -22,7 +22,6 @@ class MBException extends \Exception
             echo "<div class='notice notice-error'><p>{$e->getMessage()}</p></div>";
         });
         WPAction::adicionarCallbackAction('shutdown', function () use ($e){
-            echo "<div class='notice notice-error'><p>{$e->getMessage()}</p></div>";
             $logger = new Logger(Diretorios::PLUGIN_DIRETORIO . '/logs');
             $logger->error($e->getMessage());
         });

@@ -249,6 +249,15 @@ final class MocaBonita
     public static function getInstance()
     {
         if (is_null(static::$instance)) {
+
+            if (!defined('ABSPATH')) {
+                die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
+            } elseif (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
+                MBException::adminNotice(new \Exception(
+                    "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
+                ));
+            }
+
             static::$instance = new static();
         }
 
@@ -264,16 +273,6 @@ final class MocaBonita
     {
         $mocaBonita = self::getInstance();
         $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
-
-        if (!defined('ABSPATH')) {
-            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
-        }
-
-        register_activation_hook(Diretorios::PLUGIN_BASENAME, function () {
-            if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
-                deactivate_plugins(Diretorios::PLUGIN_BASENAME);
-            }
-        });
 
         WPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $mocaBonita) {
             try {
@@ -297,15 +296,11 @@ final class MocaBonita
         $mocaBonita = self::getInstance();
         $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
 
-        if (!defined('ABSPATH')) {
-            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
-        }
-
         register_activation_hook(Diretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
                 $active($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->setConteudo($e);
+                MBException::adminNotice($e);
             }
         });
     }
@@ -320,15 +315,11 @@ final class MocaBonita
         $mocaBonita = self::getInstance();
         $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
 
-        if (!defined('ABSPATH')) {
-            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
-        }
-
         register_deactivation_hook(Diretorios::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
             try {
                 $deactive($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->setConteudo($e);
+                MBException::adminNotice($e);
             }
         });
     }
@@ -343,15 +334,11 @@ final class MocaBonita
         $mocaBonita = self::getInstance();
         $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
 
-        if (!defined('ABSPATH')) {
-            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
-        }
-
         register_uninstall_hook(Diretorios::PLUGIN_BASENAME, function () use ($unistall, $mocaBonita) {
             try {
                 $unistall($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->setConteudo($e);
+                MBException::adminNotice($e);
             }
         });
     }
