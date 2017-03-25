@@ -64,8 +64,8 @@ class Requisicoes extends Request
      */
     public function isAdmin()
     {
-        if(is_null($this->admin)){
-            $this->admin = (bool) is_admin();
+        if (is_null($this->admin)) {
+            $this->admin = (bool)is_admin();
         }
         return (bool)$this->admin;
     }
@@ -85,7 +85,7 @@ class Requisicoes extends Request
      */
     public function isLogin()
     {
-        if(is_null($this->login)){
+        if (is_null($this->login)) {
             $this->login = (bool)is_user_logged_in();
         }
         return $this->login;
@@ -112,8 +112,8 @@ class Requisicoes extends Request
      */
     public function isPageLogin()
     {
-        if(is_null($this->pageLogin)){
-            $this->pageLogin = (bool) in_array($this->getPageNow(), ['wp-login.php', 'wp-register.php']);
+        if (is_null($this->pageLogin)) {
+            $this->pageLogin = (bool)in_array($this->getPageNow(), ['wp-login.php', 'wp-register.php']);
         }
         return $this->pageLogin;
     }
@@ -129,9 +129,9 @@ class Requisicoes extends Request
     /**
      * @return string
      */
-    public function getPageNow(): string
+    public function getPageNow()
     {
-        if (is_null($this->pageNow)){
+        if (is_null($this->pageNow)) {
             $this->pageNow = $GLOBALS['pagenow'];
         }
         return $this->pageNow;
@@ -141,7 +141,7 @@ class Requisicoes extends Request
      * @param string $pageNow
      * @return Requisicoes
      */
-    public function setPageNow(string $pageNow): Requisicoes
+    public function setPageNow($pageNow)
     {
         $this->pageNow = $pageNow;
         return $this;
@@ -154,10 +154,10 @@ class Requisicoes extends Request
      */
     public function ajax()
     {
-        if(is_null($this->ajax)){
+        if (is_null($this->ajax)) {
             $this->ajax = (bool)(defined('DOING_AJAX') && DOING_AJAX);
         }
-        return (bool) ($this->ajax || $this->isXmlHttpRequest());
+        return (bool)($this->ajax || $this->isXmlHttpRequest());
     }
 
 }
