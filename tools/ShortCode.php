@@ -202,11 +202,11 @@ class ShortCode
                         ->getView();
                 }
                 //Processar a página
-                $response->setContent($respostaController);
+                $response->setConteudo($respostaController);
 
             } else {
                 //Processar a página
-                $response->setContent(
+                $response->setConteudo(
                     "O shortcode {$shortCode->getNome()} não foi definido! Método: {$shortCode->getAcao()->getMetodo()}."
                 );
             }

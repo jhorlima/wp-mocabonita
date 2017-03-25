@@ -280,7 +280,7 @@ final class MocaBonita
                 $plugin($mocaBonita);
                 $mocaBonita->launcher();
             } catch (\Exception $e) {
-                $mocaBonita->response->setContent($e);
+                $mocaBonita->response->setConteudo($e);
             } finally {
                 $mocaBonita->response->processarHeaders();
             }
@@ -305,7 +305,7 @@ final class MocaBonita
             try {
                 $active($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->setContent($e);
+                $mocaBonita->response->setConteudo($e);
             }
         });
     }
@@ -327,7 +327,7 @@ final class MocaBonita
             try {
                 $desactive($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->setContent($e);
+                $mocaBonita->response->setConteudo($e);
             }
         });
     }
@@ -349,7 +349,7 @@ final class MocaBonita
             try {
                 $unistall($mocaBonita->request, $mocaBonita->response);
             } catch (\Exception $e) {
-                $mocaBonita->response->setContent($e);
+                $mocaBonita->response->setConteudo($e);
             }
         });
     }
@@ -427,7 +427,7 @@ final class MocaBonita
                 WPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'getConteudo');
                 WPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'getConteudo');
             }
-            $this->response->setContent($e);
+            $this->response->setConteudo($e);
         }
     }
 
@@ -441,7 +441,7 @@ final class MocaBonita
                 throw new \Exception("Você não pode exibir está página!");
             }
         } catch (\Exception $e){
-            $this->response->setContent($e);
+            $this->response->setConteudo($e);
         } finally {
             echo $this->response->getContent();
         }
@@ -545,11 +545,11 @@ final class MocaBonita
             }
 
             //Processar a página
-            $this->response->setContent($respostaController);
+            $this->response->setConteudo($respostaController);
 
             //Caso ocorra algum erro no moca bonita
         } catch (\Exception $e) {
-            $this->response->setContent($e);
+            $this->response->setConteudo($e);
         }
     }
 

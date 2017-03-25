@@ -50,7 +50,7 @@ class Respostas extends Response
      *
      * @return Respostas
      */
-    public function setContent($content){
+    public function setConteudo($content){
 
         if($this->request->method() == "GET"){
             $this->statusCode = 200;
