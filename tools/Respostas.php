@@ -26,6 +26,11 @@ class Respostas extends Response
     protected $request;
 
     /**
+     * @var string
+     */
+    protected $content;
+
+    /**
      * @return Requisicoes
      */
     public function getRequest()
@@ -82,6 +87,7 @@ class Respostas extends Response
             //Caso a resposta seja uma exception
             if($content instanceof \Exception){
                 MBException::adminNotice($content);
+                $content = "Ocorreu um erro!";
                 //Caso seja uma view
             } elseif ($content instanceof View){
                 $content = $content->render();
@@ -95,9 +101,18 @@ class Respostas extends Response
         }
 
         //Tratar resposta
-        parent::setContent($content);
-
+        $this->content = $content;
         return $this;
+    }
+
+    public function getContent()
+    {
+        if($this->request->isAjax() && is_array($this->content)){
+            wp_send_json($this->content, $this->statusCode);
+        } else {
+            parent::setContent($this->content);
+            echo parent::getContent();
+        }
     }
 
     /**

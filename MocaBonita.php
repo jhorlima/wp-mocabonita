@@ -443,7 +443,7 @@ final class MocaBonita
         } catch (\Exception $e){
             $this->response->setConteudo($e);
         } finally {
-            echo $this->response->getContent();
+            $this->response->getContent();
         }
     }
 
