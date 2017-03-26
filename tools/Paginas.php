@@ -142,7 +142,6 @@ class Paginas
     {
         $this->setNome("Moça Bonita")
             ->setCapacidade("manage_options")
-            ->setSlug("moca_bonita")
             ->setIcone("dashicons-editor-code")
             ->setEsconderMenu(false)
             ->setAssets(new Assets())
@@ -168,6 +167,7 @@ class Paginas
     public function setNome($nome)
     {
         $this->nome = $nome;
+        $this->setSlug($nome);
         return $this;
     }
 
@@ -203,7 +203,7 @@ class Paginas
      */
     public function setSlug($slug)
     {
-        $this->slug = $slug;
+        $this->slug = sanitize_title($slug);
         return $this;
     }
 
