@@ -29,9 +29,9 @@
   "require": {
     "php": ">=5.6",
     "illuminate/http": "~5.0",
-    "katzgrau/klogger": "dev-master",
-    "robmorgan/phinx": "^0.8.0",
-    "symfony/http-foundation": "2.8.*|3.0.*"
+    "illuminate/database" : "~5.0",
+    "symfony/http-foundation": "3.0.*",
+    "katzgrau/klogger": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "*",

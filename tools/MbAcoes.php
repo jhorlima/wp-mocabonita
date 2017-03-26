@@ -13,13 +13,13 @@ namespace MocaBonita\tools;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class Acoes
+class MbAcoes
 {
 
     /**
      * Controller da página
      *
-     * @var Paginas
+     * @var MbPaginas
      */
     private $pagina;
 
@@ -80,22 +80,22 @@ class Acoes
     private $capacidade;
 
     /**
-     * @return Paginas
-     * @throws MBException
+     * @return MbPaginas
+     * @throws MbException
      */
     public function getPagina()
     {
         if (is_null($this->pagina))
-            throw new MBException("Nenhuma página foi definida para essa ação!");
+            throw new MbException("Nenhuma página foi definida para essa ação!");
 
         return $this->pagina;
     }
 
     /**
-     * @param Paginas $pagina
-     * @return Acoes
+     * @param MbPaginas $pagina
+     * @return MbAcoes
      */
-    public function setPagina(Paginas $pagina)
+    public function setPagina(MbPaginas $pagina)
     {
         $this->pagina = $pagina;
         return $this;
@@ -111,7 +111,7 @@ class Acoes
 
     /**
      * @param string $nome
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setNome($nome)
     {
@@ -129,7 +129,7 @@ class Acoes
 
     /**
      * @param boolean $login
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setLogin($login = true)
     {
@@ -147,7 +147,7 @@ class Acoes
 
     /**
      * @param boolean $ajax
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setAjax($ajax = true)
     {
@@ -167,7 +167,7 @@ class Acoes
      * Método de requisição da ação, se null, permite todos os métodos
      *
      * @param string|null $requisicao
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setRequisicao($requisicao = "GET")
     {
@@ -187,7 +187,7 @@ class Acoes
 
     /**
      * @param string $metodo
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setMetodo($metodo)
     {
@@ -205,7 +205,7 @@ class Acoes
 
     /**
      * @param string $complemento
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setComplemento($complemento)
     {
@@ -223,7 +223,7 @@ class Acoes
 
     /**
      * @param boolean $shortcode
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setShortcode($shortcode = true)
     {
@@ -241,7 +241,7 @@ class Acoes
 
     /**
      * @param string $capacidade
-     * @return Acoes
+     * @return MbAcoes
      */
     public function setCapacidade($capacidade = "read")
     {
@@ -252,13 +252,13 @@ class Acoes
     /**
      * Construtor da Classe Ações
      *
-     * @param Paginas $pagina
+     * @param MbPaginas $pagina
      * @param string $nome
      * @param bool $login
      * @param bool $ajax
      * @param string $requisicao
      */
-    public function __construct(Paginas $pagina, $nome, $login = true, $ajax = false, $requisicao = null)
+    public function __construct(MbPaginas $pagina, $nome, $login = true, $ajax = false, $requisicao = null)
     {
         $this->setPagina($pagina)
             ->setNome($nome)

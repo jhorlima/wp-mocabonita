@@ -2,9 +2,9 @@
 
 namespace MocaBonita\controller;
 
-use MocaBonita\tools\Respostas;
-use MocaBonita\tools\Requisicoes;
-use MocaBonita\tools\MBException;
+use MocaBonita\tools\MbRespostas;
+use MocaBonita\tools\MbRequisicoes;
+use MocaBonita\tools\MbException;
 use MocaBonita\view\View;
 
 /**
@@ -19,7 +19,7 @@ use MocaBonita\view\View;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-abstract class Controller
+abstract class MbController
 {
 
     /**
@@ -32,14 +32,14 @@ abstract class Controller
     /**
      * Váriavel que armazenda o request
      *
-     * @var Requisicoes
+     * @var MbRequisicoes
      */
     protected $request;
 
     /**
      * Váriavel que armazenda a resposta
      *
-     * @var Respostas
+     * @var MbRespostas
      */
     protected $response;
 
@@ -51,18 +51,18 @@ abstract class Controller
      * Se o retorno for View, ele irá redenrizar a view desta controller
      * Se o retorno for qualquer outro tipo, ele irá fazer um var_dump do retorno
      *
-     * @param Requisicoes $request
-     * @param Respostas $response
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
      *
      * @return null|string|View|void
      */
-    public function indexAction(Requisicoes $request, Respostas $response)
+    public function indexAction(MbRequisicoes $request, MbRespostas $response)
     {
-
+        return $this->view;
     }
 
     /**
-     * @return Requisicoes
+     * @return MbRequisicoes
      */
     public function getRequest()
     {
@@ -70,18 +70,18 @@ abstract class Controller
     }
 
     /**
-     * @param Requisicoes $request
+     * @param MbRequisicoes $request
      *
-     * @return Controller
+     * @return MbController
      */
-    public function setRequest(Requisicoes $request)
+    public function setRequest(MbRequisicoes $request)
     {
         $this->request = $request;
         return $this;
     }
 
     /**
-     * @return Respostas
+     * @return MbRespostas
      */
     public function getResponse()
     {
@@ -89,11 +89,11 @@ abstract class Controller
     }
 
     /**
-     * @param Respostas $response
+     * @param MbRespostas $response
      *
-     * @return Controller
+     * @return MbController
      */
-    public function setResponse(Respostas $response)
+    public function setResponse(MbRespostas $response)
     {
         $this->response = $response;
         return $this;
@@ -110,7 +110,7 @@ abstract class Controller
     /**
      * @param View $view
      *
-     * @return Controller
+     * @return MbController
      */
     public final function setView(View $view)
     {
@@ -202,6 +202,7 @@ abstract class Controller
      * Redirecionar uma página
      *
      * @param string $url
+     * @param array $params
      */
     protected final function redirect($url, array $params = [])
     {
@@ -214,15 +215,16 @@ abstract class Controller
     /**
      * Construtor de Controller
      *
-     * @throws MBException
-     * @return Controller
+     * @param $class
+     * @return MbController
+     * @throws MbException
      */
     public static function create($class)
     {
         $controller = new $class();
 
-        if (!$controller instanceof Controller) {
-            throw new MBException("O Controller {$class} não extendeu o Controller do MocaBonita!");
+        if (!$controller instanceof MbController) {
+            throw new MbException("O Controller {$class} não extendeu o Controller do MocaBonita!");
         }
 
         return $controller;

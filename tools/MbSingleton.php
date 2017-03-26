@@ -24,12 +24,12 @@ namespace MocaBonita\tools;
  * @copyright Copyright (c) 2017 NTI UEMA
  * @date 31/01/2017
  */
-abstract class Singleton
+abstract class MbSingleton
 {
     /**
      * Atributo que armazena as instancias das classes
      *
-     * @var Singleton[]
+     * @var MbSingleton[]
      */
     protected static $instances = [];
 
@@ -72,7 +72,7 @@ abstract class Singleton
     final private function __clone()
     {
         //
-    }
+    }/** @noinspection PhpUnusedPrivateMethodInspection */
 
     /**
      * O método mágico __wakeup() é declarado como private para evitar unserializing de uma instância da classe via

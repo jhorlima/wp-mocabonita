@@ -15,13 +15,13 @@ use MocaBonita\view\View;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class Respostas extends Response
+class MbRespostas extends Response
 {
 
     /**
      * Váriavel que armazenda o request
      *
-     * @var Requisicoes
+     * @var MbRequisicoes
      */
     protected $request;
 
@@ -31,7 +31,7 @@ class Respostas extends Response
     protected $content;
 
     /**
-     * @return Requisicoes
+     * @return MbRequisicoes
      */
     public function getRequest()
     {
@@ -39,10 +39,10 @@ class Respostas extends Response
     }
 
     /**
-     * @param Requisicoes $request
-     * @return Respostas
+     * @param MbRequisicoes $request
+     * @return MbRespostas
      */
-    public function setRequest(Requisicoes $request)
+    public function setRequest(MbRequisicoes $request)
     {
         $this->request = $request;
         return $this;
@@ -53,7 +53,7 @@ class Respostas extends Response
      *
      * @param mixed $dados Resposta para enviar ao navegador
      *
-     * @return Respostas
+     * @return MbRespostas
      */
     public function setConteudo($content){
 
@@ -86,7 +86,7 @@ class Respostas extends Response
         } else {
             //Caso a resposta seja uma exception
             if($content instanceof \Exception){
-                MBException::adminNotice($content);
+                MbException::adminNotice($content);
                 $content = "Ocorreu um erro!";
                 //Caso seja uma view
             } elseif ($content instanceof View){

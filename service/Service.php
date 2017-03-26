@@ -2,9 +2,9 @@
 
 namespace MocaBonita\service;
 
-use MocaBonita\tools\MBException;
-use MocaBonita\tools\Requisicoes;
-use MocaBonita\tools\Respostas;
+use MocaBonita\tools\MbException;
+use MocaBonita\tools\MbRequisicoes;
+use MocaBonita\tools\MbRespostas;
 
 /**
  * Classe de gerenciamento de services do moçabonita.
@@ -24,19 +24,19 @@ abstract class Service
     /**
      * Váriavel que armazenda o request
      *
-     * @var Requisicoes
+     * @var MbRequisicoes
      */
     protected $request;
 
     /**
      * Váriavel que armazenda a resposta
      *
-     * @var Respostas
+     * @var MbRespostas
      */
     protected $response;
 
     /**
-     * @return Requisicoes
+     * @return MbRequisicoes
      */
     public function getRequest()
     {
@@ -44,18 +44,18 @@ abstract class Service
     }
 
     /**
-     * @param Requisicoes $request
+     * @param MbRequisicoes $request
      *
      * @return Service
      */
-    public function setRequest(Requisicoes $request)
+    public function setRequest(MbRequisicoes $request)
     {
         $this->request = $request;
         return $this;
     }
 
     /**
-     * @return Respostas
+     * @return MbRespostas
      */
     public function getResponse()
     {
@@ -63,11 +63,11 @@ abstract class Service
     }
 
     /**
-     * @param Respostas $response
+     * @param MbRespostas $response
      *
      * @return Service
      */
-    public function setResponse(Respostas $response)
+    public function setResponse(MbRespostas $response)
     {
         $this->response = $response;
         return $this;
@@ -157,6 +157,7 @@ abstract class Service
      * Redirecionar uma página
      *
      * @param string $url
+     * @param array $params
      */
     protected final function redirect($url, array $params = [])
     {
@@ -169,15 +170,16 @@ abstract class Service
     /**
      * Construtor de Controller
      *
-     * @throws MBException
+     * @param $class
      * @return Service
+     * @throws MbException
      */
     public static function create($class)
     {
         $servico = new $class();
 
         if (!$servico instanceof Service){
-            throw new MBException("O Serviço {$class} não extendeu o Service do MocaBonita!");
+            throw new MbException("O Serviço {$class} não extendeu o Service do MocaBonita!");
         }
 
         return $servico;
@@ -223,12 +225,12 @@ abstract class Service
      * Processar serviços da página
      *
      * @param array $servicos
-     * @param Requisicoes $request
-     * @param Respostas $response
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
      *
-     * @throws MBException
+     * @throws MbException
      */
-    public static function processarServicos(array $servicos, Requisicoes $request, Respostas $response)
+    public static function processarServicos(array $servicos, MbRequisicoes $request, MbRespostas $response)
     {
         foreach ($servicos as $configuracao) {
             $servico = Service::create($configuracao['class']);

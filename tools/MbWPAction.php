@@ -16,7 +16,7 @@ use MocaBonita\MocaBonita;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class WPAction {
+class MbWPAction {
 
 	/**
     * Adicionar uma action no wordpress

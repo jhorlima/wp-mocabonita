@@ -1,10 +1,10 @@
 <?php
-namespace MocaBonita\model;
+namespace MocaBonita\tools;
 
 use \Exception;
 
 /**
- * Classe Model do Moça Bonita.
+ * Classe WPDB do Moça Bonita.
  *
  *
  * @author Jhordan Lima
@@ -15,7 +15,7 @@ use \Exception;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-abstract class Model
+abstract class MbWpdb
 {
     /**
      * Objeto WPDB do Wordpress

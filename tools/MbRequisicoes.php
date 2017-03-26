@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class Requisicoes extends Request
+class MbRequisicoes extends Request
 {
 
     /**
@@ -139,7 +139,7 @@ class Requisicoes extends Request
 
     /**
      * @param string $pageNow
-     * @return Requisicoes
+     * @return MbRequisicoes
      */
     public function setPageNow($pageNow)
     {

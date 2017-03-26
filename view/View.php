@@ -1,9 +1,9 @@
 <?php
 namespace MocaBonita\view;
 
-use MocaBonita\tools\Diretorios;
-use MocaBonita\tools\Requisicoes;
-use MocaBonita\tools\Respostas;
+use MocaBonita\tools\MbDiretorios;
+use MocaBonita\tools\MbRequisicoes;
+use MocaBonita\tools\MbRespostas;
 
 /**
  * Classe de View do MocaBonita
@@ -71,14 +71,14 @@ class View
     /**
      * Váriavel que armazenda o request
      *
-     * @var Requisicoes
+     * @var MbRequisicoes
      */
     protected $request;
 
     /**
      * Váriavel que armazenda a resposta
      *
-     * @var Respostas
+     * @var MbRespostas
      */
     protected $response;
 
@@ -90,7 +90,7 @@ class View
         $this->variaveis = [];
         $this->conteudo = "";
         $this->extensao = "phtml";
-        $this->caminhoView = Diretorios::PLUGIN_VIEW_DIR;
+        $this->caminhoView = MbDiretorios::PLUGIN_VIEW_DIR;
     }
 
     /**
@@ -208,7 +208,7 @@ class View
     }
 
     /**
-     * @return Requisicoes
+     * @return MbRequisicoes
      */
     public function getRequest()
     {
@@ -216,17 +216,17 @@ class View
     }
 
     /**
-     * @param Requisicoes $request
+     * @param MbRequisicoes $request
      * @return View
      */
-    public function setRequest(Requisicoes $request)
+    public function setRequest(MbRequisicoes $request)
     {
         $this->request = $request;
         return $this;
     }
 
     /**
-     * @return Respostas
+     * @return MbRespostas
      */
     public function getResponse()
     {
@@ -234,10 +234,10 @@ class View
     }
 
     /**
-     * @param Respostas $response
+     * @param MbRespostas $response
      * @return View
      */
-    public function setResponse(Respostas $response)
+    public function setResponse(MbRespostas $response)
     {
         $this->response = $response;
         return $this;

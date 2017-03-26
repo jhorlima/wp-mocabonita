@@ -2,7 +2,6 @@
 namespace MocaBonita\tools;
 
 use \Exception;
-use \Closure;
 
 /**
  * Classe de Validação do Moça Bonita.
@@ -17,7 +16,7 @@ use \Closure;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class Validacao
+class MbValidacao
 {
 
     /**
@@ -63,7 +62,7 @@ class Validacao
     final private function __clone()
     {
         //
-    }
+    }/** @noinspection PhpUnusedPrivateMethodInspection */
 
     /**
      * O método mágico __wakeup() é declarado como private para evitar unserializing de uma instância da classe via
@@ -112,7 +111,7 @@ class Validacao
      */
     public static function isIniciada()
     {
-        return self::$iniciada;
+        return (bool) self::$iniciada;
     }
 
     /**
@@ -120,7 +119,7 @@ class Validacao
      */
     public static function setIniciada($iniciada = true)
     {
-        self::$iniciada = $iniciada;
+        self::$iniciada = (bool) $iniciada;
     }
 
     /**
@@ -251,10 +250,12 @@ class Validacao
      * @return void
      */
     protected static function carregarRegras()
-    {        
+    {
         if(self::isIniciada()){
-            return null;
+            return;
         }
+
+        self::setIniciada();
 
         /**
          * Validação de String e contagem de seus caracteres podendo ser definido como parametros[].
@@ -793,8 +794,6 @@ class Validacao
 
             return $valor;
         });
-
-        self::setIniciada();
     }
 
     /**
@@ -806,9 +805,9 @@ class Validacao
      */
     public static function adicionarRegra($nome, \Closure $callback, $substituir = false)
     {
-        self::carregarRegras();
-
         $regraExiste = isset(self::$regras[$nome]);
+
+        self::carregarRegras();
 
         if (!$regraExiste || ($regraExiste && $substituir)) {
             self::$regras[$nome] = $callback;

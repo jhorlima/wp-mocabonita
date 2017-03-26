@@ -2,8 +2,6 @@
 namespace MocaBonita\tools;
 
 use MocaBonita\service\Service;
-use MocaBonita\view\View;
-
 
 /**
  * Classe de Shortcode do Wordpress
@@ -16,7 +14,7 @@ use MocaBonita\view\View;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class ShortCode
+class MbShortCode
 {
 
     /**
@@ -29,14 +27,14 @@ class ShortCode
     /**
      * Ação do Shortcode
      *
-     * @var Acoes
+     * @var MbAcoes
      */
     private $acao;
 
     /**
      * Assets do Shortcode
      *
-     * @var Assets
+     * @var MbAssets
      */
     private $assets;
 
@@ -50,7 +48,7 @@ class ShortCode
 
     /**
      * @param string $nome
-     * @return ShortCode
+     * @return MbShortCode
      */
     public function setNome($nome)
     {
@@ -59,7 +57,7 @@ class ShortCode
     }
 
     /**
-     * @return Acoes
+     * @return MbAcoes
      */
     public function getAcao()
     {
@@ -67,17 +65,17 @@ class ShortCode
     }
 
     /**
-     * @param Acoes $acao
-     * @return ShortCode
+     * @param MbAcoes $acao
+     * @return MbShortCode
      */
-    public function setAcao(Acoes $acao)
+    public function setAcao(MbAcoes $acao)
     {
         $this->acao = $acao;
         return $this;
     }
 
     /**
-     * @return Assets
+     * @return MbAssets
      */
     public function getAssets()
     {
@@ -85,10 +83,10 @@ class ShortCode
     }
 
     /**
-     * @param Assets $assets
-     * @return ShortCode
+     * @param MbAssets $assets
+     * @return MbShortCode
      */
-    public function setAssets(Assets $assets)
+    public function setAssets(MbAssets $assets)
     {
         $this->assets = $assets;
         return $this;
@@ -98,17 +96,17 @@ class ShortCode
      * Adicionar Shortcode ao Wordpress
      *
      * @param string $nome nome do shortcode
-     * @param Acoes $acao ação do shortcode
-     * @param Assets $assets Assets do shortcode
+     * @param MbAcoes $acao ação do shortcode
+     * @param MbAssets $assets Assets do shortcode
      */
-    public function __construct($nome, Acoes $acao, Assets $assets)
+    public function __construct($nome, MbAcoes $acao, MbAssets $assets)
     {
         $this->setNome($nome)
             ->setAcao($acao)
             ->setAssets($assets);
     }
 
-    public function processarShorcode(Assets $assets, Requisicoes $request, Respostas $response)
+    public function processarShorcode(MbAssets $assets, MbRequisicoes $request, MbRespostas $response)
     {
         //Adicionar a instancia da class para uma váriavel
         $shortCode = $this;
@@ -145,10 +143,7 @@ class ShortCode
                     ->setResponse($response);
 
                 //Definir controller como shortcode
-                $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->setShortcode(true);
+                $request->setShortcode(true);
 
                 //Definir template principal
                 $shortCode->getAcao()

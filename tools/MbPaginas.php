@@ -2,7 +2,7 @@
 
 namespace MocaBonita\tools;
 
-use MocaBonita\controller\Controller;
+use MocaBonita\controller\MbController;
 use MocaBonita\MocaBonita;
 use MocaBonita\service\Service;
 
@@ -17,7 +17,7 @@ use MocaBonita\service\Service;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class Paginas
+class MbPaginas
 {
     /**
      * Nome da página
@@ -57,7 +57,7 @@ class Paginas
     /**
      * Página Parente
      *
-     * @var Paginas
+     * @var MbPaginas
      */
     private $paginaParente;
 
@@ -71,7 +71,7 @@ class Paginas
     /**
      * Lista de Páginas
      *
-     * @var Paginas[]
+     * @var MbPaginas[]
      */
     private $subPaginas = [];
 
@@ -99,7 +99,7 @@ class Paginas
     /**
      * Controller da página
      *
-     * @var Controller|string
+     * @var MbController|string
      */
     private $controller;
 
@@ -113,7 +113,7 @@ class Paginas
     /**
      * Ações da página
      *
-     * @var Acoes[]
+     * @var MbAcoes[]
      */
     private $acoes = [];
 
@@ -127,24 +127,24 @@ class Paginas
     /**
      * Complementos da página
      *
-     * @var Assets
+     * @var MbAssets
      */
     private $assets;
 
     /**
      * Construir uma página a partir do parente
      *
-     * @param Paginas $paginaParente
+     * @param MbPaginas $paginaParente
      * @param bool $menuPrincipal
      * @param int $posicao
      */
-    public function __construct(Paginas $paginaParente = null, $menuPrincipal = true, $posicao = 100)
+    public function __construct(MbPaginas $paginaParente = null, $menuPrincipal = true, $posicao = 100)
     {
         $this->setNome("Moça Bonita")
             ->setCapacidade("manage_options")
             ->setIcone("dashicons-editor-code")
             ->setEsconderMenu(false)
-            ->setAssets(new Assets())
+            ->setAssets(new MbAssets())
             ->setPaginaParente($paginaParente)
             ->setMenuPrincipal($menuPrincipal)
             ->setSubmenu(!$menuPrincipal)
@@ -162,7 +162,7 @@ class Paginas
 
     /**
      * @param string $nome
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setNome($nome)
     {
@@ -181,7 +181,7 @@ class Paginas
 
     /**
      * @param string $capacidade
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setCapacidade($capacidade)
     {
@@ -199,7 +199,7 @@ class Paginas
 
     /**
      * @param string $slug
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setSlug($slug)
     {
@@ -217,7 +217,7 @@ class Paginas
 
     /**
      * @param string $icone
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setIcone($icone)
     {
@@ -235,7 +235,7 @@ class Paginas
 
     /**
      * @param int $posicao
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setPosicao($posicao)
     {
@@ -244,22 +244,22 @@ class Paginas
     }
 
     /**
-     * @throws MBException
-     * @return Paginas
+     * @throws MbException
+     * @return MbPaginas
      */
     public function getPaginaParente()
     {
         if (is_null($this->paginaParente))
-            throw new MBException("Nenhuma página parente foi definida em {$this->getNome()}");
+            throw new MbException("Nenhuma página parente foi definida em {$this->getNome()}");
 
         return $this->paginaParente;
     }
 
     /**
-     * @param Paginas $paginaParente
-     * @return Paginas
+     * @param MbPaginas $paginaParente
+     * @return MbPaginas
      */
-    public function setPaginaParente(Paginas $paginaParente = null)
+    public function setPaginaParente(MbPaginas $paginaParente = null)
     {
         $this->paginaParente = $paginaParente;
         return $this;
@@ -275,7 +275,7 @@ class Paginas
 
     /**
      * @param boolean $removerSubMenuPagina
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setRemoverSubMenuPagina($removerSubMenuPagina = true)
     {
@@ -284,7 +284,7 @@ class Paginas
     }
 
     /**
-     * @return Paginas[]
+     * @return MbPaginas[]
      */
     public function getSubPaginas()
     {
@@ -293,7 +293,7 @@ class Paginas
 
     /**
      * @param string $slug
-     * @return Paginas|null
+     * @return MbPaginas|null
      */
     public function getSubPagina($slug)
     {
@@ -304,10 +304,10 @@ class Paginas
     }
 
     /**
-     * @param Paginas $pagina
-     * @return Paginas Retorna a SubPagina para melhor tratamento
+     * @param MbPaginas $pagina
+     * @return MbPaginas Retorna a SubPagina para melhor tratamento
      */
-    public function setSubPagina(Paginas $pagina)
+    public function setSubPagina(MbPaginas $pagina)
     {
         $this->subPaginas[$pagina->getSlug()] = $pagina;
         $pagina->setPaginaParente($this);
@@ -316,7 +316,7 @@ class Paginas
 
     /**
      * @param string $slug
-     * @return Paginas Retorna a SubPagina para melhor tratamento
+     * @return MbPaginas Retorna a SubPagina para melhor tratamento
      */
     public function adicionarSubPagina($slug)
     {
@@ -338,7 +338,7 @@ class Paginas
 
     /**
      * @param boolean $menuPrincipal
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setMenuPrincipal($menuPrincipal = true)
     {
@@ -356,7 +356,7 @@ class Paginas
 
     /**
      * @param boolean $submenu
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setSubmenu($submenu = true)
     {
@@ -374,7 +374,7 @@ class Paginas
 
     /**
      * @param MocaBonita $mocaBonita
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setMocaBonita(MocaBonita $mocaBonita)
     {
@@ -383,23 +383,23 @@ class Paginas
     }
 
     /**
-     * @throws MBException caso não exista controller definido
-     * @return Controller
+     * @throws MbException caso não exista controller definido
+     * @return MbController
      */
     public function getController()
     {
         if (is_string($this->controller)) {
-            $this->controller = Controller::create($this->controller);
-        } elseif (is_null($this->controller) || !$this->controller instanceof Controller) {
-            throw new MBException("Nenhum Controller foi definido para a página {$this->getNome()}.");
+            $this->controller = MbController::create($this->controller);
+        } elseif (is_null($this->controller) || !$this->controller instanceof MbController) {
+            throw new MbException("Nenhum Controller foi definido para a página {$this->getNome()}.");
         }
 
         return $this->controller;
     }
 
     /**
-     * @param Controller|string $controller
-     * @return Paginas
+     * @param MbController|string $controller
+     * @return MbPaginas
      */
     public function setController($controller)
     {
@@ -417,7 +417,7 @@ class Paginas
 
     /**
      * @param boolean $esconderMenu
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setEsconderMenu($esconderMenu = true)
     {
@@ -427,7 +427,7 @@ class Paginas
 
     /**
      * @param string $acao
-     * @return Acoes|null
+     * @return MbAcoes|null
      */
     public function getAcao($acao)
     {
@@ -438,10 +438,10 @@ class Paginas
     }
 
     /**
-     * @param Acoes $acao
-     * @return Acoes
+     * @param MbAcoes $acao
+     * @return MbAcoes
      */
-    public function setAcao(Acoes $acao)
+    public function setAcao(MbAcoes $acao)
     {
         $this->acoes[$acao->getNome()] = $acao;
         return $acao;
@@ -449,11 +449,11 @@ class Paginas
 
     /**
      * @param string $nome
-     * @return Acoes
+     * @return MbAcoes
      */
     public function adicionarAcao($nome)
     {
-        $this->acoes[$nome] = new Acoes($this, $nome);
+        $this->acoes[$nome] = new MbAcoes($this, $nome);
         return $this->acoes[$nome];
     }
 
@@ -468,7 +468,7 @@ class Paginas
     /**
      * @param string $servico
      * @param array $metodos
-     * @return Paginas
+     * @return MbPaginas
      */
     public function setServicos($servico, array $metodos)
     {
@@ -477,7 +477,7 @@ class Paginas
     }
 
     /**
-     * @return Assets
+     * @return MbAssets
      */
     public function getAssets()
     {
@@ -485,10 +485,10 @@ class Paginas
     }
 
     /**
-     * @param Assets $assets
-     * @return Paginas
+     * @param MbAssets $assets
+     * @return MbPaginas
      */
-    public function setAssets(Assets $assets)
+    public function setAssets(MbAssets $assets)
     {
         $this->assets = $assets;
         return $this;
