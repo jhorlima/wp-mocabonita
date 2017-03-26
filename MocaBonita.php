@@ -3,6 +3,7 @@
 namespace MocaBonita;
 
 use MocaBonita\tools\Diretorios;
+use MocaBonita\tools\Migration;
 use MocaBonita\tools\Respostas;
 use MocaBonita\tools\Requisicoes;
 use MocaBonita\service\Service;
@@ -289,16 +290,15 @@ final class MocaBonita
     /**
      * Callback para ser executado ao ativar o plugin
      * @param $active \Closure callback de inicialização do plugin
-     * @param bool $emDesenvolvimento Definir plugin em desenvolvimento
      */
-    public static function active(\Closure $active, $emDesenvolvimento = false)
+    public static function active(\Closure $active)
     {
         $mocaBonita = self::getInstance();
-        $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
 
         register_activation_hook(Diretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
-                $active($mocaBonita->request, $mocaBonita->response);
+                $migrate = new Migration(time());
+                $active($mocaBonita, $migrate);
             } catch (\Exception $e) {
                 MBException::adminNotice($e);
             }
@@ -308,16 +308,15 @@ final class MocaBonita
     /**
      * Callback para ser executado ao desativar o plugin
      * @param $deactive \Closure callback de inicialização do plugin
-     * @param bool $emDesenvolvimento Definir plugin em desenvolvimento
      */
-    public static function deactive(\Closure $deactive, $emDesenvolvimento = false)
+    public static function deactive(\Closure $deactive)
     {
         $mocaBonita = self::getInstance();
-        $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
 
         register_deactivation_hook(Diretorios::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
             try {
-                $deactive($mocaBonita->request, $mocaBonita->response);
+                $migrate = new Migration(time());
+                $deactive($mocaBonita, $migrate);
             } catch (\Exception $e) {
                 MBException::adminNotice($e);
             }
@@ -327,20 +326,15 @@ final class MocaBonita
     /**
      * Callback para ser executado ao apagar o plugin
      * @param $unistall \Closure callback de inicialização do plugin
-     * @param bool $emDesenvolvimento Definir plugin em desenvolvimento
      */
-    public static function uninstall(\Closure $unistall, $emDesenvolvimento = false)
+    public static function uninstall(\Closure $unistall)
     {
-        $mocaBonita = self::getInstance();
-        $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
-
-        register_uninstall_hook(Diretorios::PLUGIN_BASENAME, function () use ($unistall, $mocaBonita) {
-            try {
-                $unistall($mocaBonita->request, $mocaBonita->response);
-            } catch (\Exception $e) {
-                MBException::adminNotice($e);
-            }
-        });
+        if (defined('WP_UNINSTALL_PLUGIN')) {
+            $mocaBonita = self::getInstance();
+            $unistall($mocaBonita->request, $mocaBonita->response);
+        } else {
+            MBException::adminNotice(new \Exception("Você não pode executar este método fora do arquivo unistall.php"));
+        }
     }
 
     /**

@@ -26,4 +26,14 @@ class MBException extends \Exception
             $logger->error($e->getMessage());
         });
     }
+
+    public static function adminDebug(\Exception $e){
+        WPAction::adicionarCallbackAction('admin_notices', function () use ($e){
+            echo "<div class='notice notice-info'><p>{$e->getMessage()}</p></div>";
+        });
+        WPAction::adicionarCallbackAction('shutdown', function () use ($e){
+            $logger = new Logger(Diretorios::PLUGIN_DIRETORIO . '/logs');
+            $logger->debug($e->getMessage());
+        });
+    }
 }
