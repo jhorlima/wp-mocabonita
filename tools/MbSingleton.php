@@ -24,6 +24,10 @@ namespace MocaBonita\tools;
  * @copyright Copyright (c) 2017 NTI UEMA
  * @date 31/01/2017
  */
+/**
+ * Class MbSingleton
+ * @package MocaBonita\tools
+ */
 abstract class MbSingleton
 {
     /**
@@ -42,9 +46,15 @@ abstract class MbSingleton
      */
     final protected function __construct()
     {
-        if (method_exists($this, 'inicializar')) {
-            $this->inicializar();
-        }
+        $this->init();
+    }
+
+    /**
+     * Método que será iniciado
+     *
+     */
+    protected function init(){
+
     }
 
     /**
@@ -52,13 +62,15 @@ abstract class MbSingleton
      * todo o ciclo de vida do pedido em um aplicativo da Web. Isso normalmente ocorre quando temos objetos
      * globais (como uma classe de configuração) ou um recurso compartilhado (como uma fila de eventos).
      *
+     * @return static
      */
     public static function getInstance()
     {
         $nomeClasse = get_called_class();
 
-        if (!isset(self::$instances[$nomeClasse]))
+        if (!isset(self::$instances[$nomeClasse])){
             self::$instances[$nomeClasse] = new $nomeClasse();
+        }
 
         $oInstance = self::$instances[$nomeClasse];
         return $oInstance;
