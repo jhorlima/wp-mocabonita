@@ -2,6 +2,7 @@
 
 namespace MocaBonita\tools;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Response;
 use MocaBonita\view\View;
 
@@ -70,9 +71,12 @@ class MbRespostas extends Response
         //Verificar se a página atual é ajax
         if ($this->request->isAjax()) {
 
-            //Se os dados for um array, é convertido para JSON na estrutura do Moca Bonita
-            if (is_array($content)) {
+            //Se os dados for um array, é convertido para Array na estrutura do Moca Bonita
+            if (is_array($content) || $content instanceof Arrayable) {
                 $content = $this->respostaJson($content);
+            //Se os dados for um Arrayable, é convertido para Array na estrutura do Moca Bonita
+            } elseif ($content instanceof Arrayable) {
+                $content = $this->respostaJson($content->toArray());
             } //Se os dados for uma string, é adicionado ao atributo content do Moça Bonita
             elseif (is_string($content)) {
                 $content = $this->respostaJson(['content' => $content]);

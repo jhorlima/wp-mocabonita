@@ -79,8 +79,6 @@ class MbDatabaseManager implements ConnectionInterface
     {
         $processor = $this->getPostProcessor();
 
-        $table = $this->wpdb->prefix . $table;
-
         $query = new Builder($this, $this->getQueryGrammar(), $processor);
 
         return $query->from($table);
