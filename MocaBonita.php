@@ -334,8 +334,8 @@ final class MocaBonita
     public static function uninstall(\Closure $unistall)
     {
         if (defined('WP_UNINSTALL_PLUGIN')) {
-            MbCapsule::pdo();
             $mocaBonita = self::getInstance();
+            MbCapsule::pdo();
             $unistall($mocaBonita);
         } else {
             MbException::adminNotice(new \Exception("Você não pode executar este método fora do arquivo unistall.php"));

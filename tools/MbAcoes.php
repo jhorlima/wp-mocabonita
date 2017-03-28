@@ -81,12 +81,14 @@ class MbAcoes
 
     /**
      * @return MbPaginas
-     * @throws MbException
+     *
+     * @throws MBException
      */
     public function getPagina()
     {
-        if (is_null($this->pagina))
+        if (is_null($this->pagina)){
             throw new MbException("Nenhuma página foi definida para essa ação!");
+        }
 
         return $this->pagina;
     }

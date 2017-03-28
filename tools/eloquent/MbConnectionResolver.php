@@ -37,7 +37,8 @@ class MbConnectionResolver implements ConnectionResolverInterface
      */
     protected $connectionName = "wpdb";
 
-    /**
+    /** @noinspection PhpUnusedParameterInspection
+     *
      * Get a database connection instance.
      *
      * @param  string $name
