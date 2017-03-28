@@ -29,9 +29,9 @@
     "illuminate/http": "~5.0",
     "illuminate/database": "~5.0",
     "illuminate/pagination": "~5.0",
-    "symfony/http-foundation": "~3.0.*",
+    "symfony/http-foundation": "3.0.*",
     "nesbot/carbon": "~1.20",
-    "katzgrau/klogger": "~1.2.1"
+    "katzgrau/klogger": "1.2.1"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.0",
