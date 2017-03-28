@@ -13,13 +13,6 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 class MbCapsule extends Manager
 {
     /**
-     * Verificar se a conexão já foi criada
-     *
-     * @var bool
-     */
-    protected static $init = false;
-
-    /**
      * Obter instancia da aplicação.
      *
      * @return void
