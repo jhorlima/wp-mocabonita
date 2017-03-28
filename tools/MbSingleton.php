@@ -9,7 +9,7 @@
 namespace MocaBonita\tools;
 
 /**
- * Classe Singleton - Implementar o design pattern Singleton
+ * Class MbSingleton - Implementar o design pattern Singleton
  *
  * O padrão singleton é útil quando precisamos ter certeza de que só temos uma única instância de uma classe para
  * todo o ciclo de vida do pedido em um aplicativo da Web. Isso normalmente ocorre quando temos objetos
@@ -23,10 +23,6 @@ namespace MocaBonita\tools;
  * @version 1.0.0
  * @copyright Copyright (c) 2017 NTI UEMA
  * @date 31/01/2017
- */
-/**
- * Class MbSingleton
- * @package MocaBonita\tools
  */
 abstract class MbSingleton
 {
@@ -64,7 +60,7 @@ abstract class MbSingleton
      *
      * @return static
      */
-    public static function getInstance()
+    public final static function getInstance()
     {
         $nomeClasse = get_called_class();
 
@@ -94,6 +90,15 @@ abstract class MbSingleton
     final private function __wakeup()
     {
         //
+    }
+
+    /**
+     * Realizar o var_dump das instancias
+     *
+     */
+    public static function var_dump(){
+        var_dump(self::$instances);
+        exit();
     }
 
 }

@@ -14,6 +14,7 @@ use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbShortCode;
 use MocaBonita\tools\MbAssets;
 use MocaBonita\tools\MbPaginas;
+use MocaBonita\tools\MbSingleton;
 use MocaBonita\tools\MbWPAction;
 use MocaBonita\view\View;
 
@@ -29,7 +30,7 @@ use MocaBonita\view\View;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-final class MocaBonita
+final class MocaBonita extends MbSingleton
 {
     /**
      * Versão do Moca Bonita.
@@ -247,26 +248,37 @@ final class MocaBonita
     /**
      * Obter instancia da aplicação.
      *
-     * @return MocaBonita
+     * @return void
      */
-    public static function getInstance()
+    protected function init()
     {
-        if (is_null(static::$instance)) {
-
-            if (!defined('ABSPATH')) {
-                die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
-            } elseif (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
-                MbException::adminNotice(new \Exception(
-                    "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
-                ));
-            }
-
-            static::$instance = new static();
-
-            MbCapsule::wpdb();
+        if (!defined('ABSPATH')) {
+            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
+        } elseif (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
+            MbException::adminNotice(new \Exception(
+                "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
+            ));
         }
 
-        return static::$instance;
+        date_default_timezone_set(get_option('timezone_string'));
+
+        $this->response = MbRespostas::create();
+        $this->request = MbRequisicoes::capture();
+        $this->response->setRequest($this->request);
+        $this->page = $this->request->query('page');
+        $this->action = $this->request->query('action');
+
+        $this->assets = [
+            'plugin' => new MbAssets(),
+            'wordpress' => new MbAssets(),
+        ];
+
+        $this->servicos = [
+            'plugin' => [],
+            'wordpress' => [],
+        ];
+
+        MbCapsule::wpdb();
     }
 
     /**
@@ -277,7 +289,11 @@ final class MocaBonita
     public static function loader(\Closure $plugin, $emDesenvolvimento = false)
     {
         $mocaBonita = self::getInstance();
-        $mocaBonita->emDesenvolvimento = $emDesenvolvimento;
+        $mocaBonita->emDesenvolvimento = (bool) $emDesenvolvimento;
+
+        if ($emDesenvolvimento) {
+            $mocaBonita->desabilitarCaches();
+        }
 
         MbWPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $mocaBonita) {
             try {
@@ -304,7 +320,9 @@ final class MocaBonita
                 MbCapsule::pdo();
                 $active($mocaBonita);
             } catch (\Exception $e) {
-                MbException::adminNotice($e);
+                deactivate_plugins(basename(MbDiretorios::PLUGIN_BASENAME));
+                MbException::shutdown($e);
+                wp_die($e->getMessage());
             }
         });
     }
@@ -322,7 +340,8 @@ final class MocaBonita
                 MbCapsule::pdo();
                 $deactive($mocaBonita);
             } catch (\Exception $e) {
-                MbException::adminNotice($e);
+                MbException::shutdown($e);
+                wp_die($e->getMessage());
             }
         });
     }
@@ -338,7 +357,7 @@ final class MocaBonita
             MbCapsule::pdo();
             $unistall($mocaBonita);
         } else {
-            MbException::adminNotice(new \Exception("Você não pode executar este método fora do arquivo unistall.php"));
+            wp_die("Você não pode executar este método fora do arquivo unistall.php");
         }
     }
 
@@ -352,8 +371,8 @@ final class MocaBonita
             //Organizar as paginas e subpagina do moca bonita
             $this->processarPaginas();
 
-            //Adicionar os menus do wordpress
-            MbWPAction::adicionarAction('admin_menu', $this, 'processarMenu');
+            $carregarMenu = (bool) ($this->request->getPageNow() == "admin.php");
+
 
             //Adicionar os Assets do wordpress
             $this->getAssets(true)->processarAssets('*');
@@ -364,6 +383,11 @@ final class MocaBonita
             //Processar shortcodes
             foreach ($this->shortcodes as $shortcode) {
                 $shortcode->processarShorcode($this->getAssets(), $this->request, $this->response);
+            }
+
+            //Adicionar os menus do wordpress
+            if($carregarMenu){
+                MbWPAction::adicionarAction('admin_menu', $this, 'processarMenu');
             }
 
             //Verificar se a página atual é do plugin
@@ -408,7 +432,7 @@ final class MocaBonita
                 $this->mocaBonita();
 
                 //Verificar se a página atual é adminstradora
-                if ($this->request->isLogin()) {
+                if ($this->request->isLogin() && !$carregarMenu) {
                     //Verificar se a página atual é requisitada via ajax
                     if ($this->request->isAjax()) {
                         //Adicionar o action AdminAjax
@@ -419,7 +443,7 @@ final class MocaBonita
                     }
 
                     //Caso a página atual não é adminstradora
-                } else {
+                } elseif(!$carregarMenu) {
                     //Adicionar o action NoAdminAjax
                     if ($this->request->isAjax()) {
                         MbWPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'getConteudo');
@@ -561,58 +585,6 @@ final class MocaBonita
         } catch (\Exception $e) {
             $this->response->setConteudo($e);
         }
-    }
-
-    /**
-     * Construtor do Moça Bonita
-     * @param bool $emDesenvolvimento Verificar se a página está em desenvolvimento
-     */
-    private function __construct($emDesenvolvimento = false)
-    {
-        date_default_timezone_set(get_option('timezone_string'));
-        $this->response = MbRespostas::create();
-        $this->request = MbRequisicoes::capture();
-        $this->response->setRequest($this->request);
-        $this->page = $this->request->query('page');
-        $this->action = $this->request->query('action');
-
-        $this->assets = [
-            'plugin' => new MbAssets(),
-            'wordpress' => new MbAssets(),
-        ];
-
-        $this->servicos = [
-            'plugin' => [],
-            'wordpress' => [],
-        ];
-
-        //Definir se a página está em desenvolvimento
-        $this->emDesenvolvimento = (bool)$emDesenvolvimento;
-
-        if ($emDesenvolvimento) {
-            $this->desabilitarCaches();
-        }
-    }
-
-    /**
-     * O método mágico __clone() é declarado como private para impedir a clonagem de uma instância da classe através
-     * do operador clone.
-     *
-     */
-    final private function __clone()
-    {
-        //
-    }
-
-    /** @noinspection PhpUnusedPrivateMethodInspection */
-    /**
-     * O método mágico __wakeup() é declarado como private para evitar unserializing de uma instância da classe via
-     * a função global unserialize ().
-     *
-     */
-    final private function __wakeup()
-    {
-        //
     }
 
     /**

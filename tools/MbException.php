@@ -134,7 +134,7 @@ class MbException extends \Exception
     /**
      * @param boolean $salvarLog
      */
-    public static function setSalvarLog($salvarLog)
+    public static function setSalvarLog($salvarLog = true)
     {
         self::$salvarLog = (bool) $salvarLog;
     }
@@ -165,7 +165,10 @@ class MbException extends \Exception
         }
     }
 
-    protected static function shutdown(\Exception $e){
+    /**
+     * @param \Exception $e
+     */
+    public static function shutdown(\Exception $e){
         MbWPAction::adicionarCallbackAction('shutdown', function () use ($e){
             $logger = new Logger(self::getLogPath());
             $logger->debug($e->getMessage());
