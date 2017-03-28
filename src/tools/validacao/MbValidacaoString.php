@@ -12,6 +12,7 @@ use Exception;
  * max (int): Número máximo de caracteres (precisa definir o min)
  * trim (bool): Fazer o trim na string
  * striptags (string | string[]): Filtro de TAGS HTML e Tags permitidas
+ * mask (string): Aplicar mascara a string, ex: (##) ####-####
  * str_lower (bool) : Filtro para formatar a string para minuscula.
  * str_upper (bool) : Filtro para formatar a string para maiuscula.
  * alpha_numeric (bool) : Filtro para formatar alphanumeric na string.
@@ -34,6 +35,7 @@ class MbValidacaoString extends MbModeloValidacao
         $max = isset($argumentos['max']) ? $argumentos['max'] : false;
         $trim = isset($argumentos['trim']) ? (bool)$argumentos['trim'] : false;
         $striptags = isset($argumentos['striptags']) ? $argumentos['striptags'] : false;
+        $mask = isset($argumentos['mask']) ? $argumentos['mask'] : false;
         $strLower = isset($argumentos['str_lower']) ? (bool) $argumentos['str_lower'] : false;
         $strUpper = isset($argumentos['str_upper']) ? (bool) $argumentos['str_upper'] : false;
         $alphaNumeric = isset($argumentos['alpha_numeric']) ? (bool) $argumentos['alpha_numeric'] : false;
@@ -102,6 +104,27 @@ class MbValidacaoString extends MbModeloValidacao
 
         if ($email && !filter_var($valor, FILTER_VALIDATE_EMAIL)) {
             throw new Exception("O atributo '{$this->getAtributo()}' não é um e-mail válido!");
+        }
+
+        if($mask && is_string($mask)){
+            $valorNovo = '';
+            $k = 0;
+            for($i = 0; $i<=strlen($mask)-1; $i++)
+            {
+                if($mask[$i] == '#')
+                {
+                    if(isset($valor[$k])){
+                        $valorNovo .= $valor[$k++];
+                    }
+                }
+                else
+                {
+                    if(isset($mask[$i])){
+                        $valorNovo .= $mask[$i];
+                    }
+                }
+            }
+            $valor = $valorNovo;
         }
 
         return $valor;
