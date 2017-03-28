@@ -13,26 +13,35 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 class MbCapsule extends Manager
 {
     /**
+     * Verificar se a conexão já foi criada
+     *
+     * @var bool
+     */
+    protected static $init = false;
+
+    /**
      * Obter instancia da aplicação.
      *
      * @return void
      */
-    public static function init()
+    public static function pdo()
     {
-        global $wpdb;
+       if(is_null(self::$instance)){
+           global $wpdb;
 
-        $capsule = new self();
-        $capsule->addConnection([
-            'driver'    => 'mysql',
-            'host'      => DB_HOST,
-            'database'  => DB_NAME,
-            'username'  => DB_USER,
-            'password'  => DB_PASSWORD,
-            'charset'   => DB_CHARSET,
-            'collation' => DB_COLLATE ?: $wpdb->collate,
-        ]);
-        $capsule->setAsGlobal();
-        $capsule->bootEloquent();
+           $capsule = new self();
+           $capsule->addConnection([
+               'driver'    => 'mysql',
+               'host'      => DB_HOST,
+               'database'  => DB_NAME,
+               'username'  => DB_USER,
+               'password'  => DB_PASSWORD,
+               'charset'   => DB_CHARSET,
+               'collation' => DB_COLLATE ?: $wpdb->collate,
+           ]);
+           $capsule->setAsGlobal();
+           $capsule->bootEloquent();
+       }
     }
 
     /**

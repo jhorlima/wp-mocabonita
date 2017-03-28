@@ -160,4 +160,14 @@ class MbRequisicoes extends Request
         return (bool)($this->ajax || $this->isXmlHttpRequest());
     }
 
+    /**
+     * Get the full URL for the request with the added query string parameters.
+     *
+     * @param  array  $query
+     * @return string
+     */
+    public function fullUrlWithNewQuery(array $query)
+    {
+        return $this->url() . '/?'.http_build_query($query);
+    }
 }

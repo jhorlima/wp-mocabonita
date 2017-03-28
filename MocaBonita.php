@@ -2,6 +2,8 @@
 
 namespace MocaBonita;
 
+use Illuminate\Pagination\Paginator;
+use MocaBonita\tools\eloquent\MbDatabaseBuilder;
 use MocaBonita\tools\MbDiretorios;
 use MocaBonita\tools\MbCapsule;
 use MocaBonita\tools\MbRespostas;
@@ -261,7 +263,7 @@ final class MocaBonita
 
             static::$instance = new static();
 
-            MbCapsule::init();
+            MbCapsule::wpdb();
         }
 
         return static::$instance;
@@ -299,6 +301,7 @@ final class MocaBonita
 
         register_activation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
+                MbCapsule::pdo();
                 $active($mocaBonita);
             } catch (\Exception $e) {
                 MbException::adminNotice($e);
@@ -316,6 +319,7 @@ final class MocaBonita
 
         register_deactivation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
             try {
+                MbCapsule::pdo();
                 $deactive($mocaBonita);
             } catch (\Exception $e) {
                 MbException::adminNotice($e);
@@ -330,6 +334,7 @@ final class MocaBonita
     public static function uninstall(\Closure $unistall)
     {
         if (defined('WP_UNINSTALL_PLUGIN')) {
+            MbCapsule::pdo();
             $mocaBonita = self::getInstance();
             $unistall($mocaBonita);
         } else {
@@ -363,6 +368,30 @@ final class MocaBonita
 
             //Verificar se a página atual é do plugin
             if ($this->isPaginaPlugin()) {
+
+                //Obter a lista de query params
+                $query = $this->request->query();
+
+                //Verificar se existe atributo da páginação
+                if(isset($query[MbDatabaseBuilder::getPageName()])){
+                    $paginacao = $query[MbDatabaseBuilder::getPageName()];
+                    unset($query[MbDatabaseBuilder::getPageName()]);
+                } else {
+                    $paginacao = 1;
+                }
+
+                //Obter url da página sem páginação
+                $url = $this->request->fullUrlWithNewQuery($query);
+
+                //Definir rota da páginação
+                Paginator::currentPathResolver(function () use ($url) {
+                    return $url;
+                });
+
+                //Definir página atual
+                Paginator::currentPageResolver(function () use ($paginacao){
+                    return is_numeric($paginacao) ? (int) $paginacao : 1;
+                });
 
                 //Adicionar os Assets do plugin
                 $this->getAssets()->processarAssets('plugin');

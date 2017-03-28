@@ -2,7 +2,6 @@
 namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\ConnectionInterface;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\Grammars\Grammar;
 use Illuminate\Database\Query\Processors\Processor;
 use Illuminate\Database\Query\Expression;
@@ -79,7 +78,7 @@ class MbDatabaseManager implements ConnectionInterface
     {
         $processor = $this->getPostProcessor();
 
-        $query = new Builder($this, $this->getQueryGrammar(), $processor);
+        $query = new MbDatabaseBuilder($this, $this->getQueryGrammar(), $processor);
 
         return $query->from($table);
     }
