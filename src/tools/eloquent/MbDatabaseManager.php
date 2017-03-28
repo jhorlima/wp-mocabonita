@@ -277,11 +277,17 @@ class MbDatabaseManager implements ConnectionInterface
      *
      * @param  string $query
      *
+     * @throws QueryException
+     *
      * @return bool
      */
     public function unprepared($query)
     {
         $result = $this->wpdb->query($query);
+
+        if ($result === false || $this->wpdb->last_error) {
+            throw new QueryException($query, [], new \Exception($this->wpdb->last_error));
+        }
 
         return ($result === false || $this->wpdb->last_error);
     }
