@@ -2,14 +2,21 @@
 
 namespace MocaBonita;
 
-use MocaBonita\controller\Requisicoes;
+use Illuminate\Pagination\Paginator;
+use MocaBonita\tools\eloquent\MbDatabaseBuilder;
+use MocaBonita\tools\MbDiretorios;
+use MocaBonita\tools\MbCapsule;
+use MocaBonita\tools\MbRespostas;
+use MocaBonita\tools\MbRequisicoes;
 use MocaBonita\service\Service;
-use MocaBonita\tools\Acoes;
-use MocaBonita\tools\MBException;
-use MocaBonita\tools\ShortCode;
-use MocaBonita\tools\Assets;
-use MocaBonita\tools\Paginas;
-use MocaBonita\tools\WPAction;
+use MocaBonita\tools\MbAcoes;
+use MocaBonita\tools\MbException;
+use MocaBonita\tools\MbShortCode;
+use MocaBonita\tools\MbAssets;
+use MocaBonita\tools\MbPaginas;
+use MocaBonita\tools\MbSingleton;
+use MocaBonita\tools\MbWPAction;
+use MocaBonita\view\View;
 
 /**
  * Um framework para o desenvolvimento de plugins na plataforma wordpress.
@@ -23,50 +30,47 @@ use MocaBonita\tools\WPAction;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-final class MocaBonita extends Requisicoes
+final class MocaBonita extends MbSingleton
 {
+    /**
+     * Versão do Moca Bonita.
+     */
+    const VERSION = '3.0.0';
+
+    /**
+     * Instancia da classe.
+     *
+     * @var MocaBonita
+     */
+    protected static $instance;
 
     /**
      * Paginas objeto
      *
-     * @var Paginas[]
+     * @var MbPaginas[]
      */
     protected $paginas = [];
 
     /**
-     * Serviços do Plugin do Moca Bonita
+     * Serviços do Plugin e Wordpress do Moca Bonita
      *
-     * @var array
+     * @var array[]
      */
-    private $servicosPlugin = [];
-
-    /**
-     * Serviços do Wordpress do Moca Bonita
-     *
-     * @var array
-     */
-    private $servicosWordPress = [];
+    private $servicos = [];
 
     /**
      * Shortcodes do Wordpress do Moca Bonita
      *
-     * @var ShortCode[]
+     * @var MbShortCode[]
      */
     private $shortcodes = [];
 
     /**
-     * Assets do plugin do Wordpress do Moca Bonita
+     * Assets do plugin e Wordpress do Moca Bonita
      *
-     * @var Assets
+     * @var MbAssets[]
      */
-    private $assetsPlugin;
-
-    /**
-     * Assets do Wordpress do Moca Bonita
-     *
-     * @var Assets
-     */
-    private $assetsWordpress;
+    private $assets;
 
     /**
      * Váriavel que verifica se a página atual foi gerada pelo Plugin atual
@@ -83,62 +87,198 @@ final class MocaBonita extends Requisicoes
     public $emDesenvolvimento;
 
     /**
-     * Váriavel que armazenda as principais informações do request para alimentar a controller e service
+     * Váriavel que armazenda o request
      *
-     * @var array
+     * @var MbRequisicoes
      */
-    protected $dadosRequisicao;
+    protected $request;
 
     /**
-     * @return Assets
+     * Váriavel que armazenda a resposta
+     *
+     * @var MbRespostas
+     */
+    protected $response;
+
+    /**
+     * Contém a página atual do wordpress obtida atráves do método httpGet['page']
+     *
+     * @var string
+     */
+    protected $page;
+
+    /**
+     * Contém a ação atual da página do wordpress obtida atráves do método httpGet['action']
+     *
+     * @var string
+     */
+    protected $action;
+
+    /**
+     * Obter todos os assets
+     *
+     * @param bool $wordpress
+     *
+     * @return MbAssets
+     */
+    public function getAssets($wordpress = false)
+    {
+        return $wordpress ? $this->assets['wordpress'] : $this->assets['plugin'];
+    }
+
+    /**
+     * Obter assets do plugin
+     *
+     * @return MbAssets
      */
     public function getAssetsPlugin()
     {
-        return $this->assetsPlugin;
+        return $this->getAssets();
     }
 
     /**
-     * @param Assets $assetsPlugin
-     * @return MocaBonita
-     */
-    public function setAssetsPlugin(Assets $assetsPlugin)
-    {
-        $this->assetsPlugin = $assetsPlugin;
-        return $this;
-    }
-
-    /**
-     * @return Assets
+     * Obter assets do wordpress
+     *
+     * @return MbAssets
      */
     public function getAssetsWordpress()
     {
-        return $this->assetsWordpress;
+        return $this->getAssets(true);
     }
 
     /**
-     * @param Assets $assetsWordpress
+     * @param MbAssets $assets
+     * @param bool $wordpress
+     *
      * @return MocaBonita
      */
-    public function setAssetsWordpress(Assets $assetsWordpress)
+    public function setAssets(MbAssets $assets, $wordpress = false)
     {
-        $this->assetsWordpress = $assetsWordpress;
+        $this->assets[$wordpress ? 'wordpress' : 'plugin'] = $assets;
         return $this;
     }
 
     /**
-     * @return array
+     * @param MbAssets $assetsPlugin
+     *
+     * @return MocaBonita
      */
-    public function getServicosPlugin()
+    public function setAssetsPlugin(MbAssets $assetsPlugin)
     {
-        return $this->servicosPlugin;
+        return $this->setAssets($assetsPlugin);
     }
 
     /**
-     * @return array
+     * @param MbAssets $assetsWordpress
+     * @return MocaBonita
+     */
+    public function setAssetsWordpress(MbAssets $assetsWordpress)
+    {
+        return $this->setAssets($assetsWordpress, true);
+    }
+
+    /**
+     * @param bool $wordpress
+     * @return array[]
+     */
+    public function getServicos($wordpress = false)
+    {
+        return $wordpress ? $this->servicos['wordpress'] : $this->servicos['plugin'];
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getServicosPlugin()
+    {
+        return $this->getServicos();
+    }
+
+    /**
+     * @return array[]
      */
     public function getServicosWordPress()
     {
-        return $this->servicosWordPress;
+        return $this->getServicos(true);
+    }
+
+    /**
+     * @param string $servico
+     * @param array $metodos
+     * @param bool $wordpress
+     *
+     * @return MocaBonita
+     */
+    public function adicionarServicos($servico, array $metodos, $wordpress = false)
+    {
+        $this->servicos[$wordpress ? 'wordpress' : 'plugin'][] = Service::configuracoesServicos($servico, $metodos);
+        return $this;
+    }
+
+    /**
+     * @param string $servico
+     * @param array $metodos
+     * @return MocaBonita
+     */
+    public function adicionarServicosPlugin($servico, array $metodos)
+    {
+        return $this->adicionarServicos($servico, $metodos);
+    }
+
+    /**
+     * @param string $servico
+     * @param array $metodos
+     * @return MocaBonita
+     */
+    public function adicionarServicosWordPress($servico, array $metodos)
+    {
+        return $this->adicionarServicos($servico, $metodos, true);
+    }
+
+    /**
+     * Obter versão atual
+     *
+     * @return string
+     */
+    public function version()
+    {
+        return static::VERSION;
+    }
+
+    /**
+     * Obter instancia da aplicação.
+     *
+     * @return void
+     */
+    protected function init()
+    {
+        if (!defined('ABSPATH')) {
+            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
+        } elseif (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
+            MbException::adminNotice(new \Exception(
+                "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
+            ));
+        }
+
+        date_default_timezone_set(get_option('timezone_string'));
+
+        $this->response = MbRespostas::create();
+        $this->request = MbRequisicoes::capture();
+        $this->response->setRequest($this->request);
+        $this->page = $this->request->query('page');
+        $this->action = $this->request->query('action');
+
+        $this->assets = [
+            'plugin' => new MbAssets(),
+            'wordpress' => new MbAssets(),
+        ];
+
+        $this->servicos = [
+            'plugin' => [],
+            'wordpress' => [],
+        ];
+
+        MbCapsule::wpdb();
     }
 
     /**
@@ -148,114 +288,206 @@ final class MocaBonita extends Requisicoes
      */
     public static function loader(\Closure $plugin, $emDesenvolvimento = false)
     {
-        if (!defined('ABSPATH')) {
-            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
+        $mocaBonita = self::getInstance();
+        $mocaBonita->emDesenvolvimento = (bool) $emDesenvolvimento;
+
+        if ($emDesenvolvimento) {
+            $mocaBonita->desabilitarCaches();
         }
 
-        WPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $emDesenvolvimento) {
+        MbWPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $mocaBonita) {
             try {
-                $mocaBonita = new self($emDesenvolvimento);
                 $plugin($mocaBonita);
                 $mocaBonita->launcher();
             } catch (\Exception $e) {
-                echo $e->getMessage();
+                $mocaBonita->response->setConteudo($e);
+            } finally {
+                $mocaBonita->response->processarHeaders();
             }
         });
+    }
+
+    /**
+     * Callback para ser executado ao ativar o plugin
+     * @param $active \Closure callback de inicialização do plugin
+     */
+    public static function active(\Closure $active)
+    {
+        $mocaBonita = self::getInstance();
+
+        register_activation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
+            try {
+                MbCapsule::pdo();
+                $active($mocaBonita);
+            } catch (\Exception $e) {
+                deactivate_plugins(basename(MbDiretorios::PLUGIN_BASENAME));
+                MbException::shutdown($e);
+                wp_die($e->getMessage());
+            }
+        });
+    }
+
+    /**
+     * Callback para ser executado ao desativar o plugin
+     * @param $deactive \Closure callback de inicialização do plugin
+     */
+    public static function deactive(\Closure $deactive)
+    {
+        $mocaBonita = self::getInstance();
+
+        register_deactivation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
+            try {
+                MbCapsule::pdo();
+                $deactive($mocaBonita);
+            } catch (\Exception $e) {
+                MbException::shutdown($e);
+                wp_die($e->getMessage());
+            }
+        });
+    }
+
+    /**
+     * Callback para ser executado ao apagar o plugin
+     * @param $unistall \Closure callback de inicialização do plugin
+     */
+    public static function uninstall(\Closure $unistall)
+    {
+        if (defined('WP_UNINSTALL_PLUGIN')) {
+            $mocaBonita = self::getInstance();
+            MbCapsule::pdo();
+            $unistall($mocaBonita);
+        } else {
+            wp_die("Você não pode executar este método fora do arquivo unistall.php");
+        }
     }
 
     /**
      * Inicializar o processamento do moça bonita
      *
      */
-    public function launcher()
+    private function launcher()
     {
         try {
             //Organizar as paginas e subpagina do moca bonita
             $this->processarPaginas();
 
-            //Adicionar os menus do wordpress
-            WPAction::adicionarAction('admin_menu', $this, 'processarMenu');
+            $carregarMenu = (bool) ($this->request->getPageNow() == "admin.php");
+
 
             //Adicionar os Assets do wordpress
-            $this->getAssetsWordpress()->processarCssWordpress('*');
-            $this->getAssetsWordpress()->processarJsWordpress('*');
+            $this->getAssets(true)->processarAssets('*');
 
             //Adicionar os serviços do wordpress
-            $this->processarServicos($this->getServicosWordPress());
+            Service::processarServicos($this->getServicos(true), $this->request, $this->response);
+
+            //Processar shortcodes
+            foreach ($this->shortcodes as $shortcode) {
+                $shortcode->processarShorcode($this->getAssets(), $this->request, $this->response);
+            }
+
+            //Adicionar os menus do wordpress
+            if($carregarMenu){
+                MbWPAction::adicionarAction('admin_menu', $this, 'processarMenu');
+            }
 
             //Verificar se a página atual é do plugin
             if ($this->isPaginaPlugin()) {
+
+                //Obter a lista de query params
+                $query = $this->request->query();
+
+                //Verificar se existe atributo da páginação
+                if(isset($query[MbDatabaseBuilder::getPageName()])){
+                    $paginacao = $query[MbDatabaseBuilder::getPageName()];
+                    unset($query[MbDatabaseBuilder::getPageName()]);
+                } else {
+                    $paginacao = 1;
+                }
+
+                //Obter url da página sem páginação
+                $url = $this->request->fullUrlWithNewQuery($query);
+
+                //Definir rota da páginação
+                Paginator::currentPathResolver(function () use ($url) {
+                    return $url;
+                });
+
+                //Definir página atual
+                Paginator::currentPageResolver(function () use ($paginacao){
+                    return is_numeric($paginacao) ? (int) $paginacao : 1;
+                });
+
                 //Adicionar os Assets do plugin
-                $this->getAssetsPlugin()->processarCssWordpress('plugin');
-                $this->getAssetsPlugin()->processarJsWordpress('plugin');
+                $this->getAssets()->processarAssets('plugin');
                 //Adicionar os serviços do plugin
-                $this->processarServicos($this->getServicosPlugin());
+                Service::processarServicos($this->getServicos(), $this->request, $this->response);
+
+                //Adicionar os Assets da página
+                $this->getPagina($this->page)->getAssets()->processarAssets($this->page);
+
+                //Adicionar os serviços da página
+                Service::processarServicos($this->getPagina($this->page)->getServicos(), $this->request, $this->response);
+
+                //Processar a página
+                $this->mocaBonita();
 
                 //Verificar se a página atual é adminstradora
-                if ($this->isLogin()) {
+                if ($this->request->isLogin() && !$carregarMenu) {
                     //Verificar se a página atual é requisitada via ajax
-                    if ($this->isAjax()) {
+                    if ($this->request->isAjax()) {
                         //Adicionar o action AdminAjax
-                        WPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'mocaBonita');
+                        MbWPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'getConteudo');
                     } else {
                         //Adicionar o action AdminPost
-                        WPAction::adicionarAction("admin_post_{$this->action}", $this, 'mocaBonita');
+                        MbWPAction::adicionarAction("admin_post_{$this->action}", $this, 'getConteudo');
                     }
 
                     //Caso a página atual não é adminstradora
-                } else {
+                } elseif(!$carregarMenu) {
                     //Adicionar o action NoAdminAjax
-                    if ($this->isAjax()) {
-                        WPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'mocaBonita');
+                    if ($this->request->isAjax()) {
+                        MbWPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'getConteudo');
                     } else {
                         //Adicionar o action NoAdminPost
-                        WPAction::adicionarAction("admin_post_nopriv_{$this->action}", $this, 'mocaBonita');
+                        MbWPAction::adicionarAction("admin_post_nopriv_{$this->action}", $this, 'getConteudo');
                     }
                 }
-
-                //Adicionar os Assets da página
-                $this->getPagina($this->page)->getAssets()->processarCssWordpress($this->page);
-                $this->getPagina($this->page)->getAssets()->processarJsWordpress($this->page);
-                //Adicionar os serviços da página
-                $this->processarServicos($this->getPagina($this->page)->getServicos());
-            }
-
-            foreach ($this->shortcodes as $shortcode) {
-                $shortcode->processarShorcode([
-                    'assets' => $this->getAssetsPlugin(),
-                    'dados_requisicao' => $this->dadosRequisicao,
-                    'em_desenvolvimento' => $this->emDesenvolvimento,
-                ]);
             }
 
             //Caso ocorra algum erro durante o processamento do plugin
         } catch (\Exception $e) {
-            $this->paginaPlugin = false;
-            $mb = new MBException($e->getMessage());
-            $mb->setRequisicoes($this);
-
-            $callback = function () use ($mb) {
-                $mb->processarExcecao();
-            };
-
-            WPAction::adicionarCallbackAction('admin_notices', $callback);
-            WPAction::adicionarCallbackAction("wp_ajax_{$this->action}", $callback);
-            WPAction::adicionarCallbackAction("wp_ajax_nopriv_{$this->action}", $callback);
+            if ($this->request->isAjax()) {
+                MbWPAction::adicionarAction("wp_ajax_{$this->action}", $this, 'getConteudo');
+                MbWPAction::adicionarAction("wp_ajax_nopriv_{$this->action}", $this, 'getConteudo');
+            }
+            $this->response->setConteudo($e);
         }
     }
 
     /**
-     * Método executado pelo wordpress automaticamente através das action
+     * Método para exibir conteudo da página
      *
      */
-    public function mocaBonita()
+    public function getConteudo()
     {
         try {
-
-            //Verificar se a página atual pertence ao plugin
             if (!$this->isPaginaPlugin()) {
-                return null;
+                throw new \Exception("Você não pode exibir está página!");
             }
+        } catch (\Exception $e) {
+            $this->response->setConteudo($e);
+        } finally {
+            $this->response->getContent();
+        }
+    }
+
+    /**
+     * Método que processará a controller e validar a página
+     *
+     */
+    private function mocaBonita()
+    {
+        try {
 
             //Obter as configurações da página atual
             $pagina = $this->getPagina($this->page);
@@ -266,7 +498,7 @@ final class MocaBonita extends Requisicoes
 
             //Caso a ação não seja definida no objeto página, lançar uma exception
             if (is_null($acao)) {
-                throw new MBException(
+                throw new MbException(
                     "A Ação {$this->action} da página {$this->page} não foi instânciada no objeto da página!"
                 );
             } //Verificar se a Ação tem capacidade, se não, obtem a capacidade da página
@@ -275,35 +507,44 @@ final class MocaBonita extends Requisicoes
             }
 
             //Caso a ação precise do login e não tenha nenhum usuário logado no wordpress
-            if ($acao->isLogin() && !$this->isLogin()) {
-                throw new MBException(
+            if ($acao->isLogin() && !$this->request->isLogin()) {
+                throw new MbException(
                     "A Ação {$this->action} da página {$this->page} requer o login do wordpress!"
                 );
             } //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
             elseif ($acao->isLogin() && !current_user_can($acao->getCapacidade())) {
-                throw new MBException(
+                throw new MbException(
                     "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
                 );
             } //Caso a ação precise ser chamada via admin-ajax.php no wordpress e esta sendo chamado de outra forma
-            elseif ($acao->isAjax() && !$this->isAjax()) {
-                throw new MBException(
+            elseif ($acao->isAjax() && !$this->request->isAjax()) {
+                throw new MbException(
                     "A Ação {$this->action} da página {$this->page} precisa ser requisitada em admin-ajax.php!"
                 );
             } //Caso a ação tenha um método de requisição diferente da requisição atual
-            elseif ($acao->getRequisicao() != $this->metodoRequisicao && !is_null($acao->getRequisicao())) {
-                throw new MBException(
+            elseif ($acao->getRequisicao() != $this->request->method() && !is_null($acao->getRequisicao())) {
+                throw new MbException(
                     "A Ação {$this->action} da página {$this->page} precisa ser requisitada via {$acao->getRequisicao()}!"
                 );
             } //Caso a ação não tenha um método criado ou publico na controller
             elseif (!$acao->metodoValido()) {
-                throw new MBException(
+                throw new MbException(
                     "A Ação {$this->action} da página {$this->page} não tem um método publico na controller {$nomeController}. 
                     Por favor, criar ou tornar public o método {$acao->getMetodo()} em {$nomeController}!"
                 );
             }
 
-            //Carregar dados da controller
-            $acao->getPagina()->getController()->mocabonita($this->dadosRequisicao);
+            //Carregar view e suas configuracoes da controller
+            $acao->getPagina()->getController()->setView(new View());
+            $acao->getPagina()
+                ->getController()
+                ->getView()
+                ->setView('index', $this->page, $this->action)
+                ->setRequest($this->request)
+                ->setResponse($this->response);
+
+            //Carregar request e response da controller
+            $acao->getPagina()->getController()->setRequest($this->request)->setResponse($this->response);
 
             //Definir página principal
             $acao->getPagina()->getController()->getView()->setPage($this->page);
@@ -314,9 +555,16 @@ final class MocaBonita extends Requisicoes
             //Começar a processar a controller
             ob_start();
 
-            $respostaController = $acao->getPagina()->getController()->{$acao->getMetodo()}();
-
-            $conteudoController = ob_get_contents();
+            try {
+                $respostaController = $acao->getPagina()
+                    ->getController()
+                    ->{$acao->getMetodo()}($this->request, $this->response);
+                //Caso a controller lance alguma exception, ela será lançada abaixo!
+            } catch (\Exception $e) {
+                $respostaController = $e;
+            } finally {
+                $conteudoController = ob_get_contents();
+            }
 
             ob_end_clean();
 
@@ -326,80 +574,16 @@ final class MocaBonita extends Requisicoes
             }
 
             //Verificar se a resposta é nula e a requisicao não é ajax e então ele pega a view da controller
-            if (is_null($respostaController) && !$this->isAjax()) {
+            if (is_null($respostaController) && !$this->request->isAjax()) {
                 $respostaController = $acao->getPagina()->getController()->getView();
             }
 
-            $this->enviarDadosNavegador($respostaController);
+            //Processar a página
+            $this->response->setConteudo($respostaController);
 
             //Caso ocorra algum erro no moca bonita
-        } catch (MBException $mb) {
-            $mb->setRequisicoes($this);
-            $mb->processarExcecao();
         } catch (\Exception $e) {
-            $mb = new MBException($e->getMessage());
-            $mb->setRequisicoes($this);
-            $mb->processarExcecao();
-        }
-    }
-
-    /**
-     * Construtor do Moça Bonita
-     * @param bool $emDesenvolvimento Verificar se a página está em desenvolvimento
-     */
-    public function __construct($emDesenvolvimento = false)
-    {
-        register_activation_hook(__FILE__, function () {
-            if (version_compare(PHP_VERSION, '5.5', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
-                deactivate_plugins(basename(__FILE__));
-            }
-        });
-
-        //Chamar o contruct da classe HTTPService
-        parent::__construct();
-
-        //Inicializar Assets do Plugin e Wordpress
-        $this->setAssetsPlugin(new Assets());
-        $this->setAssetsWordpress(new Assets());
-
-        //Definir se a página está em desenvolvimento
-        $this->emDesenvolvimento = (bool)$emDesenvolvimento;
-
-        if ($emDesenvolvimento) {
-            $this->desabilitarCaches();
-        }
-
-        //Obter os dados de requisição gerados pelo HTTPService e armazenar em $requestData
-        $this->dadosRequisicao = [
-            'metodoRequisicao' => $this->metodoRequisicao,
-            'conteudo' => $this->conteudo,
-            'httpGet' => $this->httpGet,
-            'page' => $this->page,
-            'action' => $this->action,
-            'admin' => $this->admin,
-            'ajax' => $this->ajax,
-        ];
-    }
-
-    /**
-     * Processar serviços da página
-     *
-     * @param array $servicos
-     * @throws MBException
-     */
-    private function processarServicos(array $servicos)
-    {
-        foreach ($servicos as $configuracao) {
-            $servico = Service::factory($configuracao);
-
-            foreach ($configuracao['metodos'] as $metodos) {
-                $nomeMetodo = "{$metodos}Dispatcher";
-
-                if (method_exists($servico, $nomeMetodo)) {
-                    $servico->mocabonita($this->dadosRequisicao);
-                    $servico->{$nomeMetodo}();
-                }
-            }
+            $this->response->setConteudo($e);
         }
     }
 
@@ -409,9 +593,10 @@ final class MocaBonita extends Requisicoes
      */
     private function desabilitarCaches()
     {
-        header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
-        header("Pragma: no-cache"); // HTTP 1.0.
-        header("Expires: 0"); // Proxies.
+        $this->response
+            ->header("Cache-Control", "no-cache, no-store, must-revalidate")
+            ->header("Pragma", "no-cache")
+            ->header("Expires", "0");
     }
 
     /**
@@ -421,16 +606,21 @@ final class MocaBonita extends Requisicoes
      */
     public function isPaginaPlugin()
     {
-        if(is_null($this->page)){
+        if (is_null($this->page)) {
             return false;
-        } if (is_null($this->paginaPlugin)) {
+        }
+
+        if (is_null($this->paginaPlugin)) {
             $this->paginaPlugin = in_array($this->page, array_keys($this->paginas));
         }
 
-        if($this->paginaPlugin && is_null($this->action)){
-            $url = admin_url($GLOBALS['pagenow']) . "?" . http_build_query(['page' => $this->page,'action' => 'index']);
-            header("Location: {$url}");
-            exit();
+        if ($this->paginaPlugin && is_null($this->action)) {
+            $query = http_build_query([
+                'page' => $this->page,
+                'action' => 'index',
+            ]);
+            $url = admin_url($this->request->getPageNow()) . "?" . $query;
+            $this->response->redirect($url);
         }
 
         return $this->paginaPlugin;
@@ -440,13 +630,13 @@ final class MocaBonita extends Requisicoes
      * Obter página através do slug
      *
      * @param string $nomePagina da página adicionada
-     * @throws MBException
-     * @return Paginas
+     * @throws MbException
+     * @return MbPaginas
      */
     public function getPagina($nomePagina)
     {
         if (!isset($this->paginas[$nomePagina])) {
-            throw new MBException("A página {$nomePagina} não foi adicionada na lista de páginas do MocaBonita!");
+            throw new MbException("A página {$nomePagina} não foi adicionada na lista de páginas do MocaBonita!");
         }
 
         return $this->paginas[$nomePagina];
@@ -456,13 +646,13 @@ final class MocaBonita extends Requisicoes
      * Obter shortcode através do slug
      *
      * @param string $nomeShortcode da shortcode adicionada
-     * @throws MBException
-     * @return ShortCode
+     * @throws MbException
+     * @return MbShortCode
      */
     public function getShortcode($nomeShortcode)
     {
         if (!isset($this->shortcodes[$nomeShortcode])) {
-            throw new MBException("O shortcode {$nomeShortcode} não foi adicionado na lista de shortcode do MocaBonita!");
+            throw new MbException("O shortcode {$nomeShortcode} não foi adicionado na lista de shortcode do MocaBonita!");
         }
 
         return $this->shortcodes[$nomeShortcode];
@@ -471,7 +661,7 @@ final class MocaBonita extends Requisicoes
     /**
      * Processar e organizar todas as páginas do Moçabonita para melhor exibição
      *
-     * @throws MBException
+     * @throws MbException
      */
     private function processarPaginas()
     {
@@ -490,10 +680,10 @@ final class MocaBonita extends Requisicoes
     /**
      * Adicionar páginas ao wordpress
      *
-     * @param Paginas $pagina o objeto da página principal
+     * @param MbPaginas $pagina o objeto da página principal
      * @return MocaBonita
      */
-    public function adicionarPagina(Paginas $pagina)
+    public function adicionarPagina(MbPaginas $pagina)
     {
         $pagina->setSubmenu(false);
 
@@ -509,10 +699,10 @@ final class MocaBonita extends Requisicoes
     /**
      * Adicionar SubMenu ao wordpress
      *
-     * @param Paginas $pagina o objeto da sub página
+     * @param MbPaginas $pagina o objeto da sub página
      * @return MocaBonita
      */
-    public function adicionarSubPagina(Paginas $pagina)
+    public function adicionarSubPagina(MbPaginas $pagina)
     {
         $pagina->setMenuPrincipal(false);
 
@@ -525,43 +715,20 @@ final class MocaBonita extends Requisicoes
         return $this;
     }
 
-
-    /**
-     * @param string $servico
-     * @param array $metodos
-     * @return MocaBonita
-     */
-    public function adicionarServicosPlugin($servico, array $metodos)
-    {
-        $this->servicosPlugin[] = Service::configuracoesServicos($servico, $metodos);
-        return $this;
-    }
-
-    /**
-     * @param string $servico
-     * @param array $metodos
-     * @return MocaBonita
-     */
-    public function adicionarServicosWordPress($servico, array $metodos)
-    {
-        $this->servicosWordPress[] = Service::configuracoesServicos($servico, $metodos);
-        return $this;
-    }
-
     /**
      * @param string $nome
-     * @param Paginas $pagina
+     * @param MbPaginas $pagina
      * @param string $metodo
-     * @param Assets $assets
-     * @return ShortCode
+     * @param MbAssets $assets
+     * @return MbShortCode
      */
-    public function adicionarShortcode($nome, Paginas $pagina, $metodo, Assets $assets = null)
+    public function adicionarShortcode($nome, MbPaginas $pagina, $metodo, MbAssets $assets = null)
     {
-        $acao = new Acoes($pagina, $metodo);
+        $acao = new MbAcoes($pagina, $metodo);
 
         $acao->setShortcode(true)->setComplemento('Shortcode');
 
-        $this->shortcodes[$nome] = new ShortCode($nome, $acao, is_null($assets) ? new Assets() : $assets);
+        $this->shortcodes[$nome] = new MbShortCode($nome, $acao, is_null($assets) ? new MbAssets() : $assets);
 
         return $this->shortcodes[$nome];
     }
@@ -571,10 +738,43 @@ final class MocaBonita extends Requisicoes
      */
     public function processarMenu()
     {
-        if ($this->isAdmin()) {
+        if ($this->request->isAdmin()) {
             foreach ($this->paginas as $pagina) {
                 $pagina->adicionarMenuWordpress();
             }
         }
     }
+
+    /**
+     * @return MbRequisicoes
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param MbRequisicoes $request
+     */
+    public function setRequest(MbRequisicoes $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * @return MbRespostas
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param MbRespostas $response
+     */
+    public function setResponse(MbRespostas $response)
+    {
+        $this->response = $response;
+    }
+
 }

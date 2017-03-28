@@ -1,7 +1,9 @@
 <?php
 namespace MocaBonita\view;
 
-use MocaBonita\tools\Diretorios;
+use MocaBonita\tools\MbDiretorios;
+use MocaBonita\tools\MbRequisicoes;
+use MocaBonita\tools\MbRespostas;
 
 /**
  * Classe de View do MocaBonita
@@ -67,14 +69,28 @@ class View
     protected $caminhoView;
 
     /**
-     * Construtor da Controller.
+     * Váriavel que armazenda o request
+     *
+     * @var MbRequisicoes
+     */
+    protected $request;
+
+    /**
+     * Váriavel que armazenda a resposta
+     *
+     * @var MbRespostas
+     */
+    protected $response;
+
+    /**
+     * Construtor da View.
      */
     public function __construct()
     {
         $this->variaveis = [];
         $this->conteudo = "";
         $this->extensao = "phtml";
-        $this->caminhoView = Diretorios::PLUGIN_VIEW_DIR;
+        $this->caminhoView = MbDiretorios::PLUGIN_VIEW_DIR;
     }
 
     /**
@@ -192,6 +208,42 @@ class View
     }
 
     /**
+     * @return MbRequisicoes
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param MbRequisicoes $request
+     * @return View
+     */
+    public function setRequest(MbRequisicoes $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    /**
+     * @return MbRespostas
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
+
+    /**
+     * @param MbRespostas $response
+     * @return View
+     */
+    public function setResponse(MbRespostas $response)
+    {
+        $this->response = $response;
+        return $this;
+    }
+
+    /**
      * Definir atributos da view em uma unica instância
      *
      * @param string $template Template da página atual, é recomendado que no template seja chamado a função $this->getConteudo()
@@ -230,6 +282,7 @@ class View
      *
      * Apos esse processo, todos os dados processados estarão na variável $conteudo e a view será exibida
      *
+     * @return string
      */
     public function render()
     {
@@ -239,8 +292,9 @@ class View
 
         //Atribuir variaveis definidas para a view e template
         foreach ($this->variaveis as $attr => $value) {
-            if (is_string($attr))
+            if (is_string($attr)){
                 $$attr = $value;
+            }
         }
 
         //Verificar se a view existe e processa-la
@@ -269,7 +323,7 @@ class View
                          </div>";
 
         //Mostrar o conteudo na tela
-        echo $conteudo;
+        return $conteudo;
     }
 
 }
