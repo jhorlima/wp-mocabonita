@@ -38,13 +38,6 @@ final class MocaBonita extends MbSingleton
     const VERSION = '3.0.0';
 
     /**
-     * Instancia da classe.
-     *
-     * @var MocaBonita
-     */
-    protected static $instance;
-
-    /**
      * Paginas objeto
      *
      * @var MbPaginas[]
