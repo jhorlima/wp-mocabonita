@@ -25,19 +25,19 @@ class MbValidacaoNumero extends MbModeloValidacao
     public function validar($valor, array $argumentos = [])
     {
         $isNumero = is_numeric($valor);
-        $min      = isset($argumentos['min'])  ? $argumentos['min'] : false;
-        $max      = isset($argumentos['max'])  ? $argumentos['max'] : false;
-        $float    = isset($argumentos['float']) ? (bool) $argumentos['float'] : false;
+        $min = isset($argumentos['min']) ? $argumentos['min'] : false;
+        $max = isset($argumentos['max']) ? $argumentos['max'] : false;
+        $float = isset($argumentos['float']) ? (bool)$argumentos['float'] : false;
 
         if (!$isNumero) {
             throw new Exception("O atributo '{$this->getAtributo()}' não é um número!");
         }
 
-        if($float){
+        if ($float) {
             $valor = $valor + 0;
-            $valor = (float) $valor;
+            $valor = (float)$valor;
         } else {
-            $valor = (int) $valor;
+            $valor = (int)$valor;
         }
 
         if ($min && is_numeric($min)) {

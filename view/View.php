@@ -282,6 +282,7 @@ class View
      *
      * Apos esse processo, todos os dados processados estarão na variável $conteudo e a view será exibida
      *
+     * @return string
      */
     public function render()
     {

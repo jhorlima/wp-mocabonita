@@ -29,9 +29,10 @@
   "require": {
     "php": ">=5.6",
     "illuminate/http": "~5.0",
-    "illuminate/database" : "~5.0",
-    "illuminate/pagination" : "~5.0",
+    "illuminate/database": "~5.0",
+    "illuminate/pagination": "~5.0",
     "symfony/http-foundation": "3.0.*",
+    "nesbot/carbon": "~1.20",
     "katzgrau/klogger": "dev-master"
   },
   "require-dev": {

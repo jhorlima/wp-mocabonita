@@ -43,6 +43,11 @@ class MbValidacaoString extends MbModeloValidacao
             throw new Exception("O atributo '{$this->getAtributo()}' não é um string!");
         }
 
+        if ($trim) {
+            $valor = trim($valor);
+            $valor = preg_replace('/\s+/', ' ', $valor);
+        }
+
         $qntCaracteres = strlen($valor);
 
         if ($min && is_numeric($min)) {
@@ -69,10 +74,6 @@ class MbValidacaoString extends MbModeloValidacao
                 );
             }
 
-        }
-
-        if ($trim) {
-            $valor = trim($valor);
         }
 
         if($striptags){

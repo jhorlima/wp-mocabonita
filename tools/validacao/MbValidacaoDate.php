@@ -3,13 +3,15 @@
 namespace MocaBonita\tools\validacao;
 
 use Exception;
+use Carbon\Carbon;
 
 
 /**
  * Validação de Data.
  *
  * timezone (string): Timezone da classe
- * format (string): Formato de retorno
+ * formato_entrada (string): Formato de entrada da data
+ * formato_saida (string): Formato de retorno da data
  * timestamp (bool) : Retornar em timestamp
  *
  */
@@ -24,30 +26,41 @@ class MbValidacaoDate extends MbModeloValidacao
      */
     public function validar($valor, array $argumentos = [])
     {
-        $isTimestamp = is_string($valor) ? strtotime($valor) : false;
-        $timezone    = isset($argumentos['timezone'])  ? $argumentos['timezone']  : false;
-        $format      = isset($argumentos['format'])    ? $argumentos['format']    : false;
-        $timestamp   = isset($argumentos['timestamp']) ? (bool) $argumentos['timestamp'] : false;
+        $timezone = isset($argumentos['timezone']) ? $argumentos['timezone'] : false;
+        $formatoEntrada = isset($argumentos['formato_entrada']) ? $argumentos['formato_entrada'] : false;
+        $formatoSaida = isset($argumentos['formato_saida']) ? $argumentos['formato_saida'] : false;
+        $timestamp = isset($argumentos['timestamp']) ? (bool)$argumentos['timestamp'] : false;
 
-        if (!$isTimestamp && !$valor instanceof \DateTime) {
+        if(is_string($formatoEntrada)){
+            $valor = is_string($valor) ? Carbon::createFromFormat($formatoEntrada, $valor) : false;
+        } else {
+            try{
+                $valor = is_string($valor) ? Carbon::parse($valor) : false;
+            } catch (\Exception $e){
+                $valor = false;
+            }
+        }
+
+        if (!$valor instanceof Carbon) {
             throw new Exception("O atributo '{$this->getAtributo()}' não é uma data válida!");
-        } elseif ($isTimestamp){
-            $valor = (new \DateTime())->setTimestamp($valor);
         }
 
-        if ($timezone && is_string($timezone)){
-            $valor->setTimezone(new \DateTimeZone($timezone));
+        if (!is_string($timezone)) {
+            $timezone = get_option('timezone_string');
+            $timezone = !empty($timezone) ? $timezone : 'America/Fortaleza';
         }
 
-        if ($format && is_string($format)){
-            $valor = $valor->format($format);
+        $valor->setTimezone($timezone);
+
+        if ($formatoSaida && is_string($formatoSaida)) {
+            $valor = $valor->format($formatoSaida);
 
             if (!$valor) {
                 throw new Exception("O atributo '{$this->getAtributo()}' têm formato de data inválida!");
             }
         }
 
-        if ($timestamp){
+        if ($timestamp) {
             $valor = $valor->getTimestamp();
         }
 

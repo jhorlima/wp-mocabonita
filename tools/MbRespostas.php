@@ -56,13 +56,14 @@ class MbRespostas extends Response
      *
      * @return MbRespostas
      */
-    public function setConteudo($content){
+    public function setConteudo($content)
+    {
 
-        if($this->request->method() == "GET"){
+        if ($this->request->method() == "GET") {
             $this->statusCode = 200;
-        } elseif($this->request->method() == "POST" || $this->request->method() == "PUT") {
+        } elseif ($this->request->method() == "POST" || $this->request->method() == "PUT") {
             $this->statusCode = 201;
-        } elseif ($content instanceof \Exception){
+        } elseif ($content instanceof \Exception) {
             $this->statusCode = $content->getCode();
         } else {
             $this->statusCode = 204;
@@ -72,9 +73,9 @@ class MbRespostas extends Response
         if ($this->request->isAjax()) {
 
             //Se os dados for um array, é convertido para Array na estrutura do Moca Bonita
-            if (is_array($content) || $content instanceof Arrayable) {
+            if (is_array($content)) {
                 $content = $this->respostaJson($content);
-            //Se os dados for um Arrayable, é convertido para Array na estrutura do Moca Bonita
+                //Se os dados for um Arrayable, é convertido para Array na estrutura do Moca Bonita
             } elseif ($content instanceof Arrayable) {
                 $content = $this->respostaJson($content->toArray());
             } //Se os dados for uma string, é adicionado ao atributo content do Moça Bonita
@@ -89,14 +90,17 @@ class MbRespostas extends Response
             //Caso a requisição não seja ajax
         } else {
             //Caso a resposta seja uma exception
-            if($content instanceof \Exception){
+            if ($content instanceof MbException) {
+                MbException::adminNotice($content);
+                $content = $content->getDadosView();
+            } elseif ($content instanceof \Exception) {
                 MbException::adminNotice($content);
                 $content = "Ocorreu um erro!";
                 //Caso seja uma view
-            } elseif ($content instanceof View){
+            } elseif ($content instanceof View) {
                 $content = $content->render();
                 //Caso seja algum valor diferente de string
-            } elseif (!is_string($content)){
+            } elseif (!is_string($content)) {
                 ob_start();
                 var_dump($content);
                 $content = ob_get_contents();
@@ -111,7 +115,7 @@ class MbRespostas extends Response
 
     public function getContent()
     {
-        if($this->request->isAjax() && is_array($this->content)){
+        if ($this->request->isAjax() && is_array($this->content)) {
             wp_send_json($this->content, $this->statusCode);
         } else {
             parent::setContent($this->content);
@@ -124,7 +128,8 @@ class MbRespostas extends Response
      *
      * @param string $url
      */
-    public function redirect($url){
+    public function redirect($url)
+    {
         header("Location: {$url}");
         exit();
     }
@@ -146,19 +151,28 @@ class MbRespostas extends Response
 
         //Callback de resposta de erro do Moça Bonita
         $respostaErro = function ($codigo) use (&$dados) {
+
+            if ($dados instanceof MbException) {
+                $data = $dados->getDadosArray();
+            } else {
+                $data = null;
+            }
+
             return [
                 'meta' => [
-                    'code' => (int) $codigo,
+                    'code' => (int)$codigo,
                     'error_message' => $dados->getMessage(),
                 ],
+                'data' => $data,
             ];
         };
 
         return $dados instanceof \Exception ? $respostaErro($this->statusCode) : $respostaSucesso($this->statusCode);
     }
 
-    public function processarHeaders(){
-        foreach ($this->headers->all() as $key => &$header){
+    public function processarHeaders()
+    {
+        foreach ($this->headers->all() as $key => &$header) {
             header("{$key}: {$header[0]}");
         }
     }

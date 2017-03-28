@@ -3,6 +3,8 @@
 namespace MocaBonita\tools\validacao;
 
 use \Exception;
+use Illuminate\Contracts\Support\Arrayable;
+use MocaBonita\tools\MbException;
 
 /**
  * Classe de Validação do Moça Bonita.
@@ -16,29 +18,29 @@ use \Exception;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbValidacao
+class MbValidacao implements Arrayable
 {
     /**
      * Verificar se ocorreu erro
      *
      * @var bool
      */
-    protected  $ocorreuErro = false;
+    protected $erro = false;
 
     /**
      * @return boolean
      */
-    public  function isOcorreuErro()
+    public function isErro()
     {
-        return (bool) $this->ocorreuErro;
+        return (bool)$this->erro;
     }
 
     /**
-     * @param boolean $ocorreuErro
+     * @param boolean $erro
      */
-    public  function setOcorreuErro($ocorreuErro = true)
+    private function setErro($erro = true)
     {
-        $this->ocorreuErro = (bool) $ocorreuErro;
+        $this->erro = (bool)$erro;
     }
 
     /**
@@ -77,11 +79,17 @@ class MbValidacao
     protected $mensagens = [];
 
     /**
-     * @return \array[]
+     * @return array[]|mixed|null
      */
-    public function getDados()
+    public function getDados($chave = null)
     {
-        return $this->dados;
+        if(is_null($chave)){
+            return $this->dados;
+        } elseif(isset($this->dados[$chave])){
+            return $this->dados[$chave];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -97,7 +105,7 @@ class MbValidacao
     /**
      * @return \string[]
      */
-    public function getPermitirNulo()
+    public function getNulos()
     {
         return $this->permitirNulo;
     }
@@ -126,7 +134,7 @@ class MbValidacao
      */
     public function setRemoverNaoUsados($removerNaoUsados = true)
     {
-        $this->removerNaoUsados = (bool) $removerNaoUsados;
+        $this->removerNaoUsados = (bool)$removerNaoUsados;
         return $this;
     }
 
@@ -136,7 +144,8 @@ class MbValidacao
      * @param array $dados
      * @return MbValidacao
      */
-    public static function validar(array $dados){
+    public static function validar(array $dados)
+    {
         $validacao = new self();
         return $validacao->setDados($dados);
     }
@@ -148,9 +157,9 @@ class MbValidacao
      */
     public function getValidacoes($atributo = null)
     {
-        if(is_null($atributo)){
+        if (is_null($atributo)) {
             return $this->validacoes;
-        } elseif (isset($this->validacoes[$atributo])){
+        } elseif (isset($this->validacoes[$atributo])) {
             return $this->validacoes[$atributo];
         } else {
             return [];
@@ -166,14 +175,14 @@ class MbValidacao
      */
     public function setValidacoes($atributo, MbModeloValidacao $validacao, array $argumentos = [])
     {
-        if(is_string($atributo) && is_array($argumentos)){
-            if(!isset($this->validacoes[$atributo])){
+        if (is_string($atributo) && is_array($argumentos)) {
+            if (!isset($this->validacoes[$atributo])) {
                 $this->validacoes[$atributo] = [];
             }
 
             $this->validacoes[$atributo][] = [
-                'atributo'   => $atributo,
-                'class'      => $validacao,
+                'atributo' => $atributo,
+                'class' => $validacao,
                 'argumentos' => $argumentos,
             ];
         }
@@ -208,8 +217,9 @@ class MbValidacao
      */
     protected function setMensagem($atributo, $mensagem)
     {
-        if (!isset($this->mensagens[$atributo]))
+        if (!isset($this->mensagens[$atributo])){
             $this->mensagens[$atributo] = [];
+        }
 
         $this->mensagens[$atributo][] = $mensagem;
     }
@@ -217,33 +227,38 @@ class MbValidacao
     /**
      * Verificar se a validação deu certa
      *
+     * @param bool $mbException
+     *
      * @return bool
+     * @throws MbException
      */
-    public function verificar()
+    public function verificar($mbException = false)
     {
         //Obter atributos das regras
         $atributos = array_keys($this->validacoes);
 
         $this->setMensagens([]);
 
-        foreach ($atributos as &$atributo) {
+        foreach ($atributos as $atributo) {
+
             $existeAtributo = array_key_exists($atributo, $this->dados);
-            $atributoNulo   = $existeAtributo ? is_null($this->dados[$atributo]) : true;
-            $permitirNulo   = in_array($atributo, $this->permitirNulo);
+            $atributoNulo = $existeAtributo ? is_null($this->dados[$atributo]) : true;
+            $permitirNulo = in_array($atributo, $this->permitirNulo);
             $regrasAtributo = $this->getValidacoes($atributo);
 
-            if(!$atributoNulo && !empty($regrasAtributo)){
+            if (!$atributoNulo && !empty($regrasAtributo)) {
                 foreach ($regrasAtributo as $regra) {
-                    try{
+                    $regra['class']::getInstance()->setAtributo($atributo);
+                    try {
                         $this->dados[$atributo] = $regra['class']::getInstance()->validar(
                             $this->dados[$atributo],
-                            $regrasAtributo['argumentos']
+                            $regra['argumentos']
                         );
-                    } catch (Exception $e){
+                    } catch (Exception $e) {
                         $this->setMensagem($atributo, $e->getMessage());
                     }
                 }
-            } elseif ($atributoNulo && $permitirNulo){
+            } elseif ($atributoNulo && $permitirNulo) {
                 $this->dados[$atributo] = null;
             } else {
                 $this->setMensagem($atributo, "O atributo '{$atributo}' não pode ser nulo!");
@@ -260,9 +275,13 @@ class MbValidacao
             }
         }
 
-        $this->setOcorreuErro(empty($this->mensagens) ? true : false);
+        $this->setErro(!empty($this->mensagens) ? true : false);
 
-        return $this->isOcorreuErro();
+        if ($mbException && $this->isErro()){
+            throw new MbException("Seus dados não passaram na validação!", 400, $this);
+        }
+
+        return $this->isErro();
     }
 
     /**
@@ -293,5 +312,19 @@ class MbValidacao
     protected function __construct()
     {
         //
+    }
+
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'error' => $this->isErro(),
+            'messages' => $this->getMensagens(),
+            'data' => $this->getDados(),
+        ];
     }
 }
