@@ -361,11 +361,8 @@ final class MocaBonita extends MbSingleton
     private function launcher()
     {
         try {
-            //Organizar as paginas e subpagina do moca bonita
-            $this->processarPaginas();
-
-            $carregarMenu = (bool) ($this->request->getPageNow() == "admin.php");
-
+            //Verificar se é necessário carregar o menu wordpress
+            $carregarMenu = is_blog_admin();
 
             //Adicionar os Assets do wordpress
             $this->getAssets(true)->processarAssets('*');
@@ -652,25 +649,6 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * Processar e organizar todas as páginas do Moçabonita para melhor exibição
-     *
-     * @throws MbException
-     */
-    private function processarPaginas()
-    {
-        foreach ($this->paginas as $pagina) {
-            if ($pagina->isMenuPrincipal()) {
-                foreach ($pagina->getSubPaginas() as $subPagina) {
-                    $subPagina->setPaginaParente($pagina);
-                    $this->adicionarSubPagina($subPagina);
-                }
-            } else {
-                $this->adicionarPagina($pagina->getPaginaParente());
-            }
-        }
-    }
-
-    /**
      * Adicionar páginas ao wordpress
      *
      * @param MbPaginas $pagina o objeto da página principal
@@ -681,6 +659,11 @@ final class MocaBonita extends MbSingleton
         $pagina->setSubmenu(false);
 
         $pagina->setMenuPrincipal(true);
+
+        foreach ($pagina->getSubPaginas() as $subPagina) {
+            $subPagina->setPaginaParente($pagina);
+            $this->adicionarSubPagina($subPagina);
+        }
 
         $this->paginas[$pagina->getSlug()] = $pagina;
 
@@ -731,10 +714,8 @@ final class MocaBonita extends MbSingleton
      */
     public function processarMenu()
     {
-        if ($this->request->isAdmin()) {
-            foreach ($this->paginas as $pagina) {
-                $pagina->adicionarMenuWordpress();
-            }
+        foreach ($this->paginas as $pagina) {
+            $pagina->adicionarMenuWordpress();
         }
     }
 

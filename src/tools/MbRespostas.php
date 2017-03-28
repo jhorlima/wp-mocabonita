@@ -92,10 +92,10 @@ class MbRespostas extends Response
             //Caso a resposta seja uma exception
             if ($content instanceof MbException) {
                 MbException::adminNotice($content);
-                $content = $content->getDadosView();
+                $content = $content->getDadosView($content);
             } elseif ($content instanceof \Exception) {
                 MbException::adminNotice($content);
-                $content = "Ocorreu um erro!";
+                $content = $content->getMessage();
                 //Caso seja uma view
             } elseif ($content instanceof View) {
                 $content = $content->render();

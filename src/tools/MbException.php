@@ -59,14 +59,15 @@ class MbException extends \Exception
     }
 
     /**
+     * @param $content
      * @return string
      */
-    public function getDadosView()
+    public function getDadosView(MbException $content)
     {
         if($this->dados instanceof View){
             $this->dados = $this->dados->render();
         } else {
-            $this->dados = "Ocorreu um erro!";
+            $this->dados = $content->getMessage();
         }
 
         return $this->dados;
