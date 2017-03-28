@@ -50,34 +50,6 @@ class MbValidacaoString extends MbModeloValidacao
             $valor = preg_replace('/\s+/', ' ', $valor);
         }
 
-        $qntCaracteres = strlen($valor);
-
-        if ($min && is_numeric($min)) {
-            $min = intval($min);
-        } else {
-            $min = false;
-        }
-
-        if ($max && is_numeric($max)) {
-            $max = intval($max);
-        } else {
-            $max = false;
-        }
-
-        if ($min) {
-
-            if ($qntCaracteres < $min) {
-                throw new Exception(
-                    "O atributo '{$this->getAtributo()}' deve ter no minimo '{$min}' caractere(s)!"
-                );
-            } elseif ($max && $qntCaracteres > $max) {
-                throw new Exception(
-                    "O atributo '{$this->getAtributo()}' deve ter no maximo '{$max}' caracteres!"
-                );
-            }
-
-        }
-
         if($striptags){
             if (is_string($striptags)) {
                 $valor = strip_tags($valor, $striptags);
@@ -104,6 +76,34 @@ class MbValidacaoString extends MbModeloValidacao
 
         if ($email && !filter_var($valor, FILTER_VALIDATE_EMAIL)) {
             throw new Exception("O atributo '{$this->getAtributo()}' não é um e-mail válido!");
+        }
+
+        $qntCaracteres = strlen($valor);
+
+        if ($min && is_numeric($min)) {
+            $min = intval($min);
+        } else {
+            $min = false;
+        }
+
+        if ($max && is_numeric($max)) {
+            $max = intval($max);
+        } else {
+            $max = false;
+        }
+
+        if ($min) {
+
+            if ($qntCaracteres < $min) {
+                throw new Exception(
+                    "O atributo '{$this->getAtributo()}' deve ter no minimo '{$min}' caractere(s)!"
+                );
+            } elseif ($max && $qntCaracteres > $max) {
+                throw new Exception(
+                    "O atributo '{$this->getAtributo()}' deve ter no maximo '{$max}' caracteres!"
+                );
+            }
+
         }
 
         if($mask && is_string($mask)){
