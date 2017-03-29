@@ -17,6 +17,7 @@ use Exception;
  * str_upper (bool) : Filtro para formatar a string para maiuscula.
  * alpha_numeric (bool) : Filtro para formatar alphanumeric na string.
  * email (bool) : Validar se a string é um e-mail válido.
+ * html_escape (bool) : Converte caracteres especiais para a realidade HTML
  *
  */
 class MbValidacaoString extends MbModeloValidacao
@@ -40,6 +41,7 @@ class MbValidacaoString extends MbModeloValidacao
         $strUpper = isset($argumentos['str_upper']) ? (bool) $argumentos['str_upper'] : false;
         $alphaNumeric = isset($argumentos['alpha_numeric']) ? (bool) $argumentos['alpha_numeric'] : false;
         $email = isset($argumentos['email']) ? (bool) $argumentos['email'] : false;
+        $htmlEscape = isset($argumentos['html_escape']) ? (bool) $argumentos['html_escape'] : false;
 
         if (!$isString) {
             throw new Exception("O atributo '{$this->getAtributo()}' não é um string!");
@@ -64,6 +66,10 @@ class MbValidacaoString extends MbModeloValidacao
 
         if($strUpper){
             $valor = strtoupper($valor);
+        }
+
+        if($htmlEscape){
+            $valor = htmlspecialchars($valor);
         }
 
         if ($alphaNumeric){
