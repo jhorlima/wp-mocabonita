@@ -313,7 +313,6 @@ final class MocaBonita extends MbSingleton
                 $active($mocaBonita);
             } catch (\Exception $e) {
                 deactivate_plugins(basename(MbDiretorios::PLUGIN_BASENAME));
-                MbException::shutdown($e);
                 wp_die($e->getMessage());
             }
         });
