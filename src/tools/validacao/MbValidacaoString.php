@@ -12,6 +12,7 @@ use Exception;
  * max (int): Número máximo de caracteres (precisa definir o min)
  * trim (bool): Fazer o trim na string
  * striptags (string | string[]): Filtro de TAGS HTML e Tags permitidas
+ * regex (string): Aplicar validação regex
  * mask (string): Aplicar mascara a string, ex: (##) ####-####
  * str_lower (bool) : Filtro para formatar a string para minuscula.
  * str_upper (bool) : Filtro para formatar a string para maiuscula.
@@ -36,6 +37,7 @@ class MbValidacaoString extends MbModeloValidacao
         $max = isset($argumentos['max']) ? $argumentos['max'] : false;
         $trim = isset($argumentos['trim']) ? (bool)$argumentos['trim'] : false;
         $striptags = isset($argumentos['striptags']) ? $argumentos['striptags'] : false;
+        $regex = isset($argumentos['regex']) ? $argumentos['regex'] : false;;
         $mask = isset($argumentos['mask']) ? $argumentos['mask'] : false;
         $strLower = isset($argumentos['str_lower']) ? (bool) $argumentos['str_lower'] : false;
         $strUpper = isset($argumentos['str_upper']) ? (bool) $argumentos['str_upper'] : false;
@@ -53,9 +55,11 @@ class MbValidacaoString extends MbModeloValidacao
         }
 
         if($striptags){
-            if (is_string($striptags)) {
+            if (is_bool($striptags) && $striptags) {
+                $valor = strip_tags($valor);
+            } elseif (is_string($striptags)) {
                 $valor = strip_tags($valor, $striptags);
-            } elseif(is_array($striptags)){
+            } elseif (is_array($striptags)) {
                 $valor = strip_tags($valor, implode("", $striptags));
             }
         }
@@ -131,6 +135,13 @@ class MbValidacaoString extends MbModeloValidacao
                 }
             }
             $valor = $valorNovo;
+
+        }
+
+        if ($regex && is_string($regex) && !preg_match($regex, $valor)) {
+            throw new Exception(
+                "O atributo '{$this->getAtributo()}' não atende a validação regex!"
+            );
         }
 
         return $valor;

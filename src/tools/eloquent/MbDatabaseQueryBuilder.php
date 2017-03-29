@@ -10,7 +10,7 @@ use Illuminate\Pagination\Paginator;
  * Class MbDatabaseBuilder
  * @package MocaBonita\tools\eloquent
  */
-class MbDatabaseBuilder extends Builder
+class MbDatabaseQueryBuilder extends Builder
 {
 
     /**

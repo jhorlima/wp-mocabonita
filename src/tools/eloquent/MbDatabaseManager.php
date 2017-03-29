@@ -78,7 +78,7 @@ class MbDatabaseManager implements ConnectionInterface
     {
         $processor = $this->getPostProcessor();
 
-        $query = new MbDatabaseBuilder($this, $this->getQueryGrammar(), $processor);
+        $query = new MbDatabaseQueryBuilder($this, $this->getQueryGrammar(), $processor);
 
         return $query->from($table);
     }

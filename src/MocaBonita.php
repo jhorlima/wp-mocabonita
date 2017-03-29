@@ -3,7 +3,7 @@
 namespace MocaBonita;
 
 use Illuminate\Pagination\Paginator;
-use MocaBonita\tools\eloquent\MbDatabaseBuilder;
+use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
 use MocaBonita\tools\MbDiretorios;
 use MocaBonita\tools\MbCapsule;
 use MocaBonita\tools\MbRespostas;
@@ -422,9 +422,9 @@ final class MocaBonita extends MbSingleton
                 $query = $this->request->query();
 
                 //Verificar se existe atributo da páginação
-                if(isset($query[MbDatabaseBuilder::getPageName()])){
-                    $paginacao = $query[MbDatabaseBuilder::getPageName()];
-                    unset($query[MbDatabaseBuilder::getPageName()]);
+                if(isset($query[MbDatabaseQueryBuilder::getPageName()])){
+                    $paginacao = $query[MbDatabaseQueryBuilder::getPageName()];
+                    unset($query[MbDatabaseQueryBuilder::getPageName()]);
                 } else {
                     $paginacao = 1;
                 }
