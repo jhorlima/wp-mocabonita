@@ -249,8 +249,6 @@ final class MocaBonita extends MbSingleton
             die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
         }
 
-        self::verificarVersao();
-
         date_default_timezone_set(get_option('timezone_string'));
 
         $this->response = MbRespostas::create();
@@ -308,6 +306,7 @@ final class MocaBonita extends MbSingleton
 
         register_activation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
+                self::verificarVersao();
                 MocaBonita::verificarEscrita();
                 MbCapsule::pdo();
                 $active($mocaBonita);
@@ -337,6 +336,10 @@ final class MocaBonita extends MbSingleton
         });
     }
 
+    /**
+     * Verificar versão do wordpress e PHP
+     *
+     */
     protected static function verificarVersao(){
         if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
             $exception = new \Exception(
@@ -352,6 +355,10 @@ final class MocaBonita extends MbSingleton
         }
     }
 
+    /**
+     * Verificar permissão de escrita do diretório
+     *
+     */
     protected static function verificarEscrita(){
         if(!is_writable(MbDiretorios::PLUGIN_DIRETORIO)){
             $exception = new \Exception(
