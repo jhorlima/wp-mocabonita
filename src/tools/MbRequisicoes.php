@@ -168,6 +168,6 @@ class MbRequisicoes extends Request
      */
     public function fullUrlWithNewQuery(array $query)
     {
-        return $this->url() . '/?'.http_build_query($query);
+        return $this->url() . '?'.http_build_query($query);
     }
 }
