@@ -116,6 +116,12 @@ class MbValidacaoString extends MbModeloValidacao
 
         }
 
+        if ($regex && is_string($regex) && !preg_match($regex, $valor)) {
+            throw new Exception(
+                "O atributo '{$this->getAtributo()}' não atende a validação regex!"
+            );
+        }
+
         if($mask && is_string($mask)){
             $valorNovo = '';
             $k = 0;
@@ -136,12 +142,6 @@ class MbValidacaoString extends MbModeloValidacao
             }
             $valor = $valorNovo;
 
-        }
-
-        if ($regex && is_string($regex) && !preg_match($regex, $valor)) {
-            throw new Exception(
-                "O atributo '{$this->getAtributo()}' não atende a validação regex!"
-            );
         }
 
         return $valor;
