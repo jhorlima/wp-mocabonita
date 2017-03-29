@@ -247,11 +247,9 @@ final class MocaBonita extends MbSingleton
     {
         if (!defined('ABSPATH')) {
             die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
-        } elseif (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
-            MbException::adminNotice(new \Exception(
-                "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
-            ));
         }
+
+        self::verificarVersao();
 
         date_default_timezone_set(get_option('timezone_string'));
 
@@ -310,10 +308,11 @@ final class MocaBonita extends MbSingleton
 
         register_activation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
+                MocaBonita::verificarEscrita();
                 MbCapsule::pdo();
                 $active($mocaBonita);
             } catch (\Exception $e) {
-                deactivate_plugins(MbDiretorios::PLUGIN_BASENAME);
+                deactivate_plugins(basename(MbDiretorios::PLUGIN_BASENAME));
                 MbException::shutdown($e);
                 wp_die($e->getMessage());
             }
@@ -337,6 +336,36 @@ final class MocaBonita extends MbSingleton
                 wp_die($e->getMessage());
             }
         });
+    }
+
+    protected static function verificarVersao(){
+        if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
+            $exception = new \Exception(
+                "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
+            );
+
+            MbException::adminNotice($exception);
+
+            MbWPAction::adicionarCallbackAction('init', function (){
+                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+                deactivate_plugins(MbDiretorios::PLUGIN_BASENAME);
+            });
+        }
+    }
+
+    protected static function verificarEscrita(){
+        if(!is_writable(MbDiretorios::PLUGIN_DIRETORIO)){
+            $exception = new \Exception(
+                "O MocaBonita não tem permissão de escrita no diretório do plugin!"
+            );
+
+            MbException::adminNotice($exception);
+
+            MbWPAction::adicionarCallbackAction('init', function (){
+                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+                deactivate_plugins(MbDiretorios::PLUGIN_BASENAME);
+            });
+        }
     }
 
     /**
