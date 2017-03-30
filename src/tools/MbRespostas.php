@@ -94,8 +94,7 @@ class MbRespostas extends Response
                 MbException::adminNotice($content);
                 $content = $content->getDadosView($content);
             } elseif ($content instanceof \Exception) {
-                MbException::adminNotice($content);
-                $content = $content->getMessage();
+                $content = "<div class='notice notice-error'><p>{$content->getMessage()}</p></div>";
                 //Caso seja uma view
             } elseif ($content instanceof View) {
                 $content = $content->render();
