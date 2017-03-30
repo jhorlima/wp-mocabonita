@@ -385,7 +385,7 @@ final class MocaBonita extends MbSingleton
             MbCapsule::pdo();
             $unistall($mocaBonita);
         } else {
-            wp_die("Você não pode executar este método fora do arquivo unistall.php");
+            wp_die("Você não pode executar este método fora do arquivo uninstall.php");
         }
     }
 
@@ -695,12 +695,12 @@ final class MocaBonita extends MbSingleton
 
         $pagina->setMenuPrincipal(true);
 
+        $this->paginas[$pagina->getSlug()] = $pagina;
+
         foreach ($pagina->getSubPaginas() as $subPagina) {
             $subPagina->setPaginaParente($pagina);
             $this->adicionarSubPagina($subPagina);
         }
-
-        $this->paginas[$pagina->getSlug()] = $pagina;
 
         $pagina->setMocaBonita($this);
 

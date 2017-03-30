@@ -509,23 +509,23 @@ class MbPaginas
                 $this->getNome(),
                 $this->getCapacidade(),
                 $this->getSlug(),
-                [$this->getMocaBonita(), 'getConteudo']
+                [MocaBonita::getInstance(), 'getConteudo']
             );
 
-        //Adicionar menu principal
+            //Adicionar menu principal
         } elseif ($this->isMenuPrincipal()) {
 
-                add_menu_page(
-                    $this->getNome(),
-                    $this->getNome(),
-                    $this->getCapacidade(),
-                    $this->getSlug(),
-                    [$this->getMocaBonita(), 'getConteudo'],
-                    $this->getIcone(),
-                    $this->getPosicao()
-                );
+            add_menu_page(
+                $this->getNome(),
+                $this->getNome(),
+                $this->getCapacidade(),
+                $this->getSlug(),
+                [MocaBonita::getInstance(), 'getConteudo'],
+                $this->getIcone(),
+                $this->getPosicao()
+            );
 
-        //Adicionar submenu
+            //Adicionar submenu
         } elseif ($this->isSubmenu()) {
 
             add_submenu_page(
@@ -534,7 +534,7 @@ class MbPaginas
                 $this->getNome(),
                 $this->getCapacidade(),
                 $this->getSlug(),
-                [$this->getMocaBonita(), 'getConteudo']
+                [MocaBonita::getInstance(), 'getConteudo']
             );
 
             //Remover submenu semelhante ao menu principal

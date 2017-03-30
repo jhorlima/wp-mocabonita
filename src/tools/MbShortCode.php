@@ -2,6 +2,7 @@
 namespace MocaBonita\tools;
 
 use MocaBonita\service\Service;
+use MocaBonita\view\View;
 
 /**
  * Classe de Shortcode do Wordpress
@@ -131,6 +132,7 @@ class MbShortCode
                 $shortCode->getAcao()
                     ->getPagina()
                     ->getController()
+                    ->setView(new View())
                     ->getView()
                     ->setRequest($request)
                     ->setResponse($response);
@@ -203,6 +205,9 @@ class MbShortCode
                     "O shortcode {$shortCode->getNome()} não foi definido! Método: {$shortCode->getAcao()->getMetodo()}."
                 );
             }
+
+            //Imprimir conteudo
+            $response->getContent();
         });
     }
 }
