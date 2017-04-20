@@ -54,14 +54,15 @@ class MbRespostas extends Response
      *
      * @param mixed $dados Resposta para enviar ao navegador
      *
-     * @return MbRespostas
+     * @return self
      */
-    public function setConteudo($content)
+    public function setContent($content)
     {
-
-        if ($this->request->method() == "GET") {
+        if(is_null($this->request)){
+            return $this;
+        } elseif ($this->request->isMethod("GET")) {
             $this->statusCode = 200;
-        } elseif ($this->request->method() == "POST" || $this->request->method() == "PUT") {
+        } elseif ($this->request->isMethod("POST") || $this->request->isMethod("PUT")) {
             $this->statusCode = 201;
         } elseif ($content instanceof \Exception) {
             $this->statusCode = $content->getCode();
@@ -72,27 +73,25 @@ class MbRespostas extends Response
 
         //Verificar se a página atual é ajax
         if ($this->request->isAjax()) {
-            $content = $this->respostaAjax($content);
+            parent::setContent($this->respostaAjax($content));
             //Caso a requisição não seja ajax
         } else {
-            $content = $this->respostaHtml($content);
+            parent::setContent($this->respostaHtml($content));
         }
 
-        //Tratar resposta
-        $this->content = $content;
         return $this;
     }
 
     /**
+     * Enviar o conteudo pra página
      *
      */
-    public function getContent()
+    public function sendContent()
     {
-        if ($this->request->isAjax() && is_array($this->content)) {
+        if ($this->request->isAjax() && is_array($this->getContent())) {
             wp_send_json($this->content, $this->statusCode);
         } else {
-            parent::setContent($this->content);
-            echo parent::getContent();
+            parent::sendContent();
         }
     }
 
@@ -111,9 +110,13 @@ class MbRespostas extends Response
      * Transformar o array em JSON e formatar o retorno
      *
      * @param array|\Exception $dados Os dados para resposta do Moça Bonita
+     *
+     * @return array[]
      */
     protected function respostaAjax($dados)
     {
+        $message = null;
+
         if ($dados instanceof Arrayable) {
             $dados = $dados->toArray();
 
@@ -123,37 +126,21 @@ class MbRespostas extends Response
 
         } //Se não for array ou string, então retorna vázio
         elseif (!is_array($dados) && !$dados instanceof \Exception) {
-            $dados = $this->respostaAjax(new \Exception("Nenhum conteúdo válido foi enviado!"));
+            return $this->respostaAjax(new \Exception("Nenhum conteúdo válido foi enviado!"));
 
+        } elseif ($dados instanceof \Exception) {
+            $message = $dados->getMessage();
+            $dados = $dados instanceof MbException ? $dados->getDadosArray() : null;
         }
 
-        //Callback de resposta de sucesso do Moça Bonita
-        $respostaSucesso = function ($codigo) use (&$dados) {
-            return [
-                'meta' => ['code' => $codigo],
-                'data' => $dados,
-            ];
-        };
+        return [
+            'meta' => [
+                'code' => $this->getStatusCode(),
+                'message' => $message
+            ],
+            'data' => $dados,
+        ];
 
-        //Callback de resposta de erro do Moça Bonita
-        $respostaErro = function ($codigo) use (&$dados) {
-
-            if ($dados instanceof MbException) {
-                $data = $dados->getDadosArray();
-            } else {
-                $data = null;
-            }
-
-            return [
-                'meta' => [
-                    'code' => (int)$codigo,
-                    'error_message' => $dados->getMessage(),
-                ],
-                'data' => $data,
-            ];
-        };
-
-        return $dados instanceof \Exception ? $respostaErro($this->statusCode) : $respostaSucesso($this->statusCode);
     }
 
     /**
@@ -162,17 +149,17 @@ class MbRespostas extends Response
      * @param $dados
      * @return string
      */
-    protected function respostaHtml($dados){
-        //Caso a resposta seja uma exception
-        if ($dados instanceof MbException) {
-            $dados = "<div class='notice notice-error'><p>{$dados->getDadosView($dados)}</p></div>";
-        } elseif ($dados instanceof \Exception) {
+    protected function respostaHtml($dados)
+    {
+        if ($dados instanceof \Exception) {
             $dados = "<div class='notice notice-error'><p>{$dados->getMessage()}</p></div>";
-            //Caso seja uma view
-        } elseif ($dados instanceof View) {
+
+        } //Caso seja uma view
+        elseif ($dados instanceof View) {
             $dados = $dados->render();
-            //Caso seja algum valor diferente de string
-        } elseif (!is_string($dados)) {
+
+        } //Caso seja algum valor diferente de string
+        elseif (!is_string($dados)) {
             ob_start();
             var_dump($dados);
             $dados = ob_get_contents();
@@ -180,16 +167,5 @@ class MbRespostas extends Response
         }
 
         return $dados;
-    }
-
-    /**
-     * Processar cabeçalhos
-     *
-     */
-    public function processarHeaders()
-    {
-        foreach ($this->headers->all() as $key => &$header) {
-            header("{$key}: {$header[0]}");
-        }
     }
 }

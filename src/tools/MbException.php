@@ -59,21 +59,6 @@ class MbException extends \Exception
     }
 
     /**
-     * @param $content
-     * @return string
-     */
-    public function getDadosView(MbException $content)
-    {
-        if($this->dados instanceof View){
-            $this->dados = $this->dados->render();
-        } else {
-            $this->dados = $content->getMessage();
-        }
-
-        return $this->dados;
-    }
-
-    /**
      * @param array|Arrayable|View $dados
      * @return MbException
      */
@@ -147,10 +132,7 @@ class MbException extends \Exception
         MbWPAction::adicionarCallbackAction('admin_notices', function () use ($e){
             echo "<div class='notice notice-error'><p>{$e->getMessage()}</p></div>";
         });
-
-        if(self::isSalvarLog()){
-            self::shutdown($e);
-        }
+        self::salvarLog($e);
     }
 
     /**
@@ -160,19 +142,17 @@ class MbException extends \Exception
         MbWPAction::adicionarCallbackAction('admin_notices', function () use ($e){
             echo "<div class='notice notice-info'><p>{$e->getMessage()}</p></div>";
         });
-
-        if(self::isSalvarLog()){
-            self::shutdown($e);
-        }
+        self::salvarLog($e);
     }
 
-    /**
-     * @param \Exception $e
-     */
-    public static function shutdown(\Exception $e){
-        MbWPAction::adicionarCallbackAction('shutdown', function () use ($e){
-            $logger = new Logger(self::getLogPath());
-            $logger->debug($e->getMessage());
-        });
+    protected static function salvarLog(\Exception $e){
+        if(!self::isSalvarLog()){
+            return false;
+        }
+
+        $logger = new Logger(self::getLogPath());
+        $logger->debug($e->getMessage());
+
+        return true;
     }
 }

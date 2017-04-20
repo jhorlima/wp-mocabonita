@@ -191,23 +191,20 @@ class MbShortCode
 
                 //Verificar se a resposta é nula e então ele pega a view da controller
                 if(is_null($respostaController)){
-                    $respostaController = $shortCode->getAcao()
-                        ->getPagina()
-                        ->getController()
-                        ->getView();
+                    $respostaController = $shortCode->getAcao()->getPagina()->getController()->getView();
                 }
                 //Processar a página
-                $response->setConteudo($respostaController);
+                $response->setContent($respostaController);
 
             } else {
                 //Processar a página
-                $response->setConteudo(
+                $response->setContent(
                     "O shortcode {$shortCode->getNome()} não foi definido! Método: {$shortCode->getAcao()->getMetodo()}."
                 );
             }
 
             //Imprimir conteudo
-            $response->getContent();
+            $response->sendContent();
         });
     }
 }
