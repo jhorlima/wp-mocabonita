@@ -4,7 +4,7 @@ namespace MocaBonita\tools;
 
 use MocaBonita\controller\MbController;
 use MocaBonita\MocaBonita;
-use MocaBonita\service\Service;
+use MocaBonita\service\MbEventos;
 
 /**
  * Classe de páginas do Wordpress
@@ -118,13 +118,6 @@ class MbPaginas
     private $acoes = [];
 
     /**
-     * Serviços da página
-     *
-     * @var array
-     */
-    private $servicos = [];
-
-    /**
      * Complementos da página
      *
      * @var MbAssets
@@ -150,6 +143,17 @@ class MbPaginas
             ->setSubmenu(!$menuPrincipal)
             ->setPosicao($posicao)
             ->adicionarAcao('index');
+    }
+
+    /**
+     * @param string $nome Nome da página a ser criada
+     *
+     * @return self
+     */
+    public static function create($nome){
+        $pagina = new self();
+
+        return $pagina->setNome($nome);
     }
 
     /**
@@ -455,25 +459,6 @@ class MbPaginas
     {
         $this->acoes[$nome] = new MbAcoes($this, $nome);
         return $this->acoes[$nome];
-    }
-
-    /**
-     * @return array
-     */
-    public function getServicos()
-    {
-        return $this->servicos;
-    }
-
-    /**
-     * @param string $servico
-     * @param array $metodos
-     * @return MbPaginas
-     */
-    public function setServicos($servico, array $metodos)
-    {
-        $this->servicos[] = Service::configuracoesServicos($servico, $metodos);
-        return $this;
     }
 
     /**

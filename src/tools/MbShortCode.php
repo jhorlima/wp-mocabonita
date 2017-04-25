@@ -1,7 +1,8 @@
 <?php
 namespace MocaBonita\tools;
 
-use MocaBonita\service\Service;
+use MocaBonita\MocaBonita;
+use MocaBonita\service\MbEventos;
 use MocaBonita\view\View;
 
 /**
@@ -123,7 +124,7 @@ class MbShortCode
             //Adicionar assets do shortcode
             $shortCode->getAssets()->setActionEnqueue('front')->processarAssets($shortCode->getNome());
 
-            Service::processarServicos($shortCode->getAcao()->getPagina()->getServicos(), $request, $response);
+            MbEventos::processarEvento($shortCode->getAcao()->getPagina()->getServicos(), $request, $response);
 
             //Verificar se é uma ação valida
             if ($shortCode->getAcao()->metodoValido()) {
@@ -172,13 +173,19 @@ class MbShortCode
                 ob_start();
 
                 try{
+                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_CONTROLLER);
                     $respostaController = $shortCode->getAcao()
                         ->getPagina()
                         ->getController()
                         ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
+
+                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_CONTROLLER);
+
                 } catch (\Exception $e){
+                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::EXCEPTION_CONTROLLER, $e);
                     $respostaController = $e->getMessage();
                 } finally {
+                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::FINISH_CONTROLLER);
                     $conteudoController = ob_get_contents();
                 }
 

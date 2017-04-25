@@ -8,7 +8,7 @@ use MocaBonita\tools\MbDiretorios;
 use MocaBonita\tools\MbCapsule;
 use MocaBonita\tools\MbRespostas;
 use MocaBonita\tools\MbRequisicoes;
-use MocaBonita\service\Service;
+use MocaBonita\service\MbEventos;
 use MocaBonita\tools\MbAcoes;
 use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbShortCode;
@@ -47,9 +47,9 @@ final class MocaBonita extends MbSingleton
     /**
      * Serviços do Plugin e Wordpress do Moca Bonita
      *
-     * @var array[]
+     * @var MbEventos[]
      */
-    private $servicos = [];
+    private $eventos = [];
 
     /**
      * Shortcodes do Wordpress do Moca Bonita
@@ -178,61 +178,25 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * @param bool $wordpress
-     * @return array[]
+     * @return MbEventos[]
      */
-    public function getServicos($wordpress = false)
+    public function getEventos()
     {
-        return $wordpress ? $this->servicos['wordpress'] : $this->servicos['plugin'];
+        return $this->eventos;
     }
 
     /**
-     * @return array[]
-     */
-    public function getServicosPlugin()
-    {
-        return $this->getServicos();
-    }
-
-    /**
-     * @return array[]
-     */
-    public function getServicosWordPress()
-    {
-        return $this->getServicos(true);
-    }
-
-    /**
-     * @param string $servico
-     * @param array $metodos
-     * @param bool $wordpress
-     *
+     * @param MbEventos $eventoClass
+     * @param MbPaginas $pagina
      * @return MocaBonita
      */
-    public function adicionarServicos($servico, array $metodos, $wordpress = false)
+    public function adicionarEvento(MbEventos $eventoClass, MbPaginas $pagina = null)
     {
-        $this->servicos[$wordpress ? 'wordpress' : 'plugin'][] = Service::configuracoesServicos($servico, $metodos);
+        if(!is_null($pagina)){
+            $eventoClass->setPagina($pagina->getSlug());
+        }
+        $this->eventos[] = $eventoClass;
         return $this;
-    }
-
-    /**
-     * @param string $servico
-     * @param array $metodos
-     * @return MocaBonita
-     */
-    public function adicionarServicosPlugin($servico, array $metodos)
-    {
-        return $this->adicionarServicos($servico, $metodos);
-    }
-
-    /**
-     * @param string $servico
-     * @param array $metodos
-     * @return MocaBonita
-     */
-    public function adicionarServicosWordPress($servico, array $metodos)
-    {
-        return $this->adicionarServicos($servico, $metodos, true);
     }
 
     /**
@@ -274,10 +238,7 @@ final class MocaBonita extends MbSingleton
             'wordpress' => new MbAssets(),
         ];
 
-        $this->servicos = [
-            'plugin' => [],
-            'wordpress' => [],
-        ];
+        $this->eventos = [];
 
         MbCapsule::wpdb();
     }
@@ -299,7 +260,9 @@ final class MocaBonita extends MbSingleton
         MbWPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $mocaBonita) {
             try {
                 $plugin($mocaBonita);
+                MbEventos::processarEventos($mocaBonita, MbEventos::START_WORDPRESS);
                 $mocaBonita->launcher();
+                MbEventos::processarEventos($mocaBonita, MbEventos::FINISH_WORDPRESS);
             } catch (\Exception $e) {
                 $mocaBonita->response->setContent($e);
             } finally {
@@ -465,9 +428,6 @@ final class MocaBonita extends MbSingleton
         //Adicionar os Assets do wordpress
         $this->getAssets(true)->processarAssets('*');
 
-        //Adicionar os serviços do wordpress
-        Service::processarServicos($this->getServicos(true), $this->request, $this->response);
-
         //Processar shortcodes
         foreach ($this->shortcodes as $shortcode) {
             $shortcode->processarShorcode($this->getAssets(), $this->request, $this->response);
@@ -481,43 +441,49 @@ final class MocaBonita extends MbSingleton
         //Verificar se a página atual é do plugin
         if ($this->isPaginaPlugin()) {
 
-            //Obter a lista de query params
-            $query = $this->request->query();
+            try{
+                MbEventos::processarEventos($this, MbEventos::BEFORE_PLUGIN);
 
-            //Verificar se existe atributo da páginação
-            if(isset($query[MbDatabaseQueryBuilder::getPageName()])){
-                $paginacao = $query[MbDatabaseQueryBuilder::getPageName()];
-                unset($query[MbDatabaseQueryBuilder::getPageName()]);
-            } else {
-                $paginacao = 1;
+                //Obter a lista de query params
+                $query = $this->request->query();
+
+                //Verificar se existe atributo da páginação
+                if(isset($query[MbDatabaseQueryBuilder::getPageName()])){
+                    $paginacao = $query[MbDatabaseQueryBuilder::getPageName()];
+                    unset($query[MbDatabaseQueryBuilder::getPageName()]);
+                } else {
+                    $paginacao = 1;
+                }
+
+                //Obter url da página sem páginação
+                $url = $this->request->fullUrlWithNewQuery($query);
+
+                //Definir rota da páginar para gerar url de páginação
+                Paginator::currentPathResolver(function () use ($url) {
+                    return $url;
+                });
+
+                //Definir página atual da paginação
+                Paginator::currentPageResolver(function () use ($paginacao){
+                    return is_numeric($paginacao) ? (int) $paginacao : 1;
+                });
+
+                //Adicionar os Assets do plugin
+                $this->getAssets()->processarAssets('plugin');
+
+                //Adicionar os Assets da página
+                $this->getPagina($this->page)->getAssets()->processarAssets($this->page);
+
+                //Processar a página
+                $this->processarPaginaAtual();
+
+                MbEventos::processarEventos($this, MbEventos::AFTER_PLUGIN);
+            } catch (\Exception $e){
+                MbEventos::processarEventos($this, MbEventos::EXCEPTION_PLUGIN, $e);
+                throw $e;
+            } finally {
+                MbEventos::processarEventos($this, MbEventos::FINISH_PLUGIN);
             }
-
-            //Obter url da página sem páginação
-            $url = $this->request->fullUrlWithNewQuery($query);
-
-            //Definir rota da páginar para gerar url de páginação
-            Paginator::currentPathResolver(function () use ($url) {
-                return $url;
-            });
-
-            //Definir página atual da paginação
-            Paginator::currentPageResolver(function () use ($paginacao){
-                return is_numeric($paginacao) ? (int) $paginacao : 1;
-            });
-
-            //Adicionar os Assets do plugin
-            $this->getAssets()->processarAssets('plugin');
-            //Adicionar os serviços do plugin
-            Service::processarServicos($this->getServicos(), $this->request, $this->response);
-
-            //Adicionar os Assets da página
-            $this->getPagina($this->page)->getAssets()->processarAssets($this->page);
-
-            //Adicionar os serviços da página
-            Service::processarServicos($this->getPagina($this->page)->getServicos(), $this->request, $this->response);
-
-            //Processar a página
-            $this->processarPaginaAtual();
         }
     }
 
@@ -646,13 +612,19 @@ final class MocaBonita extends MbSingleton
         ob_start();
 
         try {
+            MbEventos::processarEventos($this, MbEventos::BEFORE_CONTROLLER);
+
             $respostaController = $acao->getPagina()
                 ->getController()
                 ->{$acao->getMetodo()}($this->request, $this->response);
+            MbEventos::processarEventos($this, MbEventos::AFTER_CONTROLLER);
+
             //Caso a controller lance alguma exception, ela será lançada abaixo!
         } catch (\Exception $e) {
+            MbEventos::processarEventos($this, MbEventos::EXCEPTION_CONTROLLER, $e);
             $respostaController = $e;
         } finally {
+            MbEventos::processarEventos($this, MbEventos::FINISH_CONTROLLER);
             $conteudoController = ob_get_contents();
         }
 
