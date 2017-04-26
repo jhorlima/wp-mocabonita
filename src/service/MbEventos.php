@@ -187,11 +187,7 @@ abstract class MbEventos extends MbSingleton
         $methodExists = method_exists($this, $dispatch);
 
         if (($this->getPagina() == $mocaBonita->getPage() && $methodExists) || (is_null($this->getPagina()) && $methodExists)) {
-            try{
-                $this->{$dispatch}($mocaBonita->getRequest(), $mocaBonita->getResponse(), $exception);
-            } catch (\Exception $e){
-                MbException::adminNotice($e);
-            }
+            $this->{$dispatch}($mocaBonita->getRequest(), $mocaBonita->getResponse(), $exception);
         }
     }
 
