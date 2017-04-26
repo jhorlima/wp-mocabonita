@@ -11,7 +11,7 @@ use MocaBonita\MocaBonita;
  * @author Jhordan Lima
  * @category WordPress
  * @package \MocaBonita\service
- * @copyright Copyright (c) 2016
+ * @copyright Copyright (c) 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
@@ -31,28 +31,28 @@ abstract class MbEventos extends MbSingleton
     const FINISH_WORDPRESS = "finishWpDispatcher";
 
     /**
-     * Nome evento ao iniciar o plugin
+     * Nome evento ao iniciar a página
      *
      */
-    const BEFORE_PLUGIN = "beforePluginDispatcher";
+    const BEFORE_PAGE = "beforePageDispatcher";
 
     /**
-     * Nome do evento depois de executar o plugin
+     * Nome do evento depois de executar a página
      *
      */
-    const AFTER_PLUGIN = "afterPluginDispatcher";
+    const AFTER_PAGE = "afterPageDispatcher";
 
     /**
-     * Nome do evento ao finalizar o plugin
+     * Nome do evento ao finalizar a página
      *
      */
-    const FINISH_PLUGIN = "finishPluginDispatcher";
+    const FINISH_PAGE = "finishPageDispatcher";
 
     /**
-     * Nome do evento ao receber uma exception do Plugin
+     * Nome do evento ao receber uma exception do página
      *
      */
-    const EXCEPTION_PLUGIN = "exceptionPluginDispatcher";
+    const EXCEPTION_PAGE = "exceptionPageDispatcher";
 
     /**
      * Nome evento ao iniciar o shortcode
@@ -67,35 +67,28 @@ abstract class MbEventos extends MbSingleton
     const AFTER_SHORTCODE = "afterShortcodeDispatcher";
 
     /**
-     * Nome do evento para ser executado antes da controller
+     * Nome do evento para ser executado antes da action
      *
      */
-    const BEFORE_CONTROLLER = "beforeControllerDispatcher";
+    const BEFORE_ACTION = "beforeActionDispatcher";
 
     /**
-     * Nome do evento para ser executado depois da controller
+     * Nome do evento para ser executado depois da action
      *
      */
-    const AFTER_CONTROLLER = "afterControllerDispatcher";
+    const AFTER_ACTION = "afterActionDispatcher";
 
     /**
-     * Nome do evento ao finalizar a controller, mesmo com excpetion
+     * Nome do evento ao finalizar a action, mesmo com excpetion
      *
      */
-    const FINISH_CONTROLLER = "finishControllerDispatcher";
+    const FINISH_ACTION = "finishActionDispatcher";
 
     /**
-     * Nome do evento para ser executado ao lançar uma exception da controller
+     * Nome do evento para ser executado ao lançar uma exception da action
      *
      */
-    const EXCEPTION_CONTROLLER = "exceptionControllerDispatcher";
-
-    /**
-     * Página do evento, se existir
-     *
-     * @var string
-     */
-    protected $pagina;
+    const EXCEPTION_ACTION = "exceptionActionDispatcher";
 
     /**
      * Váriavel que armazenda o request
@@ -150,24 +143,6 @@ abstract class MbEventos extends MbSingleton
     }
 
     /**
-     * @return string
-     */
-    public function getPagina()
-    {
-        return $this->pagina;
-    }
-
-    /**
-     * @param string $pagina
-     * @return MbEventos
-     */
-    public function setPagina($pagina)
-    {
-        $this->pagina = $pagina;
-        return $this;
-    }
-
-    /**
      * Redirecionar uma página
      *
      * @param string $url
@@ -182,37 +157,171 @@ abstract class MbEventos extends MbSingleton
     }
 
     /**
-     * Processar evento da página
-     *
-     * @param MocaBonita $mocaBonita
-     * @param string $dispatch
-     * @param \Exception $exception
-     *
-     */
-    public function processarEvento(MocaBonita $mocaBonita, $dispatch, \Exception $exception = null)
-    {
-        $methodExists = method_exists($this, $dispatch);
-
-        if (($this->getPagina() == $mocaBonita->getPage() && $methodExists) || (is_null($this->getPagina()) && $methodExists)) {
-            $this->{$dispatch}($mocaBonita->getRequest(), $mocaBonita->getResponse(), $exception);
-        }
-    }
-
-    /**
      * Processar eventos da página
      *
      * @param MocaBonita $mocaBonita
      * @param string $dispatch
-     * @param \Exception $exception
+     * @param object $exceptionOrPage
      *
      * @throws MbException
      *
      * @return void
      */
-    public static function processarEventos(MocaBonita $mocaBonita, $dispatch, \Exception $exception = null)
+    public static function processarEventos(MocaBonita $mocaBonita, $dispatch, $exceptionOrPage = null)
     {
-        foreach ($mocaBonita->getEventos() as &$evento) {
-            $evento->processarEvento($mocaBonita, $dispatch, $exception);
+        foreach ($mocaBonita->getEventos($dispatch) as &$evento) {
+            $evento->{$dispatch}($mocaBonita->getRequest(), $mocaBonita->getResponse(), $exceptionOrPage);
         }
+    }
+
+    /**
+     * Evento para ser executado antes do wordpress processar o plugin (Executado sempre quando o plugin for ativado)
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     */
+    public function startWpDispatcher(MbRequisicoes $request, MbRespostas $response)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar o plugin (Executado sempre quando o plugin for ativado)
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     */
+    public function finishWpDispatcher(MbRequisicoes $request, MbRespostas $response)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado antes do wordpress processar a página (Somente em páginas da página)
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbAcoes $acao
+     */
+    public function beforePageDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar a página, caso não tenha exceptions na página
+     * Somente em páginas do plugin
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbAcoes $acao
+     */
+    public function afterPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar a página
+     * Somente em páginas do plugin
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbAcoes $acao
+     */
+    public function finishPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar a página e seja lançada uma exception
+     * Somente em páginas do plugin
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param \Exception $exception
+     */
+    public function exceptionPageDispatcher(MbRequisicoes $request, MbRespostas $response, \Exception $exception)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado antes do wordpress processar o shortcode
+     * Somente em shortcodes
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbShortCode $shortCode
+     */
+    public function beforeShortcodeDispatcher(MbRequisicoes $request, MbRespostas $response, MbShortCode $shortCode)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar o shortcode
+     * Somente em shortcodes
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbShortCode $shortCode
+     */
+    public function afterShortcodeDispatcher(MbRequisicoes $request, MbRespostas $response, MbShortCode $shortCode)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado antes do wordpress processar a action da página
+     * Somente em páginas do plugin
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbAcoes $acao
+     */
+    public function beforeActionDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar a action da página, caso não tenha exceptions na action
+     * Somente em páginas do plugin
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbAcoes $acao
+     */
+    public function afterActionDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar a action
+     * Somente em páginas do plugin
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param MbAcoes $acao
+     */
+    public function finishActionDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    {
+        //
+    }
+
+    /**
+     * Evento para ser executado depois do wordpress processar a action e seja lançada uma exception
+     * Somente em páginas do plugin
+     *
+     * @param MbRequisicoes $request
+     * @param MbRespostas $response
+     * @param \Exception $exception
+     */
+    public function exceptionActionDispatcher(MbRequisicoes $request, MbRespostas $response, \Exception $exception)
+    {
+        //
     }
 }

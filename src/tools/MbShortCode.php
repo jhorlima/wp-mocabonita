@@ -115,7 +115,7 @@ class MbShortCode
         //Inicializar Shorcode
         add_shortcode($this->getNome(), function ($atributos, $conteudo, $tags) use ($shortCode, $assets, $request, $response) {
 
-            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_SHORTCODE);
+            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_SHORTCODE, $shortCode);
 
             $request->setShortcode(true);
 
@@ -173,19 +173,19 @@ class MbShortCode
                         //Começar a processar a controller
                         ob_start();
 
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_CONTROLLER);
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_ACTION, $shortCode->getAcao());
                         $respostaController = $shortCode->getAcao()
                             ->getPagina()
                             ->getController()
                             ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
 
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_CONTROLLER);
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_ACTION, $shortCode->getAcao());
 
                     } catch (\Exception $e){
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::EXCEPTION_CONTROLLER, $e);
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::EXCEPTION_ACTION, $e);
                         $respostaController = $e->getMessage();
                     } finally {
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::FINISH_CONTROLLER);
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::FINISH_ACTION, $shortCode->getAcao());
                         $conteudoController = ob_get_contents();
                         ob_end_clean();
                     }
@@ -218,7 +218,7 @@ class MbShortCode
             //Imprimir conteudo
             $response->sendContent();
 
-            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_SHORTCODE);
+            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_SHORTCODE, $shortCode);
         });
     }
 }

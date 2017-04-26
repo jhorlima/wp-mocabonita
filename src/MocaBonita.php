@@ -47,7 +47,7 @@ final class MocaBonita extends MbSingleton
     /**
      * Serviços do Plugin e Wordpress do Moca Bonita
      *
-     * @var MbEventos[]
+     * @var array[]
      */
     private $eventos = [];
 
@@ -178,24 +178,37 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * @return MbEventos[]
+     * @param string|null $dispatch
+     *
+     * @return array|MbEventos[]
      */
-    public function getEventos()
+    public function getEventos($dispatch = null)
     {
-        return $this->eventos;
+        if(is_null($dispatch)){
+            return $this->eventos;
+        } else {
+            return $this->eventos[$dispatch];
+        }
     }
 
     /**
      * @param MbEventos $eventoClass
-     * @param MbPaginas $pagina
+     * @param string|array $dispatch
+     *
      * @return MocaBonita
      */
-    public function adicionarEvento(MbEventos $eventoClass, MbPaginas $pagina = null)
+    public function adicionarEvento(MbEventos $eventoClass, $dispatch)
     {
-        if(!is_null($pagina)){
-            $eventoClass->setPagina($pagina->getSlug());
+        if(is_array($dispatch)){
+            foreach ($dispatch as $item){
+                $this->adicionarEvento($eventoClass, $item);
+            }
+        } else {
+            if(!isset($this->eventos[$dispatch])){
+                $this->eventos[$dispatch] = [];
+            }
+            $this->eventos[$dispatch][] = $eventoClass;
         }
-        $this->eventos[] = $eventoClass;
         return $this;
     }
 
@@ -260,9 +273,7 @@ final class MocaBonita extends MbSingleton
         MbWPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $mocaBonita) {
             try {
                 $plugin($mocaBonita);
-                MbEventos::processarEventos($mocaBonita, MbEventos::START_WORDPRESS);
                 $mocaBonita->launcher();
-                MbEventos::processarEventos($mocaBonita, MbEventos::FINISH_WORDPRESS);
             } catch (\Exception $e) {
                 $mocaBonita->response->setContent($e);
             } finally {
@@ -439,11 +450,13 @@ final class MocaBonita extends MbSingleton
             MbWPAction::adicionarAction('admin_menu', $this, 'processarMenu');
         }
 
+        MbEventos::processarEventos($this, MbEventos::START_WORDPRESS);
+
         //Verificar se a página atual é do plugin
         if ($this->isPaginaPlugin()) {
 
             try{
-                MbEventos::processarEventos($this, MbEventos::BEFORE_PLUGIN);
+                MbEventos::processarEventos($this, MbEventos::BEFORE_PAGE);
 
                 //Obter a lista de query params
                 $query = $this->request->query();
@@ -478,14 +491,15 @@ final class MocaBonita extends MbSingleton
                 //Processar a página
                 $this->processarPaginaAtual();
 
-                MbEventos::processarEventos($this, MbEventos::AFTER_PLUGIN);
+                MbEventos::processarEventos($this, MbEventos::AFTER_PAGE);
             } catch (\Exception $e){
-                MbEventos::processarEventos($this, MbEventos::EXCEPTION_PLUGIN, $e);
+                MbEventos::processarEventos($this, MbEventos::EXCEPTION_PAGE, $e);
                 throw $e;
             } finally {
-                MbEventos::processarEventos($this, MbEventos::FINISH_PLUGIN);
+                MbEventos::processarEventos($this, MbEventos::FINISH_PAGE);
             }
         }
+        MbEventos::processarEventos($this, MbEventos::FINISH_WORDPRESS);
     }
 
     /**
@@ -613,19 +627,19 @@ final class MocaBonita extends MbSingleton
         ob_start();
 
         try {
-            MbEventos::processarEventos($this, MbEventos::BEFORE_CONTROLLER);
+            MbEventos::processarEventos($this, MbEventos::BEFORE_ACTION);
 
             $respostaController = $acao->getPagina()
                 ->getController()
                 ->{$acao->getMetodo()}($this->request, $this->response);
-            MbEventos::processarEventos($this, MbEventos::AFTER_CONTROLLER);
+            MbEventos::processarEventos($this, MbEventos::AFTER_ACTION);
 
             //Caso a controller lance alguma exception, ela será lançada abaixo!
         } catch (\Exception $e) {
-            MbEventos::processarEventos($this, MbEventos::EXCEPTION_CONTROLLER, $e);
+            MbEventos::processarEventos($this, MbEventos::EXCEPTION_ACTION, $e);
             $respostaController = $e;
         } finally {
-            MbEventos::processarEventos($this, MbEventos::FINISH_CONTROLLER);
+            MbEventos::processarEventos($this, MbEventos::FINISH_ACTION);
             $conteudoController = ob_get_contents();
         }
 
