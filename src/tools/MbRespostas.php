@@ -52,9 +52,9 @@ class MbRespostas extends Response
     /**
      * Processar resposta para o navegador
      *
-     * @param mixed $dados Resposta para enviar ao navegador
-     *
-     * @return self
+     * @param mixed $content
+     * @return MbRespostas
+     * @internal param mixed $dados Resposta para enviar ao navegador
      */
     public function setContent($content)
     {

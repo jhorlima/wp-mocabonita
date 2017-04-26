@@ -1,13 +1,8 @@
 <?php
 
-namespace MocaBonita\service;
+namespace MocaBonita\tools;
 
 use MocaBonita\MocaBonita;
-use MocaBonita\tools\MbException;
-use MocaBonita\tools\MbPaginas;
-use MocaBonita\tools\MbRequisicoes;
-use MocaBonita\tools\MbRespostas;
-use MocaBonita\tools\MbSingleton;
 
 /**
  * Classe de gerenciamento de eventos do moçabonita.
@@ -58,6 +53,18 @@ abstract class MbEventos extends MbSingleton
      *
      */
     const EXCEPTION_PLUGIN = "exceptionPluginDispatcher";
+
+    /**
+     * Nome evento ao iniciar o shortcode
+     *
+     */
+    const BEFORE_SHORTCODE = "beforeShortcodeDispatcher";
+
+    /**
+     * Nome do evento depois de executar o shortcode
+     *
+     */
+    const AFTER_SHORTCODE = "afterShortcodeDispatcher";
 
     /**
      * Nome do evento para ser executado antes da controller

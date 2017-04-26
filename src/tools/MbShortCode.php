@@ -2,7 +2,6 @@
 namespace MocaBonita\tools;
 
 use MocaBonita\MocaBonita;
-use MocaBonita\service\MbEventos;
 use MocaBonita\view\View;
 
 /**
@@ -116,6 +115,8 @@ class MbShortCode
         //Inicializar Shorcode
         add_shortcode($this->getNome(), function ($atributos, $conteudo, $tags) use ($shortCode, $assets, $request, $response) {
 
+            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_SHORTCODE);
+
             $request->setShortcode(true);
 
             //Adicionar assets do plugin
@@ -124,84 +125,88 @@ class MbShortCode
             //Adicionar assets do shortcode
             $shortCode->getAssets()->setActionEnqueue('front')->processarAssets($shortCode->getNome());
 
-            MbEventos::processarEvento($shortCode->getAcao()->getPagina()->getServicos(), $request, $response);
-
             //Verificar se é uma ação valida
             if ($shortCode->getAcao()->metodoValido()) {
 
-                //Atribuir request e response pra view
-                $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->setView(new View())
-                    ->getView()
-                    ->setRequest($request)
-                    ->setResponse($response);
-
-                //Carregar dados da controller
-                $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->setRequest($request)
-                    ->setResponse($response);
-
-                //Definir controller como shortcode
-                $request->setShortcode(true);
-
-                //Definir template principal
-                $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->getView()
-                    ->setTemplate('shortcode');
-
-                //Definir página principal
-                $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->getView()
-                    ->setPage('shortcode');
-
-                //Definir shortcode metodo
-                $shortCode->getAcao()
-                    ->getPagina()
-                    ->getController()
-                    ->getView()
-                    ->setAction($shortCode->getAcao()->getNome());
-
-                //Começar a processar a controller
-                ob_start();
-
-                try{
-                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_CONTROLLER);
-                    $respostaController = $shortCode->getAcao()
+                try {
+                    //Atribuir request e response pra view
+                    $shortCode->getAcao()
                         ->getPagina()
                         ->getController()
-                        ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
+                        ->setView(new View())
+                        ->getView()
+                        ->setRequest($request)
+                        ->setResponse($response);
 
-                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_CONTROLLER);
+                    //Carregar dados da controller
+                    $shortCode->getAcao()
+                        ->getPagina()
+                        ->getController()
+                        ->setRequest($request)
+                        ->setResponse($response);
+
+                    //Definir controller como shortcode
+                    $request->setShortcode(true);
+
+                    //Definir template principal
+                    $shortCode->getAcao()
+                        ->getPagina()
+                        ->getController()
+                        ->getView()
+                        ->setTemplate('shortcode');
+
+                    //Definir página principal
+                    $shortCode->getAcao()
+                        ->getPagina()
+                        ->getController()
+                        ->getView()
+                        ->setPage('shortcode');
+
+                    //Definir shortcode metodo
+                    $shortCode->getAcao()
+                        ->getPagina()
+                        ->getController()
+                        ->getView()
+                        ->setAction($shortCode->getAcao()->getNome());
+
+                    try{
+                        //Começar a processar a controller
+                        ob_start();
+
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_CONTROLLER);
+                        $respostaController = $shortCode->getAcao()
+                            ->getPagina()
+                            ->getController()
+                            ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
+
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_CONTROLLER);
+
+                    } catch (\Exception $e){
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::EXCEPTION_CONTROLLER, $e);
+                        $respostaController = $e->getMessage();
+                    } finally {
+                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::FINISH_CONTROLLER);
+                        $conteudoController = ob_get_contents();
+                        ob_end_clean();
+                    }
+
+                    //Verificar se a controller imprimiu alguma coisa e exibir no errolog
+                    if ($conteudoController != ""){
+                        error_log($conteudoController);
+                    }
+
+                    //Verificar se a resposta é nula e então ele pega a view da controller
+                    if(is_null($respostaController)){
+                        $respostaController = $shortCode->getAcao()->getPagina()->getController()->getView();
+                    }
 
                 } catch (\Exception $e){
-                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::EXCEPTION_CONTROLLER, $e);
                     $respostaController = $e->getMessage();
+
                 } finally {
-                    MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::FINISH_CONTROLLER);
-                    $conteudoController = ob_get_contents();
+                    //Processar a página
+                    $response->setContent($respostaController);
                 }
-
-                ob_end_clean();
-
-                //Verificar se a controller imprimiu alguma coisa e exibir no errolog
-                if ($conteudoController != ""){
-                    error_log($conteudoController);
-                }
-
-                //Verificar se a resposta é nula e então ele pega a view da controller
-                if(is_null($respostaController)){
-                    $respostaController = $shortCode->getAcao()->getPagina()->getController()->getView();
-                }
-                //Processar a página
-                $response->setContent($respostaController);
 
             } else {
                 //Processar a página
@@ -212,6 +217,8 @@ class MbShortCode
 
             //Imprimir conteudo
             $response->sendContent();
+
+            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_SHORTCODE);
         });
     }
 }

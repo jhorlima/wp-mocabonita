@@ -147,6 +147,7 @@ class MbDatabaseManager implements ConnectionInterface
      * @param $query
      * @param $bindings
      *
+     * @param bool $update
      * @return mixed
      */
     private function bind_params($query, $bindings, $update = false)

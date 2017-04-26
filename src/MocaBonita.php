@@ -8,7 +8,7 @@ use MocaBonita\tools\MbDiretorios;
 use MocaBonita\tools\MbCapsule;
 use MocaBonita\tools\MbRespostas;
 use MocaBonita\tools\MbRequisicoes;
-use MocaBonita\service\MbEventos;
+use MocaBonita\tools\MbEventos;
 use MocaBonita\tools\MbAcoes;
 use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbShortCode;
@@ -360,7 +360,8 @@ final class MocaBonita extends MbSingleton
                 MbCapsule::pdo();
                 $deactive($mocaBonita);
             } catch (\Exception $e) {
-                MbException::shutdown($e);
+                MbException::setSalvarLog(true);
+                MbException::adminNotice($e);
                 wp_die($e->getMessage());
             }
         });

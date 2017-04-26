@@ -79,7 +79,8 @@ class MbValidacao implements Arrayable
     protected $mensagens = [];
 
     /**
-     * @return array[]|mixed|null
+     * @param null $chave
+     * @return \array[]|mixed|null
      */
     public function getDados($chave = null)
     {

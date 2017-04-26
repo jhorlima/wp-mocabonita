@@ -4,7 +4,6 @@ namespace MocaBonita\tools;
 
 use MocaBonita\controller\MbController;
 use MocaBonita\MocaBonita;
-use MocaBonita\service\MbEventos;
 
 /**
  * Classe de páginas do Wordpress
