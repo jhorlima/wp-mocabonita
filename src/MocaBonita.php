@@ -184,10 +184,12 @@ final class MocaBonita extends MbSingleton
      */
     public function getEventos($dispatch = null)
     {
-        if(is_null($dispatch)){
+        if (is_null($dispatch)) {
             return $this->eventos;
-        } else {
+        } elseif (isset($this->eventos[$dispatch])) {
             return $this->eventos[$dispatch];
+        } else {
+            return [];
         }
     }
 
@@ -199,12 +201,12 @@ final class MocaBonita extends MbSingleton
      */
     public function adicionarEvento(MbEventos $eventoClass, $dispatch)
     {
-        if(is_array($dispatch)){
-            foreach ($dispatch as $item){
+        if (is_array($dispatch)) {
+            foreach ($dispatch as $item) {
                 $this->adicionarEvento($eventoClass, $item);
             }
         } else {
-            if(!isset($this->eventos[$dispatch])){
+            if (!isset($this->eventos[$dispatch])) {
                 $this->eventos[$dispatch] = [];
             }
             $this->eventos[$dispatch][] = $eventoClass;
@@ -235,7 +237,7 @@ final class MocaBonita extends MbSingleton
 
         $timezone = get_option('timezone_string');
 
-        if(!empty($timezone)){
+        if (!empty($timezone)) {
             date_default_timezone_set($timezone);
         }
 
@@ -264,7 +266,7 @@ final class MocaBonita extends MbSingleton
     public static function loader(\Closure $plugin, $emDesenvolvimento = false)
     {
         $mocaBonita = self::getInstance();
-        $mocaBonita->emDesenvolvimento = (bool) $emDesenvolvimento;
+        $mocaBonita->emDesenvolvimento = (bool)$emDesenvolvimento;
 
         if ($emDesenvolvimento) {
             $mocaBonita->desabilitarCaches();
@@ -382,7 +384,8 @@ final class MocaBonita extends MbSingleton
      * Verificar versão do wordpress e PHP
      *
      */
-    private static function verificarVersao(){
+    private static function verificarVersao()
+    {
         if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
             $exception = new \Exception(
                 "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
@@ -390,7 +393,7 @@ final class MocaBonita extends MbSingleton
 
             MbException::adminNotice($exception);
 
-            MbWPAction::adicionarCallbackAction('init', function (){
+            MbWPAction::adicionarCallbackAction('init', function () {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
                 deactivate_plugins(MbDiretorios::PLUGIN_BASENAME);
             });
@@ -401,15 +404,16 @@ final class MocaBonita extends MbSingleton
      * Verificar permissão de escrita do diretório
      *
      */
-    private static function verificarEscrita(){
-        if(!is_writable(MbDiretorios::PLUGIN_DIRETORIO)){
+    private static function verificarEscrita()
+    {
+        if (!is_writable(MbDiretorios::PLUGIN_DIRETORIO)) {
             $exception = new \Exception(
                 "O MocaBonita não tem permissão de escrita no diretório do plugin!"
             );
 
             MbException::adminNotice($exception);
 
-            MbWPAction::adicionarCallbackAction('init', function (){
+            MbWPAction::adicionarCallbackAction('init', function () {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
                 deactivate_plugins(MbDiretorios::PLUGIN_BASENAME);
             });
@@ -446,7 +450,7 @@ final class MocaBonita extends MbSingleton
         }
 
         //Adicionar os menus do wordpress
-        if($this->isBlogAdmin()){
+        if ($this->isBlogAdmin()) {
             MbWPAction::adicionarAction('admin_menu', $this, 'processarMenu');
         }
 
@@ -455,14 +459,17 @@ final class MocaBonita extends MbSingleton
         //Verificar se a página atual é do plugin
         if ($this->isPaginaPlugin()) {
 
-            try{
-                MbEventos::processarEventos($this, MbEventos::BEFORE_PAGE);
+            $pagina = $this->getPagina($this->page);
+
+            try {
+
+                MbEventos::processarEventos($this, MbEventos::BEFORE_PAGE, $pagina);
 
                 //Obter a lista de query params
                 $query = $this->request->query();
 
                 //Verificar se existe atributo da páginação
-                if(isset($query[MbDatabaseQueryBuilder::getPageName()])){
+                if (isset($query[MbDatabaseQueryBuilder::getPageName()])) {
                     $paginacao = $query[MbDatabaseQueryBuilder::getPageName()];
                     unset($query[MbDatabaseQueryBuilder::getPageName()]);
                 } else {
@@ -478,25 +485,25 @@ final class MocaBonita extends MbSingleton
                 });
 
                 //Definir página atual da paginação
-                Paginator::currentPageResolver(function () use ($paginacao){
-                    return is_numeric($paginacao) ? (int) $paginacao : 1;
+                Paginator::currentPageResolver(function () use ($paginacao) {
+                    return is_numeric($paginacao) ? (int)$paginacao : 1;
                 });
 
                 //Adicionar os Assets do plugin
                 $this->getAssets()->processarAssets('plugin');
 
                 //Adicionar os Assets da página
-                $this->getPagina($this->page)->getAssets()->processarAssets($this->page);
+                $pagina->getAssets()->processarAssets($this->page);
 
                 //Processar a página
                 $this->processarPaginaAtual();
 
-                MbEventos::processarEventos($this, MbEventos::AFTER_PAGE);
-            } catch (\Exception $e){
+                MbEventos::processarEventos($this, MbEventos::AFTER_PAGE, $pagina);
+            } catch (\Exception $e) {
                 MbEventos::processarEventos($this, MbEventos::EXCEPTION_PAGE, $e);
                 throw $e;
             } finally {
-                MbEventos::processarEventos($this, MbEventos::FINISH_PAGE);
+                MbEventos::processarEventos($this, MbEventos::FINISH_PAGE, $pagina);
             }
         }
         MbEventos::processarEventos($this, MbEventos::FINISH_WORDPRESS);
@@ -508,7 +515,7 @@ final class MocaBonita extends MbSingleton
      */
     private function adicionarActionPagina()
     {
-        if(!$this->isPaginaPlugin() || $this->isBlogAdmin()){
+        if (!$this->isPaginaPlugin() || $this->isBlogAdmin()) {
             return false;
         }
 
@@ -567,8 +574,7 @@ final class MocaBonita extends MbSingleton
             throw new MbException(
                 "A Ação {$this->action} da página {$this->page} não foi instânciada no objeto da página!"
             );
-        }
-        //Verificar se a Ação tem capacidade, se não, obtem a capacidade da página
+        } //Verificar se a Ação tem capacidade, se não, obtem a capacidade da página
         elseif (is_null($acao->getCapacidade())) {
             $acao->setCapacidade($pagina->getCapacidade());
         }
@@ -578,26 +584,22 @@ final class MocaBonita extends MbSingleton
             throw new MbException(
                 "A Ação {$this->action} da página {$this->page} requer o login do wordpress!"
             );
-        }
-        //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
+        } //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
         elseif ($acao->isLogin() && !current_user_can($acao->getCapacidade())) {
             throw new MbException(
                 "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
             );
-        }
-        //Caso a ação precise ser chamada via admin-ajax.php no wordpress e esta sendo chamado de outra forma
+        } //Caso a ação precise ser chamada via admin-ajax.php no wordpress e esta sendo chamado de outra forma
         elseif ($acao->isAjax() && !$this->request->isAjax()) {
             throw new MbException(
                 "A Ação {$this->action} da página {$this->page} precisa ser requisitada em admin-ajax.php!"
             );
-        }
-        //Caso a ação tenha um método de requisição diferente da requisição atual
+        } //Caso a ação tenha um método de requisição diferente da requisição atual
         elseif ($acao->getRequisicao() != $this->request->method() && !is_null($acao->getRequisicao())) {
             throw new MbException(
                 "A Ação {$this->action} da página {$this->page} precisa ser requisitada via {$acao->getRequisicao()}!"
             );
-        }
-        //Caso a ação não tenha um método criado ou publico na controller
+        } //Caso a ação não tenha um método criado ou publico na controller
         elseif (!$acao->metodoValido()) {
             throw new MbException(
                 "A Ação {$this->action} da página {$this->page} não tem um método publico na controller {$nomeController}. 
@@ -627,19 +629,19 @@ final class MocaBonita extends MbSingleton
         ob_start();
 
         try {
-            MbEventos::processarEventos($this, MbEventos::BEFORE_ACTION);
+            MbEventos::processarEventos($this, MbEventos::BEFORE_ACTION, $acao);
 
             $respostaController = $acao->getPagina()
                 ->getController()
                 ->{$acao->getMetodo()}($this->request, $this->response);
-            MbEventos::processarEventos($this, MbEventos::AFTER_ACTION);
+            MbEventos::processarEventos($this, MbEventos::AFTER_ACTION, $acao);
 
             //Caso a controller lance alguma exception, ela será lançada abaixo!
         } catch (\Exception $e) {
             MbEventos::processarEventos($this, MbEventos::EXCEPTION_ACTION, $e);
             $respostaController = $e;
         } finally {
-            MbEventos::processarEventos($this, MbEventos::FINISH_ACTION);
+            MbEventos::processarEventos($this, MbEventos::FINISH_ACTION, $acao);
             $conteudoController = ob_get_contents();
         }
 

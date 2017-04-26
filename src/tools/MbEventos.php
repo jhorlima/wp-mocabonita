@@ -201,9 +201,9 @@ abstract class MbEventos extends MbSingleton
      *
      * @param MbRequisicoes $request
      * @param MbRespostas $response
-     * @param MbAcoes $acao
+     * @param MbPaginas $paginas
      */
-    public function beforePageDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    public function beforePageDispatcher(MbRequisicoes $request, MbRespostas $response, MbPaginas $paginas)
     {
         //
     }
@@ -214,9 +214,9 @@ abstract class MbEventos extends MbSingleton
      *
      * @param MbRequisicoes $request
      * @param MbRespostas $response
-     * @param MbAcoes $acao
+     * @param MbPaginas $paginas
      */
-    public function afterPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    public function afterPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbPaginas $paginas)
     {
         //
     }
@@ -227,9 +227,9 @@ abstract class MbEventos extends MbSingleton
      *
      * @param MbRequisicoes $request
      * @param MbRespostas $response
-     * @param MbAcoes $acao
+     * @param MbPaginas $paginas
      */
-    public function finishPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    public function finishPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbPaginas $paginas)
     {
         //
     }
