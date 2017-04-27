@@ -64,19 +64,21 @@ class MbRespostas extends Response
             $this->statusCode = 200;
         } elseif ($this->request->isMethod("POST") || $this->request->isMethod("PUT")) {
             $this->statusCode = 201;
-        } elseif ($content instanceof \Exception) {
-            $this->statusCode = $content->getCode();
-            $this->statusCode = $this->statusCode < 300 ? 400 : $this->statusCode;
         } else {
             $this->statusCode = 204;
         }
 
+        if ($content instanceof \Exception) {
+            $this->statusCode = $content->getCode();
+            $this->statusCode = $this->statusCode < 300 ? 400 : $this->statusCode;
+        }
+
         //Verificar se a página atual é ajax
         if ($this->request->isAjax()) {
-            parent::setContent($this->respostaAjax($content));
+            $this->respostaAjax($content);
             //Caso a requisição não seja ajax
         } else {
-            parent::setContent($this->respostaHtml($content));
+            $this->respostaHtml($content);
         }
 
         return $this;
@@ -88,8 +90,8 @@ class MbRespostas extends Response
      */
     public function sendContent()
     {
-        if ($this->request->isAjax() && is_array($this->getContent())) {
-            wp_send_json($this->content, $this->statusCode);
+        if ($this->request->isAjax()) {
+            wp_send_json($this->original, $this->statusCode);
         } else {
             parent::sendContent();
         }
@@ -117,6 +119,8 @@ class MbRespostas extends Response
     {
         $message = null;
 
+        $this->header('Content-Type', 'application/json');
+
         if ($dados instanceof Arrayable) {
             $dados = $dados->toArray();
 
@@ -130,16 +134,18 @@ class MbRespostas extends Response
 
         } elseif ($dados instanceof \Exception) {
             $message = $dados->getMessage();
-            $dados = $dados instanceof MbException ? $dados->getDadosArray() : null;
+            $dados   = $dados instanceof MbException ? $dados->getDadosArray() : null;
         }
 
-        return [
+        $this->original = [
             'meta' => [
                 'code' => $this->getStatusCode(),
                 'message' => $message
             ],
             'data' => $dados,
         ];
+
+        return $this->original;
 
     }
 
@@ -165,6 +171,8 @@ class MbRespostas extends Response
             $dados = ob_get_contents();
             ob_end_clean();
         }
+
+        parent::setContent($dados);
 
         return $dados;
     }
