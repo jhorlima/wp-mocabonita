@@ -170,4 +170,16 @@ class MbRequisicoes extends Request
     {
         return $this->url() . '?'.http_build_query($query);
     }
+
+    /**
+     * Retrieve an inputSource item from the request.
+     *
+     * @param  string  $key
+     * @param  string|array|null  $default
+     * @return string|array
+     */
+    public function inputSource($key = null, $default = null)
+    {
+        return data_get($this->getInputSource()->all(), $key, $default);
+    }
 }

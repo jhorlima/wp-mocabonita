@@ -130,9 +130,10 @@ class MbRespostas extends Response
 
         } //Se não for array ou string, então retorna vázio
         elseif (!is_array($dados) && !$dados instanceof \Exception) {
-            return $this->respostaAjax(new \Exception("Nenhum conteúdo válido foi enviado!"));
+            return $this->respostaAjax(new \Exception("Nenhum conteúdo válido foi enviado!", 400));
 
         } elseif ($dados instanceof \Exception) {
+            $this->setStatusCode($dados->getCode() < 300 ? 400 : $dados->getCode());
             $message = $dados->getMessage();
             $dados   = $dados instanceof MbException ? $dados->getDadosArray() : null;
         }

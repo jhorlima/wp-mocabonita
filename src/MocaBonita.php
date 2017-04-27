@@ -602,8 +602,8 @@ final class MocaBonita extends MbSingleton
         } //Caso a ação não tenha um método criado ou publico na controller
         elseif (!$acao->metodoValido()) {
             throw new MbException(
-                "A Ação {$this->action} da página {$this->page} não tem um método publico na controller {$nomeController}. 
-                    Por favor, criar ou tornar public o método {$acao->getMetodo()} em {$nomeController}!"
+                "A Ação {$this->action} da página {$this->page} não tem um método publico na controller {$nomeController}. ".
+                "Por favor, criar ou tornar public o método {$acao->getMetodo()} em {$nomeController}!"
             );
         }
 
