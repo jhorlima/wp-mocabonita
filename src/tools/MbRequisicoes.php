@@ -60,6 +60,20 @@ class MbRequisicoes extends Request
     protected $pageNow;
 
     /**
+     * Obter objeto da página atual
+     *
+     * @var MbPaginas
+     */
+    protected $pagina;
+
+    /**
+     * Obter objeto da ação atual
+     *
+     * @var MbAcoes
+     */
+    protected $acao;
+
+    /**
      * @return boolean
      */
     public function isAdmin()
@@ -161,7 +175,7 @@ class MbRequisicoes extends Request
     }
 
     /**
-     * Get the full URL for the request with the added query string parameters.
+     * Get the full URL for the request with the added a new query string parameters.
      *
      * @param  array  $query
      * @return string
@@ -169,6 +183,38 @@ class MbRequisicoes extends Request
     public function fullUrlWithNewQuery(array $query)
     {
         return $this->url() . '?'.http_build_query($query);
+    }
+
+    /**
+     * Get the full URL with new action for the requests.
+     *
+     * @param string $action
+     * @param array $query
+     *
+     * @return string
+     */
+    public function fullUrlWithNewAction($action, array $query = [])
+    {
+        return $this->url() . '?' . http_build_query( [
+                    'page'   => $this->query( 'page' ),
+                    'action' => $action
+                ]  + $query);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isAction($action)
+    {
+        return (bool) $this->query('action') == $action;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isPage($page)
+    {
+        return (bool) $this->query('page') == $page;
     }
 
     /**
@@ -181,5 +227,37 @@ class MbRequisicoes extends Request
     public function inputSource($key = null, $default = null)
     {
         return data_get($this->getInputSource()->all(), $key, $default);
+    }
+
+    /**
+     * @return MbPaginas
+     */
+    public function getPagina()
+    {
+        return $this->pagina;
+    }
+
+    /**
+     * @param MbPaginas $pagina
+     */
+    public function setPagina(MbPaginas $pagina)
+    {
+        $this->pagina = $pagina;
+    }
+
+    /**
+     * @return MbAcoes
+     */
+    public function getAcao()
+    {
+        return $this->acao;
+    }
+
+    /**
+     * @param MbAcoes $acao
+     */
+    public function setAcao(MbAcoes $acao)
+    {
+        $this->acao = $acao;
     }
 }

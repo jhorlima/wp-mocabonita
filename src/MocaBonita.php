@@ -461,6 +461,8 @@ final class MocaBonita extends MbSingleton
 
             $pagina = $this->getPagina($this->page);
 
+            $this->getRequest()->setPagina($pagina);
+
             try {
 
                 MbEventos::processarEventos($this, MbEventos::BEFORE_PAGE, $pagina);
@@ -606,6 +608,8 @@ final class MocaBonita extends MbSingleton
                 "Por favor, criar ou tornar public o método {$acao->getMetodo()} em {$nomeController}!"
             );
         }
+
+        $this->getRequest()->setAcao($acao);
 
         //Carregar view e suas configuracoes da controller
         $acao->getPagina()->getController()->setView(new View());

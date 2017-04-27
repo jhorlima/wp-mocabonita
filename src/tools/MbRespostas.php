@@ -60,7 +60,7 @@ class MbRespostas extends Response
     {
         if(is_null($this->request)){
             return $this;
-        } elseif ($this->request->isMethod("GET")) {
+        } elseif ($this->request->isMethod("GET") || $this->request->isMethod("DELETE") ) {
             $this->statusCode = 200;
         } elseif ($this->request->isMethod("POST") || $this->request->isMethod("PUT")) {
             $this->statusCode = 201;

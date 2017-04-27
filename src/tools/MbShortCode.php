@@ -120,7 +120,7 @@ class MbShortCode
             $request->setShortcode(true);
 
             //Adicionar assets do plugin
-            $assets->processarAssets('plugin');
+            $assets->setActionEnqueue('front')->processarAssets('plugin');
 
             //Adicionar assets do shortcode
             $shortCode->getAssets()->setActionEnqueue('front')->processarAssets($shortCode->getNome());
