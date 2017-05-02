@@ -14,7 +14,7 @@ use MocaBonita\MocaBonita;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbAssets
+class MbAsset
 {
     /**
      * Array de CSS
@@ -49,7 +49,7 @@ class MbAssets
      * Adicionar CSS
      *
      * @param string $caminho
-     * @return MbAssets
+     * @return MbAsset
      */
     public function setCss($caminho)
     {
@@ -71,7 +71,7 @@ class MbAssets
      * @param string $caminho
      * @param bool $noFooter
      * @param bool $versao
-     * @return MbAssets
+     * @return MbAsset
      */
     public function setJavascript($caminho, $noFooter = true, $versao = false)
     {
@@ -95,7 +95,7 @@ class MbAssets
         $style = $this->css;
         $javascript = $this->javascript;
 
-        MbWPAction::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $style, $javascript){
+        MbWPActionHook::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $style, $javascript){
             foreach ($style as $i => $css) {
                 wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
             }
@@ -124,7 +124,7 @@ class MbAssets
      *
      */
     private function autoEnqueue(){
-        $request = MocaBonita::getInstance()->getRequest();
+        $request = MocaBonita::getInstance()->getMbRequest();
 
         if($request->isPageLogin()){
             $this->actionEnqueue = "login_enqueue_scripts";

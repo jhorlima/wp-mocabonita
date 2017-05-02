@@ -14,7 +14,7 @@ use Exception;
  * validar (string | function($elemento)) : Função para validar os elementos do array
  *
  */
-class MbValidacaoArray extends MbModeloValidacao
+class MbArrayValidation extends MbValidationBase
 {
     /**
      * @param mixed $valor valor para validar

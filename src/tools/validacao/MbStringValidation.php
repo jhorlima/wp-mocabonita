@@ -21,7 +21,7 @@ use Exception;
  * html_escape (bool) : Converte caracteres especiais para a realidade HTML
  *
  */
-class MbValidacaoString extends MbModeloValidacao
+class MbStringValidation extends MbValidationBase
 {
     /**
      * @param mixed $valor valor para validar

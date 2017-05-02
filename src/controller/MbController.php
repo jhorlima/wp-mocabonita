@@ -2,10 +2,10 @@
 
 namespace MocaBonita\controller;
 
-use MocaBonita\tools\MbRespostas;
-use MocaBonita\tools\MbRequisicoes;
+use MocaBonita\tools\MbResponse;
+use MocaBonita\tools\MbRequest;
 use MocaBonita\tools\MbException;
-use MocaBonita\view\View;
+use MocaBonita\view\MbView;
 
 /**
  * Classe de gerenciamento de controller do moçabonita.
@@ -25,21 +25,21 @@ abstract class MbController
     /**
      * Contém a view atual da ação da controller.
      *
-     * @var View
+     * @var MbView
      */
     protected $view;
 
     /**
      * Váriavel que armazenda o request
      *
-     * @var MbRequisicoes
+     * @var MbRequest
      */
     protected $request;
 
     /**
      * Váriavel que armazenda a resposta
      *
-     * @var MbRespostas
+     * @var MbResponse
      */
     protected $response;
 
@@ -51,18 +51,18 @@ abstract class MbController
      * Se o retorno for View, ele irá redenrizar a view desta controller
      * Se o retorno for qualquer outro tipo, ele irá fazer um var_dump do retorno
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * @param MbRequest $request
+     * @param MbResponse $response
      *
-     * @return null|string|View|void
+     * @return null|string|MbView|void
      */
-    public function indexAction(MbRequisicoes $request, MbRespostas $response)
+    public function indexAction(MbRequest $request, MbResponse $response)
     {
         return $this->view;
     }
 
     /**
-     * @return MbRequisicoes
+     * @return MbRequest
      */
     public function getRequest()
     {
@@ -70,18 +70,18 @@ abstract class MbController
     }
 
     /**
-     * @param MbRequisicoes $request
+     * @param MbRequest $request
      *
      * @return MbController
      */
-    public function setRequest(MbRequisicoes $request)
+    public function setRequest(MbRequest $request)
     {
         $this->request = $request;
         return $this;
     }
 
     /**
-     * @return MbRespostas
+     * @return MbResponse
      */
     public function getResponse()
     {
@@ -89,18 +89,18 @@ abstract class MbController
     }
 
     /**
-     * @param MbRespostas $response
+     * @param MbResponse $response
      *
      * @return MbController
      */
-    public function setResponse(MbRespostas $response)
+    public function setResponse(MbResponse $response)
     {
         $this->response = $response;
         return $this;
     }
 
     /**
-     * @return View
+     * @return MbView
      */
     public final function getView()
     {
@@ -108,11 +108,11 @@ abstract class MbController
     }
 
     /**
-     * @param View $view
+     * @param MbView $view
      *
      * @return MbController
      */
-    public final function setView(View $view)
+    public final function setView(MbView $view)
     {
         $this->view = $view;
         return $this;

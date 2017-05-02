@@ -16,7 +16,7 @@ use MocaBonita\MocaBonita;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-abstract class MbEventos extends MbSingleton
+abstract class MbEvent extends MbSingleton
 {
 
     /**
@@ -93,19 +93,19 @@ abstract class MbEventos extends MbSingleton
     /**
      * Váriavel que armazenda o request
      *
-     * @var MbRequisicoes
+     * @var MbRequest
      */
     protected $request;
 
     /**
      * Váriavel que armazenda a resposta
      *
-     * @var MbRespostas
+     * @var MbResponse
      */
     protected $response;
 
     /**
-     * @return MbRequisicoes
+     * @return MbRequest
      */
     public function getRequest()
     {
@@ -113,18 +113,18 @@ abstract class MbEventos extends MbSingleton
     }
 
     /**
-     * @param MbRequisicoes $request
+     * @param MbRequest $request
      *
-     * @return MbEventos
+     * @return MbEvent
      */
-    public function setRequest(MbRequisicoes $request)
+    public function setRequest(MbRequest $request)
     {
         $this->request = $request;
         return $this;
     }
 
     /**
-     * @return MbRespostas
+     * @return MbResponse
      */
     public function getResponse()
     {
@@ -132,11 +132,11 @@ abstract class MbEventos extends MbSingleton
     }
 
     /**
-     * @param MbRespostas $response
+     * @param MbResponse $response
      *
-     * @return MbEventos
+     * @return MbEvent
      */
-    public function setResponse(MbRespostas $response)
+    public function setResponse(MbResponse $response)
     {
         $this->response = $response;
         return $this;
@@ -169,18 +169,18 @@ abstract class MbEventos extends MbSingleton
      */
     public static function processarEventos(MocaBonita $mocaBonita, $dispatch, $exceptionOrPage = null)
     {
-        foreach ($mocaBonita->getEventos($dispatch) as &$evento) {
-            $evento->{$dispatch}($mocaBonita->getRequest(), $mocaBonita->getResponse(), $exceptionOrPage);
+        foreach ($mocaBonita->getMbEvents($dispatch) as &$evento) {
+            $evento->{$dispatch}($mocaBonita->getMbRequest(), $mocaBonita->getMbResponse(), $exceptionOrPage);
         }
     }
 
     /**
      * Evento para ser executado antes do wordpress processar o plugin (Executado sempre quando o plugin for ativado)
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * @param MbRequest $request
+     * @param MbResponse $response
      */
-    public function startWpDispatcher(MbRequisicoes $request, MbRespostas $response)
+    public function startWpDispatcher(MbRequest $request, MbResponse $response)
     {
         //
     }
@@ -188,10 +188,10 @@ abstract class MbEventos extends MbSingleton
     /**
      * Evento para ser executado depois do wordpress processar o plugin (Executado sempre quando o plugin for ativado)
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * @param MbRequest $request
+     * @param MbResponse $response
      */
-    public function finishWpDispatcher(MbRequisicoes $request, MbRespostas $response)
+    public function finishWpDispatcher(MbRequest $request, MbResponse $response)
     {
         //
     }
@@ -199,11 +199,11 @@ abstract class MbEventos extends MbSingleton
     /**
      * Evento para ser executado antes do wordpress processar a página (Somente em páginas da página)
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
-     * @param MbPaginas $paginas
+     * @param MbRequest $request
+     * @param MbResponse $response
+     * @param MbPage $paginas
      */
-    public function beforePageDispatcher(MbRequisicoes $request, MbRespostas $response, MbPaginas $paginas)
+    public function beforePageDispatcher(MbRequest $request, MbResponse $response, MbPage $paginas)
     {
         //
     }
@@ -212,11 +212,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado depois do wordpress processar a página, caso não tenha exceptions na página
      * Somente em páginas do plugin
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
-     * @param MbPaginas $paginas
+     * @param MbRequest $request
+     * @param MbResponse $response
+     * @param MbPage $paginas
      */
-    public function afterPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbPaginas $paginas)
+    public function afterPageDispatcher(MbRequest $request, MbResponse $response, MbPage $paginas)
     {
         //
     }
@@ -225,11 +225,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado depois do wordpress processar a página
      * Somente em páginas do plugin
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
-     * @param MbPaginas $paginas
+     * @param MbRequest $request
+     * @param MbResponse $response
+     * @param MbPage $paginas
      */
-    public function finishPageDispatcher(MbRequisicoes $request, MbRespostas $response, MbPaginas $paginas)
+    public function finishPageDispatcher(MbRequest $request, MbResponse $response, MbPage $paginas)
     {
         //
     }
@@ -238,11 +238,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado depois do wordpress processar a página e seja lançada uma exception
      * Somente em páginas do plugin
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * @param MbRequest $request
+     * @param MbResponse $response
      * @param \Exception $exception
      */
-    public function exceptionPageDispatcher(MbRequisicoes $request, MbRespostas $response, \Exception $exception)
+    public function exceptionPageDispatcher(MbRequest $request, MbResponse $response, \Exception $exception)
     {
         //
     }
@@ -251,11 +251,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado antes do wordpress processar o shortcode
      * Somente em shortcodes
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * @param MbRequest $request
+     * @param MbResponse $response
      * @param MbShortCode $shortCode
      */
-    public function beforeShortcodeDispatcher(MbRequisicoes $request, MbRespostas $response, MbShortCode $shortCode)
+    public function beforeShortcodeDispatcher(MbRequest $request, MbResponse $response, MbShortCode $shortCode)
     {
         //
     }
@@ -264,11 +264,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado depois do wordpress processar o shortcode
      * Somente em shortcodes
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * @param MbRequest $request
+     * @param MbResponse $response
      * @param MbShortCode $shortCode
      */
-    public function afterShortcodeDispatcher(MbRequisicoes $request, MbRespostas $response, MbShortCode $shortCode)
+    public function afterShortcodeDispatcher(MbRequest $request, MbResponse $response, MbShortCode $shortCode)
     {
         //
     }
@@ -277,11 +277,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado antes do wordpress processar a action da página
      * Somente em páginas do plugin
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
-     * @param MbAcoes $acao
+     * @param MbRequest $request
+     * @param MbResponse $response
+     * @param MbAction $acao
      */
-    public function beforeActionDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    public function beforeActionDispatcher(MbRequest $request, MbResponse $response, MbAction $acao)
     {
         //
     }
@@ -290,11 +290,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado depois do wordpress processar a action da página, caso não tenha exceptions na action
      * Somente em páginas do plugin
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
-     * @param MbAcoes $acao
+     * @param MbRequest $request
+     * @param MbResponse $response
+     * @param MbAction $acao
      */
-    public function afterActionDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    public function afterActionDispatcher(MbRequest $request, MbResponse $response, MbAction $acao)
     {
         //
     }
@@ -303,11 +303,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado depois do wordpress processar a action
      * Somente em páginas do plugin
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
-     * @param MbAcoes $acao
+     * @param MbRequest $request
+     * @param MbResponse $response
+     * @param MbAction $acao
      */
-    public function finishActionDispatcher(MbRequisicoes $request, MbRespostas $response, MbAcoes $acao)
+    public function finishActionDispatcher(MbRequest $request, MbResponse $response, MbAction $acao)
     {
         //
     }
@@ -316,11 +316,11 @@ abstract class MbEventos extends MbSingleton
      * Evento para ser executado depois do wordpress processar a action e seja lançada uma exception
      * Somente em páginas do plugin
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * @param MbRequest $request
+     * @param MbResponse $response
      * @param \Exception $exception
      */
-    public function exceptionActionDispatcher(MbRequisicoes $request, MbRespostas $response, \Exception $exception)
+    public function exceptionActionDispatcher(MbRequest $request, MbResponse $response, \Exception $exception)
     {
         //
     }

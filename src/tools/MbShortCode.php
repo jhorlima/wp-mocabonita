@@ -2,7 +2,7 @@
 namespace MocaBonita\tools;
 
 use MocaBonita\MocaBonita;
-use MocaBonita\view\View;
+use MocaBonita\view\MbView;
 
 /**
  * Classe de Shortcode do Wordpress
@@ -28,14 +28,14 @@ class MbShortCode
     /**
      * Ação do Shortcode
      *
-     * @var MbAcoes
+     * @var MbAction
      */
     private $acao;
 
     /**
      * Assets do Shortcode
      *
-     * @var MbAssets
+     * @var MbAsset
      */
     private $assets;
 
@@ -58,7 +58,7 @@ class MbShortCode
     }
 
     /**
-     * @return MbAcoes
+     * @return MbAction
      */
     public function getAcao()
     {
@@ -66,17 +66,17 @@ class MbShortCode
     }
 
     /**
-     * @param MbAcoes $acao
+     * @param MbAction $acao
      * @return MbShortCode
      */
-    public function setAcao(MbAcoes $acao)
+    public function setAcao(MbAction $acao)
     {
         $this->acao = $acao;
         return $this;
     }
 
     /**
-     * @return MbAssets
+     * @return MbAsset
      */
     public function getAssets()
     {
@@ -84,10 +84,10 @@ class MbShortCode
     }
 
     /**
-     * @param MbAssets $assets
+     * @param MbAsset $assets
      * @return MbShortCode
      */
-    public function setAssets(MbAssets $assets)
+    public function setAssets(MbAsset $assets)
     {
         $this->assets = $assets;
         return $this;
@@ -97,17 +97,17 @@ class MbShortCode
      * Adicionar Shortcode ao Wordpress
      *
      * @param string $nome nome do shortcode
-     * @param MbAcoes $acao ação do shortcode
-     * @param MbAssets $assets Assets do shortcode
+     * @param MbAction $acao ação do shortcode
+     * @param MbAsset $assets Assets do shortcode
      */
-    public function __construct($nome, MbAcoes $acao, MbAssets $assets)
+    public function __construct($nome, MbAction $acao, MbAsset $assets)
     {
         $this->setNome($nome)
             ->setAcao($acao)
             ->setAssets($assets);
     }
 
-    public function processarShorcode(MbAssets $assets, MbRequisicoes $request, MbRespostas $response)
+    public function processarShorcode(MbAsset $assets, MbRequest $request, MbResponse $response)
     {
         //Adicionar a instancia da class para uma váriavel
         $shortCode = $this;
@@ -115,7 +115,7 @@ class MbShortCode
         //Inicializar Shorcode
         add_shortcode($this->getNome(), function ($atributos, $conteudo, $tags) use ($shortCode, $assets, $request, $response) {
 
-            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_SHORTCODE, $shortCode);
+            MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::BEFORE_SHORTCODE, $shortCode);
 
             $request->setShortcode(true);
 
@@ -133,7 +133,7 @@ class MbShortCode
                     $shortCode->getAcao()
                         ->getPagina()
                         ->getController()
-                        ->setView(new View())
+                        ->setView(new MbView())
                         ->getView()
                         ->setRequest($request)
                         ->setResponse($response);
@@ -173,19 +173,19 @@ class MbShortCode
                         //Começar a processar a controller
                         ob_start();
 
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::BEFORE_ACTION, $shortCode->getAcao());
+                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::BEFORE_ACTION, $shortCode->getAcao());
                         $respostaController = $shortCode->getAcao()
                             ->getPagina()
                             ->getController()
                             ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
 
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_ACTION, $shortCode->getAcao());
+                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::AFTER_ACTION, $shortCode->getAcao());
 
                     } catch (\Exception $e){
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::EXCEPTION_ACTION, $e);
+                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::EXCEPTION_ACTION, $e);
                         $respostaController = $e->getMessage();
                     } finally {
-                        MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::FINISH_ACTION, $shortCode->getAcao());
+                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::FINISH_ACTION, $shortCode->getAcao());
                         $conteudoController = ob_get_contents();
                         ob_end_clean();
                     }
@@ -218,7 +218,7 @@ class MbShortCode
             //Imprimir conteudo
             $response->sendContent();
 
-            MbEventos::processarEventos(MocaBonita::getInstance(), MbEventos::AFTER_SHORTCODE, $shortCode);
+            MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::AFTER_SHORTCODE, $shortCode);
         });
     }
 }

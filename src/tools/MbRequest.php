@@ -3,18 +3,19 @@
 namespace MocaBonita\tools;
 
 use Illuminate\Http\Request;
+use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
 
 /**
  * Gerenciamento de requisições do moça bonita
  *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhordan>
  * @category WordPress
  * @package moca_bonita\tools
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbRequisicoes extends Request
+class MbRequest extends Request
 {
 
     /**
@@ -62,14 +63,14 @@ class MbRequisicoes extends Request
     /**
      * Obter objeto da página atual
      *
-     * @var MbPaginas
+     * @var MbPage
      */
     protected $pagina;
 
     /**
      * Obter objeto da ação atual
      *
-     * @var MbAcoes
+     * @var MbAction
      */
     protected $acao;
 
@@ -153,7 +154,7 @@ class MbRequisicoes extends Request
 
     /**
      * @param string $pageNow
-     * @return MbRequisicoes
+     * @return MbRequest
      */
     public function setPageNow($pageNow)
     {
@@ -177,12 +178,12 @@ class MbRequisicoes extends Request
     /**
      * Get the full URL for the request with the added a new query string parameters.
      *
-     * @param  array  $query
+     * @param  array $query
      * @return string
      */
     public function fullUrlWithNewQuery(array $query)
     {
-        return $this->url() . '?'.http_build_query($query);
+        return $this->url() . '?' . http_build_query($query);
     }
 
     /**
@@ -195,10 +196,25 @@ class MbRequisicoes extends Request
      */
     public function fullUrlWithNewAction($action, array $query = [])
     {
-        return $this->url() . '?' . http_build_query( [
-                    'page'   => $this->query( 'page' ),
+        return $this->url() . '?' . http_build_query([
+                    'page' => $this->query('page'),
                     'action' => $action
-                ]  + $query);
+                ] + $query);
+    }
+
+    /**
+     * Get the full URL with new action for the requests.
+     *
+     * @param string $pagination
+     * @param array $query
+     *
+     * @return string
+     */
+    public function fullUrlWithNewPagination($pagination)
+    {
+        return $this->url() . '?' . http_build_query($this->query() + [
+            MbDatabaseQueryBuilder::getPagination() => $pagination
+        ]);
     }
 
     /**
@@ -207,7 +223,7 @@ class MbRequisicoes extends Request
      */
     public function isAction($action)
     {
-        return (bool) $this->query('action') == $action;
+        return (bool)$this->query('action') == $action;
     }
 
     /**
@@ -216,14 +232,14 @@ class MbRequisicoes extends Request
      */
     public function isPage($page)
     {
-        return (bool) $this->query('page') == $page;
+        return (bool)$this->query('page') == $page;
     }
 
     /**
      * Retrieve an inputSource item from the request.
      *
-     * @param  string  $key
-     * @param  string|array|null  $default
+     * @param  string $key
+     * @param  string|array|null $default
      * @return string|array
      */
     public function inputSource($key = null, $default = null)
@@ -232,7 +248,7 @@ class MbRequisicoes extends Request
     }
 
     /**
-     * @return MbPaginas
+     * @return MbPage
      */
     public function getPagina()
     {
@@ -240,15 +256,15 @@ class MbRequisicoes extends Request
     }
 
     /**
-     * @param MbPaginas $pagina
+     * @param MbPage $pagina
      */
-    public function setPagina(MbPaginas $pagina)
+    public function setPagina(MbPage $pagina)
     {
         $this->pagina = $pagina;
     }
 
     /**
-     * @return MbAcoes
+     * @return MbAction
      */
     public function getAcao()
     {
@@ -256,9 +272,9 @@ class MbRequisicoes extends Request
     }
 
     /**
-     * @param MbAcoes $acao
+     * @param MbAction $acao
      */
-    public function setAcao(MbAcoes $acao)
+    public function setAcao(MbAction $acao)
     {
         $this->acao = $acao;
     }

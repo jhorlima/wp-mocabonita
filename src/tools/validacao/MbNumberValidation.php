@@ -13,7 +13,7 @@ use Exception;
  * max (float): Maior valor possivel (precisa definir o min)
  *
  */
-class MbValidacaoNumero extends MbModeloValidacao
+class MbNumberValidation extends MbValidationBase
 {
     /**
      * @param mixed $valor valor para validar

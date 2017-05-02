@@ -18,7 +18,7 @@ use MocaBonita\tools\MbException;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbValidacao implements Arrayable
+class MbValidation implements Arrayable
 {
     /**
      * Verificar se ocorreu erro
@@ -95,7 +95,7 @@ class MbValidacao implements Arrayable
 
     /**
      * @param \array[] $dados
-     * @return MbValidacao
+     * @return MbValidation
      */
     public function setDados(array $dados)
     {
@@ -113,7 +113,7 @@ class MbValidacao implements Arrayable
 
     /**
      * @param \string[] $permitirNulo
-     * @return MbValidacao
+     * @return MbValidation
      */
     public function setNulos(array $permitirNulo)
     {
@@ -131,7 +131,7 @@ class MbValidacao implements Arrayable
 
     /**
      * @param boolean $removerNaoUsados
-     * @return MbValidacao
+     * @return MbValidation
      */
     public function setRemoverNaoUsados($removerNaoUsados = true)
     {
@@ -143,7 +143,7 @@ class MbValidacao implements Arrayable
      * Criar uma nova instancia de MbValidacoes
      *
      * @param array $dados
-     * @return MbValidacao
+     * @return MbValidation
      */
     public static function validar(array $dados)
     {
@@ -169,12 +169,12 @@ class MbValidacao implements Arrayable
 
     /**
      * @param string $atributo
-     * @param MbModeloValidacao $validacao
+     * @param MbValidationBase $validacao
      * @param array $argumentos
      *
      * @return $this
      */
-    public function setValidacoes($atributo, MbModeloValidacao $validacao, array $argumentos = [])
+    public function setValidacoes($atributo, MbValidationBase $validacao, array $argumentos = [])
     {
         if (is_string($atributo) && is_array($argumentos)) {
             if (!isset($this->validacoes[$atributo])) {

@@ -4,7 +4,7 @@ namespace MocaBonita\tools;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Response;
-use MocaBonita\view\View;
+use MocaBonita\view\MbView;
 
 /**
  * Gerenciamento de respostas do moça bonita
@@ -16,13 +16,13 @@ use MocaBonita\view\View;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbRespostas extends Response
+class MbResponse extends Response
 {
 
     /**
      * Váriavel que armazenda o request
      *
-     * @var MbRequisicoes
+     * @var MbRequest
      */
     protected $request;
 
@@ -32,7 +32,7 @@ class MbRespostas extends Response
     protected $content;
 
     /**
-     * @return MbRequisicoes
+     * @return MbRequest
      */
     public function getRequest()
     {
@@ -40,10 +40,10 @@ class MbRespostas extends Response
     }
 
     /**
-     * @param MbRequisicoes $request
-     * @return MbRespostas
+     * @param MbRequest $request
+     * @return MbResponse
      */
-    public function setRequest(MbRequisicoes $request)
+    public function setRequest(MbRequest $request)
     {
         $this->request = $request;
         return $this;
@@ -53,7 +53,7 @@ class MbRespostas extends Response
      * Processar resposta para o navegador
      *
      * @param mixed $content
-     * @return MbRespostas
+     * @return MbResponse
      * @internal param mixed $dados Resposta para enviar ao navegador
      */
     public function setContent($content)
@@ -162,7 +162,7 @@ class MbRespostas extends Response
             $dados = "<div class='notice notice-error'><p>{$dados->getMessage()}</p></div>";
 
         } //Caso seja uma view
-        elseif ($dados instanceof View) {
+        elseif ($dados instanceof MbView) {
             $dados = $dados->render();
 
         } //Caso seja algum valor diferente de string

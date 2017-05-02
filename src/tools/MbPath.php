@@ -24,7 +24,7 @@ define('mb_plg_bower' , mb_plg_url  . '/public/bower_components/');
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbDiretorios {
+class MbPath {
 
     /**
      * Constante que define a url do plugin

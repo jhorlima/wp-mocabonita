@@ -1,9 +1,9 @@
 <?php
 namespace MocaBonita\view;
 
-use MocaBonita\tools\MbDiretorios;
-use MocaBonita\tools\MbRequisicoes;
-use MocaBonita\tools\MbRespostas;
+use MocaBonita\tools\MbPath;
+use MocaBonita\tools\MbRequest;
+use MocaBonita\tools\MbResponse;
 
 /**
  * Classe de View do MocaBonita
@@ -16,7 +16,7 @@ use MocaBonita\tools\MbRespostas;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class View
+class MbView
 {
 
     /**
@@ -71,14 +71,14 @@ class View
     /**
      * Váriavel que armazenda o request
      *
-     * @var MbRequisicoes
+     * @var MbRequest
      */
     protected $request;
 
     /**
      * Váriavel que armazenda a resposta
      *
-     * @var MbRespostas
+     * @var MbResponse
      */
     protected $response;
 
@@ -90,7 +90,7 @@ class View
         $this->variaveis = [];
         $this->conteudo = "";
         $this->extensao = "phtml";
-        $this->caminhoView = MbDiretorios::PLUGIN_VIEW_DIR;
+        $this->caminhoView = MbPath::PLUGIN_VIEW_DIR;
     }
 
     /**
@@ -109,6 +109,7 @@ class View
     public function setTemplate($template)
     {
         $this->template = $template;
+        return $this;
     }
 
     /**
@@ -125,6 +126,7 @@ class View
     public function setPage($page)
     {
         $this->page = $page;
+        return $this;
     }
 
     /**
@@ -141,6 +143,7 @@ class View
     public function setAction($action)
     {
         $this->action = $action;
+        return $this;
     }
 
     /**
@@ -157,6 +160,7 @@ class View
     public function setVariaveis(array $variaveis)
     {
         $this->variaveis = $variaveis;
+        return $this;
     }
 
     /**
@@ -173,6 +177,7 @@ class View
     public function setConteudo($conteudo)
     {
         $this->conteudo = $conteudo;
+        return $this;
     }
 
     /**
@@ -189,6 +194,7 @@ class View
     public function setExtensao($extensao)
     {
         $this->extensao = $extensao;
+        return $this;
     }
 
     /**
@@ -205,10 +211,11 @@ class View
     public function setCaminhoView($caminhoView)
     {
         $this->caminhoView = $caminhoView;
+        return $this;
     }
 
     /**
-     * @return MbRequisicoes
+     * @return MbRequest
      */
     public function getRequest()
     {
@@ -216,17 +223,17 @@ class View
     }
 
     /**
-     * @param MbRequisicoes $request
-     * @return View
+     * @param MbRequest $request
+     * @return MbView
      */
-    public function setRequest(MbRequisicoes $request)
+    public function setRequest(MbRequest $request)
     {
         $this->request = $request;
         return $this;
     }
 
     /**
-     * @return MbRespostas
+     * @return MbResponse
      */
     public function getResponse()
     {
@@ -234,10 +241,10 @@ class View
     }
 
     /**
-     * @param MbRespostas $response
-     * @return View
+     * @param MbResponse $response
+     * @return MbView
      */
-    public function setResponse(MbRespostas $response)
+    public function setResponse(MbResponse $response)
     {
         $this->response = $response;
         return $this;
@@ -251,7 +258,7 @@ class View
      * @param string $action Nome da view
      * @param array $variaveis Variaveis da view
      * @param string $extensao Extensão da view padrão
-     * @return View
+     * @return MbView
      */
     public function setView($template, $page, $action, array $variaveis = [], $extensao = "phtml")
     {

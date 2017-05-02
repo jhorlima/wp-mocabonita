@@ -16,22 +16,22 @@ class MbDatabaseQueryBuilder extends Builder
     /**
      * @var string
      */
-    protected static $pageName = "paginacao";
+    protected static $pagination = "pagination";
 
     /**
      * @return string
      */
-    public static function getPageName()
+    public static function getPagination()
     {
-        return self::$pageName;
+        return self::$pagination;
     }
 
     /**
-     * @param string $pageName
+     * @param string $pagination
      */
-    public static function setPageName($pageName)
+    public static function setPagination($pagination)
     {
-        self::$pageName = $pageName;
+        self::$pagination = $pagination;
     }
 
     /**
@@ -45,7 +45,7 @@ class MbDatabaseQueryBuilder extends Builder
      */
     public function paginate($perPage = 15, $columns = ['*'], $pageName = null, $page = null)
     {
-        $pageName = is_string($pageName)?:self::$pageName;
+        $pageName = is_string($pageName)?:self::$pagination;
 
         $page = $page ?: Paginator::resolveCurrentPage($pageName);
 

@@ -16,7 +16,7 @@ use MocaBonita\MocaBonita;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbPaginas
+class MbPage
 {
     /**
      * Nome da página
@@ -30,7 +30,7 @@ class MbPaginas
      *
      * @var string
      */
-    private $capacidade;
+    private $capability;
 
     /**
      * Slug da página
@@ -56,7 +56,7 @@ class MbPaginas
     /**
      * Página Parente
      *
-     * @var MbPaginas
+     * @var MbPage
      */
     private $paginaParente;
 
@@ -70,7 +70,7 @@ class MbPaginas
     /**
      * Lista de Páginas
      *
-     * @var MbPaginas[]
+     * @var MbPage[]
      */
     private $subPaginas = [];
 
@@ -112,31 +112,31 @@ class MbPaginas
     /**
      * Ações da página
      *
-     * @var MbAcoes[]
+     * @var MbAction[]
      */
     private $acoes = [];
 
     /**
      * Complementos da página
      *
-     * @var MbAssets
+     * @var MbAsset
      */
     private $assets;
 
     /**
      * Construir uma página a partir do parente
      *
-     * @param MbPaginas $paginaParente
+     * @param MbPage $paginaParente
      * @param bool $menuPrincipal
      * @param int $posicao
      */
-    public function __construct(MbPaginas $paginaParente = null, $menuPrincipal = true, $posicao = 100)
+    public function __construct(MbPage $paginaParente = null, $menuPrincipal = true, $posicao = 100)
     {
         $this->setNome("Moça Bonita")
-            ->setCapacidade("manage_options")
+            ->setCapability("manage_options")
             ->setIcone("dashicons-editor-code")
             ->setEsconderMenu(false)
-            ->setAssets(new MbAssets())
+            ->setAssets(new MbAsset())
             ->setPaginaParente($paginaParente)
             ->setMenuPrincipal($menuPrincipal)
             ->setSubmenu(!$menuPrincipal)
@@ -147,7 +147,7 @@ class MbPaginas
     /**
      * @param string $nome Nome da página a ser criada
      *
-     * @return self
+     * @return MbPage
      */
     public static function create($nome){
         $pagina = new self();
@@ -165,7 +165,7 @@ class MbPaginas
 
     /**
      * @param string $nome
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setNome($nome)
     {
@@ -177,18 +177,18 @@ class MbPaginas
     /**
      * @return string
      */
-    public function getCapacidade()
+    public function getCapability()
     {
-        return $this->capacidade;
+        return $this->capability;
     }
 
     /**
-     * @param string $capacidade
-     * @return MbPaginas
+     * @param string $capability
+     * @return MbPage
      */
-    public function setCapacidade($capacidade)
+    public function setCapability($capability)
     {
-        $this->capacidade = $capacidade;
+        $this->capability = $capability;
         return $this;
     }
 
@@ -202,7 +202,7 @@ class MbPaginas
 
     /**
      * @param string $slug
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setSlug($slug)
     {
@@ -220,7 +220,7 @@ class MbPaginas
 
     /**
      * @param string $icone
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setIcone($icone)
     {
@@ -238,7 +238,7 @@ class MbPaginas
 
     /**
      * @param int $posicao
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setPosicao($posicao)
     {
@@ -248,7 +248,7 @@ class MbPaginas
 
     /**
      * @throws MbException
-     * @return MbPaginas
+     * @return MbPage
      */
     public function getPaginaParente()
     {
@@ -259,10 +259,10 @@ class MbPaginas
     }
 
     /**
-     * @param MbPaginas $paginaParente
-     * @return MbPaginas
+     * @param MbPage $paginaParente
+     * @return MbPage
      */
-    public function setPaginaParente(MbPaginas $paginaParente = null)
+    public function setPaginaParente(MbPage $paginaParente = null)
     {
         $this->paginaParente = $paginaParente;
         return $this;
@@ -278,7 +278,7 @@ class MbPaginas
 
     /**
      * @param boolean $removerSubMenuPagina
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setRemoverSubMenuPagina($removerSubMenuPagina = true)
     {
@@ -287,7 +287,7 @@ class MbPaginas
     }
 
     /**
-     * @return MbPaginas[]
+     * @return MbPage[]
      */
     public function getSubPaginas()
     {
@@ -296,7 +296,7 @@ class MbPaginas
 
     /**
      * @param string $slug
-     * @return MbPaginas|null
+     * @return MbPage|null
      */
     public function getSubPagina($slug)
     {
@@ -307,10 +307,10 @@ class MbPaginas
     }
 
     /**
-     * @param MbPaginas $pagina
-     * @return MbPaginas Retorna a SubPagina para melhor tratamento
+     * @param MbPage $pagina
+     * @return MbPage Retorna a SubPagina para melhor tratamento
      */
-    public function setSubPagina(MbPaginas $pagina)
+    public function setSubPagina(MbPage $pagina)
     {
         $this->subPaginas[$pagina->getSlug()] = $pagina;
         $pagina->setPaginaParente($this);
@@ -319,7 +319,7 @@ class MbPaginas
 
     /**
      * @param string $slug
-     * @return MbPaginas Retorna a SubPagina para melhor tratamento
+     * @return MbPage Retorna a SubPagina para melhor tratamento
      */
     public function adicionarSubPagina($slug)
     {
@@ -341,7 +341,7 @@ class MbPaginas
 
     /**
      * @param boolean $menuPrincipal
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setMenuPrincipal($menuPrincipal = true)
     {
@@ -359,7 +359,7 @@ class MbPaginas
 
     /**
      * @param boolean $submenu
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setSubmenu($submenu = true)
     {
@@ -377,7 +377,7 @@ class MbPaginas
 
     /**
      * @param MocaBonita $mocaBonita
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setMocaBonita(MocaBonita $mocaBonita)
     {
@@ -402,7 +402,7 @@ class MbPaginas
 
     /**
      * @param MbController|string $controller
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setController($controller)
     {
@@ -420,7 +420,7 @@ class MbPaginas
 
     /**
      * @param boolean $esconderMenu
-     * @return MbPaginas
+     * @return MbPage
      */
     public function setEsconderMenu($esconderMenu = true)
     {
@@ -430,7 +430,7 @@ class MbPaginas
 
     /**
      * @param string $acao
-     * @return MbAcoes|null
+     * @return MbAction|null
      */
     public function getAcao($acao)
     {
@@ -441,10 +441,10 @@ class MbPaginas
     }
 
     /**
-     * @param MbAcoes $acao
-     * @return MbAcoes
+     * @param MbAction $acao
+     * @return MbAction
      */
-    public function setAcao(MbAcoes $acao)
+    public function setAcao(MbAction $acao)
     {
         $this->acoes[$acao->getNome()] = $acao;
         return $acao;
@@ -452,16 +452,16 @@ class MbPaginas
 
     /**
      * @param string $nome
-     * @return MbAcoes
+     * @return MbAction
      */
     public function adicionarAcao($nome)
     {
-        $this->acoes[$nome] = new MbAcoes($this, $nome);
+        $this->acoes[$nome] = new MbAction($this, $nome);
         return $this->acoes[$nome];
     }
 
     /**
-     * @return MbAssets
+     * @return MbAsset
      */
     public function getAssets()
     {
@@ -469,10 +469,10 @@ class MbPaginas
     }
 
     /**
-     * @param MbAssets $assets
-     * @return MbPaginas
+     * @param MbAsset $assets
+     * @return MbPage
      */
-    public function setAssets(MbAssets $assets)
+    public function setAssets(MbAsset $assets)
     {
         $this->assets = $assets;
         return $this;
@@ -491,9 +491,9 @@ class MbPaginas
                 null,
                 $this->getNome(),
                 $this->getNome(),
-                $this->getCapacidade(),
+                $this->getCapability(),
                 $this->getSlug(),
-                [MocaBonita::getInstance(), 'getConteudo']
+                [MocaBonita::getInstance(), 'sendContent']
             );
 
             //Adicionar menu principal
@@ -502,9 +502,9 @@ class MbPaginas
             add_menu_page(
                 $this->getNome(),
                 $this->getNome(),
-                $this->getCapacidade(),
+                $this->getCapability(),
                 $this->getSlug(),
-                [MocaBonita::getInstance(), 'getConteudo'],
+                [MocaBonita::getInstance(), 'sendContent'],
                 $this->getIcone(),
                 $this->getPosicao()
             );
@@ -516,9 +516,9 @@ class MbPaginas
                 $this->getPaginaParente()->getSlug(),
                 $this->getNome(),
                 $this->getNome(),
-                $this->getCapacidade(),
+                $this->getCapability(),
                 $this->getSlug(),
-                [MocaBonita::getInstance(), 'getConteudo']
+                [MocaBonita::getInstance(), 'sendContent']
             );
 
             //Remover submenu semelhante ao menu principal

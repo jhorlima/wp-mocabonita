@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
  *
  * @package MocaBonita\model
  */
-class MbSessaoModel extends Eloquent
+class MbSessionModel extends Eloquent
 {
     /**
      * @var string

@@ -2,220 +2,121 @@
 
 namespace MocaBonita;
 
-use Illuminate\Pagination\Paginator;
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
-use MocaBonita\tools\MbDiretorios;
+use MocaBonita\tools\MbPath;
 use MocaBonita\tools\MbCapsule;
-use MocaBonita\tools\MbRespostas;
-use MocaBonita\tools\MbRequisicoes;
-use MocaBonita\tools\MbEventos;
-use MocaBonita\tools\MbAcoes;
+use MocaBonita\tools\MbResponse;
+use MocaBonita\tools\MbRequest;
+use MocaBonita\tools\MbEvent;
+use MocaBonita\tools\MbAction;
 use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbShortCode;
-use MocaBonita\tools\MbAssets;
-use MocaBonita\tools\MbPaginas;
+use MocaBonita\tools\MbAsset;
+use MocaBonita\tools\MbPage;
 use MocaBonita\tools\MbSingleton;
-use MocaBonita\tools\MbWPAction;
-use MocaBonita\view\View;
+use MocaBonita\tools\MbWPActionHook;
+use MocaBonita\view\MbView;
+use Illuminate\Pagination\Paginator;
 
 /**
- * Um framework para o desenvolvimento de plugins na plataforma wordpress.
+ * Main class of the MocaBonita framework
  *
- *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
  * @package \MocaBonita
- * @copyright Copyright (c) 2016
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 final class MocaBonita extends MbSingleton
 {
     /**
-     * Versão do Moca Bonita.
-     */
-    const VERSION = '3.0.0';
-
-    /**
-     * Paginas objeto
+     * Current version of MocaBonita.
      *
-     * @var MbPaginas[]
      */
-    private $paginas = [];
+    const VERSION = "3.1.0";
 
     /**
-     * Serviços do Plugin e Wordpress do Moca Bonita
+     * List of MocaBonita Pages
+     *
+     * @var MbPage[]
+     */
+    private $mbPages = [];
+
+    /**
+     * List of MocaBonita Events
      *
      * @var array[]
      */
-    private $eventos = [];
+    private $mbEvents = [];
 
     /**
-     * Shortcodes do Wordpress do Moca Bonita
+     * List of MocaBonita Shortcodes
      *
      * @var MbShortCode[]
      */
-    private $shortcodes = [];
+    private $mbShortCodes = [];
 
     /**
-     * Assets do plugin e Wordpress do Moca Bonita
+     * List of MocaBonita Assets
      *
-     * @var MbAssets[]
+     * @var MbAsset[]
      */
-    private $assets;
+    private $mbAssets;
 
     /**
-     * Váriavel que verifica se a página atual foi gerada pelo Plugin atual
-     *
-     * @var boolean
-     */
-    private $paginaPlugin;
-
-    /**
-     * Váriavel que verifica se o Plugin atual está em desenvolvimento
+     * Checks if the current page is a page of MocaBonita
      *
      * @var boolean
      */
-    public $emDesenvolvimento;
+    private $mocabonitaPage;
 
     /**
-     * Váriavel que verifica se a página atual é adminBlog
+     * Checks if the plugin is being developed
      *
      * @var boolean
      */
-    public $blogAdmin;
+    private $development;
 
     /**
-     * Váriavel que armazenda o request
+     * Checks if the current page is one of the blog's admin pages
      *
-     * @var MbRequisicoes
+     * @var boolean
      */
-    private $request;
+    private $blogAdmin;
 
     /**
-     * Váriavel que armazenda a resposta
+     * Stores the current MbRequest of the request
      *
-     * @var MbRespostas
+     * @var MbRequest
      */
-    private $response;
+    private $mbRequest;
 
     /**
-     * Contém a página atual do wordpress obtida atráves do método httpGet['page']
+     * Stores the current MbResponse of the response
+     *
+     * @var MbResponse
+     */
+    private $mbResponse;
+
+    /**
+     * Stores the current name of the wordpress page
      *
      * @var string
      */
     private $page;
 
     /**
-     * Contém a ação atual da página do wordpress obtida atráves do método httpGet['action']
+     * Stores the current name of the wordpress action
      *
      * @var string
      */
     private $action;
 
     /**
-     * Obter todos os assets
-     *
-     * @param bool $wordpress
-     *
-     * @return MbAssets
-     */
-    public function getAssets($wordpress = false)
-    {
-        return $wordpress ? $this->assets['wordpress'] : $this->assets['plugin'];
-    }
-
-    /**
-     * Obter assets do plugin
-     *
-     * @return MbAssets
-     */
-    public function getAssetsPlugin()
-    {
-        return $this->getAssets();
-    }
-
-    /**
-     * Obter assets do wordpress
-     *
-     * @return MbAssets
-     */
-    public function getAssetsWordpress()
-    {
-        return $this->getAssets(true);
-    }
-
-    /**
-     * @param MbAssets $assets
-     * @param bool $wordpress
-     *
-     * @return MocaBonita
-     */
-    public function setAssets(MbAssets $assets, $wordpress = false)
-    {
-        $this->assets[$wordpress ? 'wordpress' : 'plugin'] = $assets;
-        return $this;
-    }
-
-    /**
-     * @param MbAssets $assetsPlugin
-     *
-     * @return MocaBonita
-     */
-    public function setAssetsPlugin(MbAssets $assetsPlugin)
-    {
-        return $this->setAssets($assetsPlugin);
-    }
-
-    /**
-     * @param MbAssets $assetsWordpress
-     * @return MocaBonita
-     */
-    public function setAssetsWordpress(MbAssets $assetsWordpress)
-    {
-        return $this->setAssets($assetsWordpress, true);
-    }
-
-    /**
-     * @param string|null $dispatch
-     *
-     * @return array|MbEventos[]
-     */
-    public function getEventos($dispatch = null)
-    {
-        if (is_null($dispatch)) {
-            return $this->eventos;
-        } elseif (isset($this->eventos[$dispatch])) {
-            return $this->eventos[$dispatch];
-        } else {
-            return [];
-        }
-    }
-
-    /**
-     * @param MbEventos $eventoClass
-     * @param string|array $dispatch
-     *
-     * @return MocaBonita
-     */
-    public function adicionarEvento(MbEventos $eventoClass, $dispatch)
-    {
-        if (is_array($dispatch)) {
-            foreach ($dispatch as $item) {
-                $this->adicionarEvento($eventoClass, $item);
-            }
-        } else {
-            if (!isset($this->eventos[$dispatch])) {
-                $this->eventos[$dispatch] = [];
-            }
-            $this->eventos[$dispatch][] = $eventoClass;
-        }
-        return $this;
-    }
-
-    /**
-     * Obter versão atual
+     * Get current version of MocaBonita
      *
      * @return string
      */
@@ -225,67 +126,119 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * Obter instancia da aplicação.
+     * Get either MbAsset from the plugin or from Wordpress
      *
-     * @return void
+     * @param bool $wordpress If it's true, then it'll return the wordpress' MbAsset. If it's false, then it'll return the plugin's MbAsset.
+     *
+     * @return MbAsset
      */
-    protected function init()
+    public function getMbAssets($wordpress = false)
     {
-        if (!defined('ABSPATH')) {
-            die('O Framework Moça Bonita precisa ser carregado dentro do Wordpress!' . PHP_EOL);
-        }
-
-        $timezone = get_option('timezone_string');
-
-        if (!empty($timezone)) {
-            date_default_timezone_set($timezone);
-        }
-
-        $this->setRequest(MbRequisicoes::capture());
-        $this->setResponse(MbRespostas::create());
-        $this->getResponse()->setRequest($this->request);
-        $this->setPage($this->request->query('page'));
-        $this->setAction($this->request->query('action'));
-        $this->setBlogAdmin(is_blog_admin());
-
-        $this->assets = [
-            'plugin' => new MbAssets(),
-            'wordpress' => new MbAssets(),
-        ];
-
-        $this->eventos = [];
-
-        MbCapsule::wpdb();
+        return $wordpress ? $this->mbAssets['wordpress'] : $this->mbAssets['plugin'];
     }
 
     /**
-     * Inicializar o processamento do moça bonita
-     * @param $plugin \Closure callback de inicialização do plugin
-     * @param bool $emDesenvolvimento Definir plugin em desenvolvimento
+     * Get the plugin's MbAsset
+     *
+     * @return MbAsset
      */
-    public static function loader(\Closure $plugin, $emDesenvolvimento = false)
+    public function getAssetsPlugin()
     {
-        $mocaBonita = self::getInstance();
-        $mocaBonita->emDesenvolvimento = (bool)$emDesenvolvimento;
+        return $this->getMbAssets();
+    }
 
-        if ($emDesenvolvimento) {
-            $mocaBonita->desabilitarCaches();
+    /**
+     * Get the Wordpress' MbAsset
+     *
+     * @return MbAsset
+     */
+    public function getAssetsWordpress()
+    {
+        return $this->getMbAssets(true);
+    }
+
+    /**
+     * Set either MbAsset to the plugin or to the Wordpress
+     *
+     * @param MbAsset $mbAsset
+     * @param bool $wordpress If it's true, then it'll set MbAssets to the Wordpress. If it's false, then it'll set MbAssets to the plugin.
+     *
+     * @return MocaBonita current instance of MocaBonita
+     */
+    public function setMbAssets(MbAsset $mbAsset, $wordpress = false)
+    {
+        $this->mbAssets[$wordpress ? 'wordpress' : 'plugin'] = $mbAsset;
+        return $this;
+    }
+
+    /**
+     * Set the MbAsset to the plugin
+     *
+     * @param MbAsset $pluginMbAsset
+     *
+     * @return MocaBonita current instance of MocaBonita
+     */
+    public function setAssetsPlugin(MbAsset $pluginMbAsset)
+    {
+        return $this->setMbAssets($pluginMbAsset);
+    }
+
+    /**
+     * Set the MbAsset to the Wordpress
+     *
+     * @param MbAsset $wordpressMbAsset
+     *
+     * @return MocaBonita current instance of MocaBonita
+     */
+    public function setAssetsWordpress(MbAsset $wordpressMbAsset)
+    {
+        return $this->setMbAssets($wordpressMbAsset, true);
+    }
+
+    /**
+     * Get either a MbEvent from a dispatcher type or the MbEvent list
+     *
+     * @param string|null $dispatch If it's a string, then it'll return either an array of MbEvent or an empty array. If it's null, then it'll return all stored MbEvent
+     *
+     * @return array|MbEvent[]
+     */
+    public function getMbEvents($dispatch = null)
+    {
+        if (is_null($dispatch)) {
+            return $this->mbEvents;
+        } elseif (isset($this->mbEvents[$dispatch])) {
+            return $this->mbEvents[$dispatch];
+        } else {
+            return [];
         }
+    }
 
-        MbWPAction::adicionarCallbackAction('plugins_loaded', function () use ($plugin, $mocaBonita) {
-            try {
-                $plugin($mocaBonita);
-                $mocaBonita->launcher();
-            } catch (\Exception $e) {
-                $mocaBonita->response->setContent($e);
-            } finally {
-                $mocaBonita->adicionarActionPagina();
-                $mocaBonita->response->sendHeaders();
+    /**
+     * Set a MbEvent to a dispatcher type
+     *
+     * @param MbEvent $mbEvent
+     * @param string|array $dispatch name of dispatcher
+     *
+     * @return MocaBonita current instance of MocaBonita
+     */
+    public function setMbEvent(MbEvent $mbEvent, $dispatch)
+    {
+        if (is_array($dispatch)) {
+            foreach ($dispatch as $item) {
+                $this->setMbEvent($mbEvent, $item);
             }
-        });
+        } else {
+            if (!isset($this->mbEvents[$dispatch])) {
+                $this->mbEvents[$dispatch] = [];
+            }
+            $this->mbEvents[$dispatch][] = $mbEvent;
+        }
+        return $this;
     }
 
     /**
+     * Checks if the current page is one of the blog's admin pages
+     *
      * @return boolean
      */
     public function isBlogAdmin()
@@ -294,8 +247,11 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
+     * Set if the current page is one of the blog's admin pages
+     *
      * @param boolean $blogAdmin
-     * @return MocaBonita
+     *
+     * @return MocaBonita current instance of MocaBonita
      */
     public function setBlogAdmin($blogAdmin)
     {
@@ -304,6 +260,8 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
+     * Get the current name of the wordpress page
+     *
      * @return string
      */
     public function getPage()
@@ -312,8 +270,10 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
+     * Set the current name of the wordpress page
+     *
      * @param string $page
-     * @return MocaBonita
+     * @return MocaBonita current instance of MocaBonita
      */
     public function setPage($page)
     {
@@ -322,6 +282,8 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
+     * Get the current name of the wordpress action
+     *
      * @return string
      */
     public function getAction()
@@ -330,8 +292,10 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
+     * Set the current name of the wordpress action
+     *
      * @param string $action
-     * @return MocaBonita
+     * @return MocaBonita current instance of MocaBonita
      */
     public function setAction($action)
     {
@@ -340,35 +304,104 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * Callback para ser executado ao ativar o plugin
-     * @param $active \Closure callback de inicialização do plugin
+     * Function that's called when MocaBonita is started.
+     *
+     * @return void
+     */
+    protected function init()
+    {
+        if (!defined('ABSPATH')) {
+            die('MocaBonita must be loaded along with Wordpress!' . PHP_EOL);
+        }
+
+        $timezone = get_option('timezone_string');
+
+        if (!empty($timezone)) {
+            date_default_timezone_set($timezone);
+        }
+
+        $this->setMbRequest(MbRequest::capture());
+        $this->setMbResponse(MbResponse::create());
+        $this->getMbResponse()->setRequest($this->mbRequest);
+        $this->setPage($this->mbRequest->query('page'));
+        $this->setAction($this->mbRequest->query('action'));
+        $this->setBlogAdmin(is_blog_admin());
+
+        $this->mbAssets = [
+            'plugin'    => new MbAsset(),
+            'wordpress' => new MbAsset(),
+        ];
+
+        $this->mbEvents = [];
+
+        MbCapsule::wpdb();
+    }
+
+    /**
+     * Set the callback that has the plugin's structure
+     *
+     * @param $pluginStructure \Closure Callback that will be called
+     * @param bool $development Set status development of the plugin
+     *
+     * @return void
+     */
+    public static function plugin(\Closure $pluginStructure, $development = false)
+    {
+        $mocaBonita = self::getInstance();
+        $mocaBonita->development = (bool) $development;
+
+        if ($development) {
+            $mocaBonita->desableCaches();
+        }
+
+        MbWPActionHook::adicionarCallbackAction('plugins_loaded', function () use ($pluginStructure, $mocaBonita) {
+            try {
+                $pluginStructure($mocaBonita);
+                $mocaBonita->runPlugin();
+            } catch (\Exception $e) {
+                $mocaBonita->mbResponse->setContent($e);
+            } finally {
+                $mocaBonita->runHookCurrentAction();
+                $mocaBonita->mbResponse->sendHeaders();
+            }
+        });
+    }
+
+    /**
+     * Set the callback that will be called when the plugin is activated
+     *
+     * @param $active \Closure Callback that will be called
+     *
+     * @return void
      */
     public static function active(\Closure $active)
     {
         $mocaBonita = self::getInstance();
 
-        register_activation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
+        register_activation_hook(MbPath::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
-                self::verificarVersao();
-                MocaBonita::verificarEscrita();
+                self::checkApplication();
                 MbCapsule::pdo();
                 $active($mocaBonita);
             } catch (\Exception $e) {
-                deactivate_plugins(basename(MbDiretorios::PLUGIN_BASENAME));
+                deactivate_plugins(basename(MbPath::PLUGIN_BASENAME));
                 wp_die($e->getMessage());
             }
         });
     }
 
     /**
-     * Callback para ser executado ao desativar o plugin
-     * @param $deactive \Closure callback de inicialização do plugin
+     * Set the callback that will be called when the plugin is deactivated
+     *
+     * @param $deactive \Closure Callback that will be called
+     *
+     * @return void
      */
     public static function deactive(\Closure $deactive)
     {
         $mocaBonita = self::getInstance();
 
-        register_deactivation_hook(MbDiretorios::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
+        register_deactivation_hook(MbPath::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
             try {
                 MbCapsule::pdo();
                 $deactive($mocaBonita);
@@ -381,48 +414,11 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * Verificar versão do wordpress e PHP
+     * Set the callback that will be called when the plugin is uninstalling
      *
-     */
-    private static function verificarVersao()
-    {
-        if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
-            $exception = new \Exception(
-                "Seu PHP ou WP está desatualizado e alguns recursos do MocaBonita podem não funcionar!"
-            );
-
-            MbException::adminNotice($exception);
-
-            MbWPAction::adicionarCallbackAction('init', function () {
-                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-                deactivate_plugins(MbDiretorios::PLUGIN_BASENAME);
-            });
-        }
-    }
-
-    /**
-     * Verificar permissão de escrita do diretório
+     * @param $unistall \Closure Callback that will be called
      *
-     */
-    private static function verificarEscrita()
-    {
-        if (!is_writable(MbDiretorios::PLUGIN_DIRETORIO)) {
-            $exception = new \Exception(
-                "O MocaBonita não tem permissão de escrita no diretório do plugin!"
-            );
-
-            MbException::adminNotice($exception);
-
-            MbWPAction::adicionarCallbackAction('init', function () {
-                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-                deactivate_plugins(MbDiretorios::PLUGIN_BASENAME);
-            });
-        }
-    }
-
-    /**
-     * Callback para ser executado ao apagar o plugin
-     * @param $unistall \Closure callback de inicialização do plugin
+     * @return void
      */
     public static function uninstall(\Closure $unistall)
     {
@@ -436,407 +432,481 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * Inicializar o processamento do moça bonita
+     * Check the Mocabonita requirements to activate the plugin
      *
+     * @return void
      */
-    private function launcher()
+    private static function checkApplication()
     {
-        //Adicionar os Assets do wordpress
-        $this->getAssets(true)->processarAssets('*');
+        $exception = null;
 
-        //Processar shortcodes
-        foreach ($this->shortcodes as $shortcode) {
-            $shortcode->processarShorcode($this->getAssets(), $this->request, $this->response);
+        if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
+            $exception = new \Exception(
+                "Your PHP or WP is outdated and some MocaBonita features may not work!"
+            );
+        } elseif (!is_writable(MbPath::PLUGIN_DIRETORIO)) {
+            $exception = new \Exception(
+                "MocaBonita does not have write permission in the plugin directory!"
+            );
         }
 
-        //Adicionar os menus do wordpress
+        if($exception instanceof \Exception){
+            MbException::adminNotice($exception);
+
+            MbWPActionHook::adicionarCallbackAction('init', function () {
+                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+                deactivate_plugins(MbPath::PLUGIN_BASENAME);
+            });
+        }
+    }
+
+    /**
+     * Initialize the processing of the plugin and its resources.
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    private function runPlugin()
+    {
+        //Call the MbAsset from WordPress
+        $this->getMbAssets(true)->processarAssets('*');
+
+        //Call the Shortcode from plugin
+        foreach ($this->mbShortCodes as $shortcode) {
+            $shortcode->processarShorcode($this->getMbAssets(), $this->mbRequest, $this->mbResponse);
+        }
+
+        //Add wordpress administrative menu if needed
         if ($this->isBlogAdmin()) {
-            MbWPAction::adicionarAction('admin_menu', $this, 'processarMenu');
+            MbWPActionHook::adicionarAction('admin_menu', $this, 'processarMenu');
         }
 
-        MbEventos::processarEventos($this, MbEventos::START_WORDPRESS);
+        //Call MbEvent from wordpress (START_WORDPRESS)
+        MbEvent::processarEventos($this, MbEvent::START_WORDPRESS);
 
-        //Verificar se a página atual é do plugin
-        if ($this->isPaginaPlugin()) {
+        if ($this->isMocabonitaPage()) {
 
-            $pagina = $this->getPagina($this->page);
+            //Get current MbPage
+            $mbPage = $this->getMbPage($this->page);
 
-            $this->getRequest()->setPagina($pagina);
+            //Set current MbPage to MbRequest
+            $this->getMbRequest()->setPagina($mbPage);
 
             try {
 
-                MbEventos::processarEventos($this, MbEventos::BEFORE_PAGE, $pagina);
+                //Call MvEvent from page (BEFORE_PAGE)
+                MbEvent::processarEventos($this, MbEvent::BEFORE_PAGE, $mbPage);
 
-                //Obter a lista de query params
-                $query = $this->request->query();
+                //Get all query params from url
+                $paramsQuery = $this->mbRequest->query();
 
-                //Verificar se existe atributo da páginação
-                if (isset($query[MbDatabaseQueryBuilder::getPageName()])) {
-                    $paginacao = $query[MbDatabaseQueryBuilder::getPageName()];
-                    unset($query[MbDatabaseQueryBuilder::getPageName()]);
+                //Check if there is a pagination attribute
+                if (isset($paramsQuery[MbDatabaseQueryBuilder::getPagination()])) {
+                    $pagination = $paramsQuery[MbDatabaseQueryBuilder::getPagination()];
+                    unset($paramsQuery[MbDatabaseQueryBuilder::getPagination()]);
                 } else {
-                    $paginacao = 1;
+                    $pagination = 1;
                 }
 
-                //Obter url da página sem páginação
-                $url = $this->request->fullUrlWithNewQuery($query);
+                //Get url without pagination query
+                $urlWihtouPagination = $this->mbRequest->fullUrlWithNewQuery($paramsQuery);
 
-                //Definir rota da páginar para gerar url de páginação
-                Paginator::currentPathResolver(function () use ($url) {
-                    return $url;
+                //Set url without pagination query to the Paginator Resolver
+                Paginator::currentPathResolver(function () use ($urlWihtouPagination) {
+                    return $urlWihtouPagination;
                 });
 
-                //Definir página atual da paginação
-                Paginator::currentPageResolver(function () use ($paginacao) {
-                    return is_numeric($paginacao) ? (int)$paginacao : 1;
+                //Set current pagination to the Paginator Resolver
+                Paginator::currentPageResolver(function () use ($pagination) {
+                    return is_numeric($pagination) ? (int)$pagination : 1;
                 });
 
-                //Adicionar os Assets do plugin
-                $this->getAssets()->processarAssets('plugin');
+                //Call the MbAsset from plugin
+                $this->getMbAssets()->processarAssets('plugin');
 
-                //Adicionar os Assets da página
-                $pagina->getAssets()->processarAssets($this->page);
+                //Call the MbAsset from page
+                $mbPage->getAssets()->processarAssets($this->page);
 
-                //Processar a página
-                $this->processarPaginaAtual();
+                //Run current page
+                $this->runCurrentPage($mbPage);
 
-                MbEventos::processarEventos($this, MbEventos::AFTER_PAGE, $pagina);
+                //Call MvEvent from page (AFTER_PAGE)
+                MbEvent::processarEventos($this, MbEvent::AFTER_PAGE, $mbPage);
             } catch (\Exception $e) {
-                MbEventos::processarEventos($this, MbEventos::EXCEPTION_PAGE, $e);
+                //Call MvEvent from page (EXCEPTION_PAGE)
+                MbEvent::processarEventos($this, MbEvent::EXCEPTION_PAGE, $e);
                 throw $e;
             } finally {
-                MbEventos::processarEventos($this, MbEventos::FINISH_PAGE, $pagina);
+                //Call MvEvent from page (FINISH_PAGE)
+                MbEvent::processarEventos($this, MbEvent::FINISH_PAGE, $mbPage);
             }
         }
-        MbEventos::processarEventos($this, MbEventos::FINISH_WORDPRESS);
+        //Call MbEvent from wordpress (FINISH_WORDPRESS)
+        MbEvent::processarEventos($this, MbEvent::FINISH_WORDPRESS);
     }
 
     /**
-     * Adicionar action de acordo com a página
+     * Execute current page resources
      *
-     */
-    private function adicionarActionPagina()
-    {
-        if (!$this->isPaginaPlugin() || $this->isBlogAdmin()) {
-            return false;
-        }
-
-        //Verificar se a página atual é adminstradora
-        if ($this->request->isLogin()) {
-            //Verificar se a página atual é requisitada via ajax
-            if ($this->request->isAjax()) {
-                //Adicionar o action AdminAjax
-                $actionHook = "wp_ajax_{$this->getAction()}";
-            } else {
-                //Adicionar o action AdminPost
-                $actionHook = "admin_post_{$this->getAction()}";
-            }
-
-        } //Caso a página atual não é adminstradora
-        else {
-            //Adicionar o action NoAdminAjax
-            if ($this->request->isAjax()) {
-                $actionHook = "wp_ajax_nopriv_{$this->getAction()}";
-            } else {
-                //Adicionar o action NoAdminPost
-                $actionHook = "admin_post_nopriv_{$this->getAction()}";
-            }
-        }
-
-        MbWPAction::adicionarAction($actionHook, $this, 'getConteudo');
-
-        return true;
-    }
-
-    /**
-     * Método para exibir conteudo da página
-     *
-     */
-    public function getConteudo()
-    {
-        $this->response->sendContent();
-    }
-
-    /**
-     * Método que processará a controller e validar a página
+     * @param MbPage $mbPage
      *
      * @throws MbException
      */
-    private function processarPaginaAtual()
+    private function runCurrentPage(MbPage $mbPage)
     {
-        //Obter as configurações da página atual
-        $pagina = $this->getPagina($this->page);
-        $nomeController = get_class($pagina->getController());
+        //Get controller name of MbPage
+        $controllerName = get_class($mbPage->getController());
 
-        //Obter a ação atual da página
-        $acao = $pagina->getAcao($this->action);
+        //Get MbAction from current action
+        $mbAction = $mbPage->getAcao($this->action);
 
-        //Caso a ação não seja definida no objeto página, lançar uma exception
-        if (is_null($acao)) {
+        //Check if MbAction is invalid
+        if (is_null($mbAction)) {
             throw new MbException(
-                "A Ação {$this->action} da página {$this->page} não foi instânciada no objeto da página!"
-            );
-        } //Verificar se a Ação tem capacidade, se não, obtem a capacidade da página
-        elseif (is_null($acao->getCapacidade())) {
-            $acao->setCapacidade($pagina->getCapacidade());
-        }
-
-        //Caso a ação precise do login e não tenha nenhum usuário logado no wordpress
-        if ($acao->isLogin() && !$this->request->isLogin()) {
-            throw new MbException(
-                "A Ação {$this->action} da página {$this->page} requer o login do wordpress!"
-            );
-        } //Caso a action seja admin, é verificado se o usuário tem capacidade suficiente
-        elseif ($acao->isLogin() && !current_user_can($acao->getCapacidade())) {
-            throw new MbException(
-                "A Ação {$this->action} da página {$this->page} requer um usuário com mais permissões de acesso!"
-            );
-        } //Caso a ação precise ser chamada via admin-ajax.php no wordpress e esta sendo chamado de outra forma
-        elseif ($acao->isAjax() && !$this->request->isAjax()) {
-            throw new MbException(
-                "A Ação {$this->action} da página {$this->page} precisa ser requisitada em admin-ajax.php!"
-            );
-        } //Caso a ação tenha um método de requisição diferente da requisição atual
-        elseif ($acao->getRequisicao() != $this->request->method() && !is_null($acao->getRequisicao())) {
-            throw new MbException(
-                "A Ação {$this->action} da página {$this->page} precisa ser requisitada via {$acao->getRequisicao()}!"
-            );
-        } //Caso a ação não tenha um método criado ou publico na controller
-        elseif (!$acao->metodoValido()) {
-            throw new MbException(
-                "A Ação {$this->action} da página {$this->page} não tem um método publico na controller {$nomeController}. ".
-                "Por favor, criar ou tornar public o método {$acao->getMetodo()} em {$nomeController}!"
+                "The action {$this->action} was not instantiated in " . MbPage::class . " of the page {$this->page}!"
             );
         }
+        //Set capability of page if the capability of MbAction is not defined
+        elseif (is_null($mbAction->getCapability())) {
+            $mbAction->setCapability($mbPage->getCapability());
+        }
 
-        $this->getRequest()->setAcao($acao);
+        //Check if MbAction requires login and if there is any user logged in
+        if ($mbAction->isLogin() && !$this->mbRequest->isLogin()) {
+            throw new MbException(
+                "The action {$this->action} of the page {$this->page} requires wordpress login!"
+            );
+        }
+        //Check if MbAction capability is allowed
+        elseif ($mbAction->isLogin() && !current_user_can($mbAction->getCapability())) {
+            throw new MbException(
+                "The action {$this->action} of the page {$this->page} requires a user with more access permissions!"
+            );
+        }
+        //Check if MbAction requires a MbRequest ajax
+        elseif ($mbAction->isAjax() && !$this->mbRequest->isAjax()) {
+            throw new MbException(
+                "The action {$this->action} of the page {$this->page} needs to be requested in admin-ajax.php!"
+            );
+        }
+        //Check if the method request defined in MbAction is allowed
+        elseif ($mbAction->getRequisicao() != $this->mbRequest->method() && !is_null($mbAction->getRequisicao())) {
+            throw new MbException(
+                "The action {$this->action} of the page {$this->page} must be called by request method {$mbAction->getRequisicao()}!"
+            );
+        }
+        //Check if the method the MbAction exist in Controller
+        elseif (!$mbAction->metodoValido()) {
+            throw new MbException(
+                "The action {$this->action} of the page {$this->page} does not have a public method in the controller {$controllerName}. " .
+                "Please create or make public the method {$mbAction->getMetodo()}!"
+            );
+        }
 
-        //Carregar view e suas configuracoes da controller
-        $acao->getPagina()->getController()->setView(new View());
-        $acao->getPagina()
+        //Set current MbAction to MbRequest
+        $this->getMbRequest()->setAcao($mbAction);
+
+        //Set page parameter to View
+        $mbView = new MbView();
+
+        $mbView->setRequest($this->mbRequest)
+            ->setResponse($this->mbResponse)
+            ->setView('index', $this->page, $this->action);
+
+        //Set the MbView to Controller
+        $mbAction->getPagina()
             ->getController()
-            ->getView()
-            ->setView('index', $this->page, $this->action)
-            ->setRequest($this->request)
-            ->setResponse($this->response);
+            ->setView($mbView);
 
-        //Carregar request e response da controller
-        $acao->getPagina()->getController()->setRequest($this->request)->setResponse($this->response);
+        //Set MbRequest and MbResponse to current controller of MbAction
+        $mbAction->getPagina()
+            ->getController()
+            ->setRequest($this->mbRequest)
+            ->setResponse($this->mbResponse);
 
-        //Definir página principal
-        $acao->getPagina()->getController()->getView()->setPage($this->page);
-
-        //Definir acao metodo
-        $acao->getPagina()->getController()->getView()->setAction($this->action);
-
-        //Começar a processar a controller
         ob_start();
 
         try {
-            MbEventos::processarEventos($this, MbEventos::BEFORE_ACTION, $acao);
+            MbEvent::processarEventos($this, MbEvent::BEFORE_ACTION, $mbAction);
 
-            $respostaController = $acao->getPagina()
+            //Execute method of controller
+            $actionResponse = $mbAction->getPagina()
                 ->getController()
-                ->{$acao->getMetodo()}($this->request, $this->response);
-            MbEventos::processarEventos($this, MbEventos::AFTER_ACTION, $acao);
+                ->{$mbAction->getMetodo()}($this->mbRequest, $this->mbResponse);
+            MbEvent::processarEventos($this, MbEvent::AFTER_ACTION, $mbAction);
 
-            //Caso a controller lance alguma exception, ela será lançada abaixo!
         } catch (\Exception $e) {
-            MbEventos::processarEventos($this, MbEventos::EXCEPTION_ACTION, $e);
-            $respostaController = $e;
+            MbEvent::processarEventos($this, MbEvent::EXCEPTION_ACTION, $e);
+            $actionResponse = $e;
         } finally {
-            MbEventos::processarEventos($this, MbEventos::FINISH_ACTION, $acao);
-            $conteudoController = ob_get_contents();
+            MbEvent::processarEventos($this, MbEvent::FINISH_ACTION, $mbAction);
+            $controllerPrint = ob_get_contents();
         }
 
         ob_end_clean();
 
-        //Verificar se a controller imprimiu alguma coisa e exibir no erro_log
-        if ($conteudoController != "") {
-            error_log($conteudoController);
+        if ($controllerPrint != "") {
+            error_log($controllerPrint);
         }
 
-        //Verificar se a resposta é nula e a requisicao não é ajax e então ele pega a view da controller
-        if (is_null($respostaController) && !$this->request->isAjax()) {
-            $respostaController = $acao->getPagina()->getController()->getView();
+        if (is_null($actionResponse) && !$this->mbRequest->isAjax()) {
+            $actionResponse = $mbAction->getPagina()->getController()->getView();
         }
 
-        //Processar a página
-        $this->response->setContent($respostaController);
+        $this->mbResponse->setContent($actionResponse);
     }
 
     /**
-     * Desabilitar qualquer tipo de cache da página durante o acesso em modo de desenvolvimento
+     * Add Wordpress Hook for current action if needed
      *
+     * @return boolean
      */
-    private function desabilitarCaches()
+    private function runHookCurrentAction()
     {
-        $this->response
+        //Check if needed add the hook
+        if (!$this->isMocabonitaPage() || $this->isBlogAdmin()) {
+            return false;
+        }
+
+        //Check if a user is logged in Wordpress
+        if ($this->mbRequest->isLogin()) {
+            //Check if the current request is ajax
+            if ($this->mbRequest->isAjax()) {
+                //add hook admin_ajax
+                $actionHook = "wp_ajax_{$this->getAction()}";
+            } else {
+                //add hook admin_post
+                $actionHook = "admin_post_{$this->getAction()}";
+            }
+
+        }
+        else {
+            //Check if the current request is ajax
+            if ($this->mbRequest->isAjax()) {
+                //add hook nopriv_ajax
+                $actionHook = "wp_ajax_nopriv_{$this->getAction()}";
+            } else {
+                //add hook nopriv_post
+                $actionHook = "admin_post_nopriv_{$this->getAction()}";
+            }
+        }
+
+        //Register WordpressHook
+        MbWPActionHook::adicionarAction($actionHook, $this, 'sendContent');
+        return true;
+    }
+
+    /**
+     * Send the content generated by the plugin
+     *
+     * @return void
+     */
+    public function sendContent()
+    {
+        $this->mbResponse->sendContent();
+    }
+
+    /**
+     * Disable any type of page cache during access in development mode
+     *
+     * @return void
+     */
+    private function desableCaches()
+    {
+        $this->mbResponse
             ->header("Cache-Control", "no-cache, no-store, must-revalidate")
             ->header("Pragma", "no-cache")
             ->header("Expires", "0");
     }
 
     /**
-     * Verificar se é a página atual é uma página do plugin
+     * Check if the current page is a Mocabonita page
      *
      * @return bool
      */
-    public function isPaginaPlugin()
+    public function isMocabonitaPage()
     {
         if (is_null($this->page)) {
             return false;
         }
 
-        if (is_null($this->paginaPlugin)) {
-            $this->paginaPlugin = in_array($this->page, array_keys($this->paginas));
+        if (is_null($this->mocabonitaPage)) {
+            $this->mocabonitaPage = in_array($this->page, array_keys($this->mbPages));
         }
 
-        if ($this->paginaPlugin && is_null($this->action)) {
+        if ($this->mocabonitaPage && is_null($this->action)) {
             $query = http_build_query([
-                'page' => $this->page,
+                'page'   => $this->page,
                 'action' => 'index',
             ]);
-            $url = admin_url($this->request->getPageNow()) . "?" . $query;
-            $this->response->redirect($url);
+            $url = admin_url($this->mbRequest->getPageNow()) . "?" . $query;
+            $this->mbResponse->redirect($url);
         }
 
-        return $this->paginaPlugin;
+        return $this->mocabonitaPage;
     }
 
     /**
-     * Obter página através do slug
+     * Get MbPage of slug
      *
-     * @param string $nomePagina da página adicionada
+     * @param string $slugPage slug of the MbPage
+     *
      * @throws MbException
-     * @return MbPaginas
+     *
+     * @return MbPage
      */
-    public function getPagina($nomePagina)
+    public function getMbPage($slugPage)
     {
-        if (!isset($this->paginas[$nomePagina])) {
-            throw new MbException("A página {$nomePagina} não foi adicionada na lista de páginas do MocaBonita!");
+        if (!isset($this->mbPages[$slugPage])) {
+            throw new MbException("The page {$slugPage} has not been added to MocaBonita's list of pages!");
         }
 
-        return $this->paginas[$nomePagina];
+        return $this->mbPages[$slugPage];
     }
 
     /**
-     * Obter shortcode através do slug
+     * Get MbShortcode of name
      *
-     * @param string $nomeShortcode da shortcode adicionada
+     * @param string $shortcodeName Name of shortcode
+     *
      * @throws MbException
+     *
      * @return MbShortCode
      */
-    public function getShortcode($nomeShortcode)
+    public function getMbShortcode($shortcodeName)
     {
-        if (!isset($this->shortcodes[$nomeShortcode])) {
-            throw new MbException("O shortcode {$nomeShortcode} não foi adicionado na lista de shortcode do MocaBonita!");
+        if (!isset($this->mbShortCodes[$shortcodeName])) {
+            throw new MbException("The shortcode {$shortcodeName} has not been added to the MocaBonita shortcode list!");
         }
 
-        return $this->shortcodes[$nomeShortcode];
+        return $this->mbShortCodes[$shortcodeName];
     }
 
     /**
-     * Adicionar páginas ao wordpress
+     * Add a MbPage to MocaBonita as main menu
      *
-     * @param MbPaginas $pagina o objeto da página principal
-     * @return MocaBonita
+     * @param MbPage $mbPage
+     *
+     * @return MocaBonita current instance of MocaBonita
      */
-    public function adicionarPagina(MbPaginas $pagina)
+    public function addMbPage(MbPage $mbPage)
     {
-        $pagina->setSubmenu(false);
+        $mbPage->setSubmenu(false);
 
-        $pagina->setMenuPrincipal(true);
+        $mbPage->setMenuPrincipal(true);
 
-        $this->paginas[$pagina->getSlug()] = $pagina;
+        $this->mbPages[$mbPage->getSlug()] = $mbPage;
 
-        foreach ($pagina->getSubPaginas() as $subPagina) {
-            $subPagina->setPaginaParente($pagina);
-            $this->adicionarSubPagina($subPagina);
+        foreach ($mbPage->getSubPaginas() as $subPagina) {
+            $subPagina->setPaginaParente($mbPage);
+            $this->addSubMbPage($subPagina);
         }
 
-        $pagina->setMocaBonita($this);
+        $mbPage->setMocaBonita($this);
 
         return $this;
     }
 
     /**
-     * Adicionar SubMenu ao wordpress
+     * Add a MbPage to MocaBonita as submenu
      *
-     * @param MbPaginas $pagina o objeto da sub página
-     * @return MocaBonita
+     * @param MbPage $mbPage
+     *
+     * @return MocaBonita current instance of MocaBonita
      */
-    public function adicionarSubPagina(MbPaginas $pagina)
+    public function addSubMbPage(MbPage $mbPage)
     {
-        $pagina->setMenuPrincipal(false);
+        $mbPage->setMenuPrincipal(false);
 
-        $pagina->setSubmenu(true);
+        $mbPage->setSubmenu(true);
 
-        $this->paginas[$pagina->getSlug()] = $pagina;
+        $this->mbPages[$mbPage->getSlug()] = $mbPage;
 
-        $pagina->setMocaBonita($this);
+        $mbPage->setMocaBonita($this);
 
         return $this;
     }
 
     /**
-     * @param string $nome
-     * @param MbPaginas $pagina
-     * @param string $metodo
-     * @param MbAssets $assets
+     * Add a MbShortCode to MocaBonita
+     *
+     * @param string $name
+     * @param MbPage $mbPage
+     * @param string $method
+     * @param MbAsset $mbAsset
+     *
      * @return MbShortCode
      */
-    public function adicionarShortcode($nome, MbPaginas $pagina, $metodo, MbAssets $assets = null)
+    public function addMbShortcode($name, MbPage $mbPage, $method, MbAsset $mbAsset = null)
     {
-        $acao = new MbAcoes($pagina, $metodo);
+        $mbAction = new MbAction($mbPage, $method);
 
-        $acao->setShortcode(true)->setComplemento('Shortcode');
+        $mbAction->setShortcode(true)->setComplemento('Shortcode');
 
-        $this->shortcodes[$nome] = new MbShortCode($nome, $acao, is_null($assets) ? new MbAssets() : $assets);
+        $this->mbShortCodes[$name] = new MbShortCode($name, $mbAction, is_null($mbAsset) ? new MbAsset() : $mbAsset);
 
-        return $this->shortcodes[$nome];
+        return $this->mbShortCodes[$name];
     }
 
     /**
-     * Processar menu das páginas
+     * Add admin menu to Wordpress
+     *
+     * @return void
      */
-    public function processarMenu()
+    public function addAdminMenuToWordpress()
     {
-        foreach ($this->paginas as $pagina) {
+        foreach ($this->mbPages as $pagina) {
             $pagina->adicionarMenuWordpress();
         }
     }
 
     /**
-     * @return MbRequisicoes
+     * Get MbRequest
+     *
+     * @return MbRequest
      */
-    public function getRequest()
+    public function getMbRequest()
     {
-        return $this->request;
+        return $this->mbRequest;
     }
 
     /**
-     * @param MbRequisicoes $request
+     * Set MbRequest to MocaBonita
+     *
+     * @param MbRequest $mbRequest
+     *
+     * @return MocaBonita current instance of MocaBonita
      */
-    public function setRequest(MbRequisicoes $request)
+    public function setMbRequest(MbRequest $mbRequest)
     {
-        $this->request = $request;
+        $this->mbRequest = $mbRequest;
+
+        return $this;
     }
 
     /**
-     * @return MbRespostas
+     * Get MbResponse
+     *
+     * @return MbResponse
      */
-    public function getResponse()
+    public function getMbResponse()
     {
-        return $this->response;
+        return $this->mbResponse;
     }
 
     /**
-     * @param MbRespostas|\Symfony\Component\HttpFoundation\Response $response
+     * Set MbResponse to MocaBonita
+     *
+     * @param MbResponse $mbResponse
+     *
+     * @return MocaBonita current instance of MocaBonita
      */
-    public function setResponse(MbRespostas $response)
+    public function setMbResponse(MbResponse $mbResponse)
     {
-        $this->response = $response;
+        $this->mbResponse = $mbResponse;
+
+        return $this;
     }
 
 }

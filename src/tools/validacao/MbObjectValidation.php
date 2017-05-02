@@ -11,7 +11,7 @@ use Exception;
  * instanceof (string | object): Instancia da classe
  *
  */
-class MbValidacaoObjeto extends MbModeloValidacao
+class MbObjectValidation extends MbValidationBase
 {
     /**
      * @param mixed $valor valor para validar

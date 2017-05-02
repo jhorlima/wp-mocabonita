@@ -4,7 +4,7 @@ namespace MocaBonita\tools;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Katzgrau\KLogger\Logger;
-use MocaBonita\view\View;
+use MocaBonita\view\MbView;
 
 /**
  * Classe de Exceção do Moça Bonita.
@@ -59,7 +59,7 @@ class MbException extends \Exception
     }
 
     /**
-     * @param array|Arrayable|View $dados
+     * @param array|Arrayable|MbView $dados
      * @return MbException
      */
     public function setDados($dados)
@@ -78,7 +78,7 @@ class MbException extends \Exception
      *
      * @param string $msg
      * @param int $code
-     * @param null|array|View|Arrayable $dados
+     * @param null|array|MbView|Arrayable $dados
      *
      * @link http://php.net/manual/en/language.oop5.decon.php
      */
@@ -95,7 +95,7 @@ class MbException extends \Exception
     public static function getLogPath()
     {
         if(is_null(self::$salvarLog)){
-            self::$salvarLog = MbDiretorios::PLUGIN_DIRETORIO . '/logs';
+            self::$salvarLog = MbPath::PLUGIN_DIRETORIO . '/logs';
         }
 
         return self::$salvarLog;
@@ -129,7 +129,7 @@ class MbException extends \Exception
      * @param \Exception $e
      */
     public static function adminNotice(\Exception $e){
-        MbWPAction::adicionarCallbackAction('admin_notices', function () use ($e){
+        MbWPActionHook::adicionarCallbackAction('admin_notices', function () use ($e){
             echo "<div class='notice notice-error'><p>{$e->getMessage()}</p></div>";
         });
         self::salvarLog($e);
@@ -139,7 +139,7 @@ class MbException extends \Exception
      * @param \Exception $e
      */
     public static function adminDebug(\Exception $e){
-        MbWPAction::adicionarCallbackAction('admin_notices', function () use ($e){
+        MbWPActionHook::adicionarCallbackAction('admin_notices', function () use ($e){
             echo "<div class='notice notice-info'><p>{$e->getMessage()}</p></div>";
         });
         self::salvarLog($e);

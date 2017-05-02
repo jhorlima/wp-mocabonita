@@ -15,7 +15,7 @@ use Carbon\Carbon;
  * timestamp (bool) : Retornar em timestamp
  *
  */
-class MbValidacaoDate extends MbModeloValidacao
+class MbDateValidation extends MbValidationBase
 {
     /**
      * @param mixed $valor valor para validar

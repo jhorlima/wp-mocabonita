@@ -8,7 +8,7 @@ use MocaBonita\tools\MbSingleton;
  * Interface MbValidacaoMascaraInterface
  * @package ExemploPlugin\tools\validacao
  */
-abstract class MbModeloValidacao extends MbSingleton
+abstract class MbValidationBase extends MbSingleton
 {
     /**
      * Nome do atributo atual
@@ -27,7 +27,7 @@ abstract class MbModeloValidacao extends MbSingleton
 
     /**
      * @param mixed $atributo
-     * @return MbModeloValidacao
+     * @return MbValidationBase
      */
     public function setAtributo($atributo)
     {

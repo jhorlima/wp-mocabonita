@@ -24,7 +24,7 @@ class MbDatabaseEloquentBuilder extends Builder
      */
     public function paginate($perPage = null, $columns = ['*'], $pageName = null, $page = null)
     {
-        $pageName = is_string($pageName)?:MbDatabaseQueryBuilder::getPageName();
+        $pageName = is_string($pageName)?:MbDatabaseQueryBuilder::getPagination();
 
         $page = $page ?: Paginator::resolveCurrentPage($pageName);
 

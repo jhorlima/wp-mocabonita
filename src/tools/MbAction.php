@@ -13,13 +13,13 @@ namespace MocaBonita\tools;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  */
-class MbAcoes
+class MbAction
 {
 
     /**
      * Controller da página
      *
-     * @var MbPaginas
+     * @var MbPage
      */
     private $pagina;
 
@@ -77,10 +77,10 @@ class MbAcoes
      *
      * @var string
      */
-    private $capacidade;
+    private $capability;
 
     /**
-     * @return MbPaginas
+     * @return MbPage
      *
      * @throws MBException
      */
@@ -94,10 +94,10 @@ class MbAcoes
     }
 
     /**
-     * @param MbPaginas $pagina
-     * @return MbAcoes
+     * @param MbPage $pagina
+     * @return MbAction
      */
-    public function setPagina(MbPaginas $pagina)
+    public function setPagina(MbPage $pagina)
     {
         $this->pagina = $pagina;
         return $this;
@@ -113,7 +113,7 @@ class MbAcoes
 
     /**
      * @param string $nome
-     * @return MbAcoes
+     * @return MbAction
      */
     public function setNome($nome)
     {
@@ -131,7 +131,7 @@ class MbAcoes
 
     /**
      * @param boolean $login
-     * @return MbAcoes
+     * @return MbAction
      */
     public function setLogin($login = true)
     {
@@ -149,7 +149,7 @@ class MbAcoes
 
     /**
      * @param boolean $ajax
-     * @return MbAcoes
+     * @return MbAction
      */
     public function setAjax($ajax = true)
     {
@@ -169,7 +169,7 @@ class MbAcoes
      * Método de requisição da ação, se null, permite todos os métodos
      *
      * @param string|null $requisicao
-     * @return MbAcoes
+     * @return MbAction
      */
     public function setRequisicao($requisicao = "GET")
     {
@@ -189,7 +189,7 @@ class MbAcoes
 
     /**
      * @param string $metodo
-     * @return MbAcoes
+     * @return MbAction
      */
     public function setMetodo($metodo)
     {
@@ -207,7 +207,7 @@ class MbAcoes
 
     /**
      * @param string $complemento
-     * @return MbAcoes
+     * @return MbAction
      */
     public function setComplemento($complemento)
     {
@@ -225,7 +225,7 @@ class MbAcoes
 
     /**
      * @param boolean $shortcode
-     * @return MbAcoes
+     * @return MbAction
      */
     public function setShortcode($shortcode = true)
     {
@@ -236,31 +236,31 @@ class MbAcoes
     /**
      * @return string
      */
-    public function getCapacidade()
+    public function getCapability()
     {
-        return $this->capacidade;
+        return $this->capability;
     }
 
     /**
-     * @param string $capacidade
-     * @return MbAcoes
+     * @param string $capability
+     * @return MbAction
      */
-    public function setCapacidade($capacidade = "read")
+    public function setCapability($capability = "read")
     {
-        $this->capacidade = $capacidade;
+        $this->capability = $capability;
         return $this;
     }
 
     /**
      * Construtor da Classe Ações
      *
-     * @param MbPaginas $pagina
+     * @param MbPage $pagina
      * @param string $nome
      * @param bool $login
      * @param bool $ajax
      * @param string $requisicao
      */
-    public function __construct(MbPaginas $pagina, $nome, $login = true, $ajax = false, $requisicao = null)
+    public function __construct(MbPage $pagina, $nome, $login = true, $ajax = false, $requisicao = null)
     {
         $this->setPagina($pagina)
             ->setNome($nome)
@@ -270,7 +270,7 @@ class MbAcoes
             ->setMetodo($nome)
             ->setShortcode(false)
             ->setComplemento('Action')
-            ->setCapacidade(null);
+            ->setCapability(null);
     }
 
     /**

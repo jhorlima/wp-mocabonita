@@ -2,7 +2,7 @@
 
 namespace MocaBonita\tools;
 
-use MocaBonita\model\MbSessaoModel;
+use MocaBonita\model\MbSessionModel;
 use Symfony\Component\HttpFoundation\Session\Session as Base;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
@@ -11,25 +11,25 @@ use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
  * Class Session
  * @package MocaBonita\tools
  */
-class MbSessao extends Base
+class MbSession extends Base
 {
 
     /**
      * Instancia da classe.
      *
-     * @var MbSessao
+     * @var MbSession
      */
     protected static $instance;
 
     /**
      * Obter instancia da aplicação.
      *
-     * @return MbSessao
+     * @return MbSession
      */
     public static function getInstance()
     {
         if (is_null(static::$instance)) {
-            $model   = new MbSessaoModel();
+            $model   = new MbSessionModel();
             $storage = new NativeSessionStorage();
 
             $pdoHandle = new PdoSessionHandler(
