@@ -202,7 +202,8 @@ class MbRequisicoes extends Request
     }
 
     /**
-     * @return boolean
+     * @param string $action
+     * @return bool
      */
     public function isAction($action)
     {
@@ -210,7 +211,8 @@ class MbRequisicoes extends Request
     }
 
     /**
-     * @return boolean
+     * @param string $page
+     * @return bool
      */
     public function isPage($page)
     {
