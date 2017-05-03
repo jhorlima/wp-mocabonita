@@ -6,75 +6,79 @@ use Illuminate\Http\Request;
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
 
 /**
- * Gerenciamento de requisições do moça bonita
+ * Main class of the MocaBonita Request
  *
- * @author Jhordan Lima <jhordan>
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package moca_bonita\tools
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbRequest extends Request
 {
 
     /**
-     * Contém a informação se está em uma página administrativa do Wordpress
+     * Stores information if it is on a Wordpress administrative page
      *
      * @var boolean
      */
     protected $admin;
 
     /**
-     * Contém a informação se está em uma página ajax do Wordpress
+     * Stores information if it is on a Wordpress ajax page
      *
      * @var boolean
      */
     protected $ajax;
 
     /**
-     * Contém a informação se alguém está logado
+     * Stores information if someone is logged in
      *
      * @var boolean
      */
-    protected $login;
+    protected $logged;
 
     /**
-     * Contém a informação se está em uma página shortcode do Wordpress
+     * Stores information if it is in a shortcode page of Wordpress
      *
      * @var boolean
      */
     protected $shortcode = false;
 
     /**
-     * Contém a informação se está na página de login do Wordpress
+     * Store information if you are on the Wordpress login page
      *
      * @var boolean
      */
-    protected $pageLogin;
+    protected $loginPage;
 
     /**
-     * Contém a página atual do wordpress
+     * Stores the current wordpress page
      *
      * @var string
      */
     protected $pageNow;
 
     /**
-     * Obter objeto da página atual
+     * Get current MbPage, if it's available
      *
      * @var MbPage
      */
-    protected $pagina;
+    protected $mbPage;
 
     /**
-     * Obter objeto da ação atual
+     * Get current MbAction, if it's available
      *
      * @var MbAction
      */
-    protected $acao;
+    protected $mbAction;
 
     /**
+     * Is admin
+     *
      * @return boolean
      */
     public function isAdmin()
@@ -86,9 +90,9 @@ class MbRequest extends Request
     }
 
     /**
-     * Verificar se a requisição é ajax
+     * Is Ajax
      *
-     * @return true|false true se a requisição for ajax, false se a requisição não for ajax
+     * @return boolean
      */
     public function isAjax()
     {
@@ -96,17 +100,21 @@ class MbRequest extends Request
     }
 
     /**
+     * is logged
+     *
      * @return boolean
      */
-    public function isLogin()
+    public function isLogged()
     {
-        if (is_null($this->login)) {
-            $this->login = (bool)is_user_logged_in();
+        if (is_null($this->logged)) {
+            $this->logged = (bool)is_user_logged_in();
         }
-        return $this->login;
+        return $this->logged;
     }
 
     /**
+     * Is shortcode
+     *
      * @return bool
      */
     public final function isShortcode()
@@ -115,6 +123,8 @@ class MbRequest extends Request
     }
 
     /**
+     * Set shortcode
+     *
      * @param bool $isShortcode
      */
     public final function setShortcode($isShortcode)
@@ -123,25 +133,21 @@ class MbRequest extends Request
     }
 
     /**
+     * Is login page
+     *
      * @return boolean
      */
-    public function isPageLogin()
+    public function isLoginPage()
     {
-        if (is_null($this->pageLogin)) {
-            $this->pageLogin = (bool)in_array($this->getPageNow(), ['wp-login.php', 'wp-register.php']);
+        if (is_null($this->loginPage)) {
+            $this->loginPage = (bool)in_array($this->getPageNow(), ['wp-login.php', 'wp-register.php']);
         }
-        return $this->pageLogin;
+        return $this->loginPage;
     }
 
     /**
-     * @param boolean $pageLogin
-     */
-    public function setPageLogin($pageLogin)
-    {
-        $this->pageLogin = $pageLogin;
-    }
-
-    /**
+     * Get page now
+     *
      * @return string
      */
     public function getPageNow()
@@ -153,19 +159,9 @@ class MbRequest extends Request
     }
 
     /**
-     * @param string $pageNow
-     * @return MbRequest
-     */
-    public function setPageNow($pageNow)
-    {
-        $this->pageNow = $pageNow;
-        return $this;
-    }
-
-    /**
-     * Verificar se a requisição é ajax
+     * is ajax request
      *
-     * @return true|false true se a requisição for ajax, false se a requisição não for ajax
+     * @return boolean
      */
     public function ajax()
     {
@@ -179,6 +175,7 @@ class MbRequest extends Request
      * Get the full URL for the request with the added a new query string parameters.
      *
      * @param  array $query
+     *
      * @return string
      */
     public function fullUrlWithNewQuery(array $query)
@@ -194,43 +191,46 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewAction($action, array $query = [])
+    public function fullUrlWithNewAction($action, $query = null)
     {
-        return $this->url() . '?' . http_build_query([
-                    'page' => $this->query('page'),
-                    'action' => $action
-                ] + $query);
+        $query = is_array($query) ? $query : $this->query();
+        $query['action'] = $action;
+        return $this->url() . '?' . http_build_query($query);
     }
 
     /**
-     * Get the full URL with new action for the requests.
+     * Get the full URL with new pagination for the requests.
      *
      * @param string $pagination
      * @param array $query
      *
      * @return string
      */
-    public function fullUrlWithNewPagination($pagination)
+    public function fullUrlWithNewPagination($pagination, $query = null)
     {
-        return $this->url() . '?' . http_build_query($this->query() + [
-            MbDatabaseQueryBuilder::getPagination() => $pagination
-        ]);
+        $query = is_array($query) ? $query : $this->query();
+        $query[MbDatabaseQueryBuilder::getPagination()] = $pagination;
+        return $this->url() . '?' . http_build_query($query);
     }
 
     /**
+     * Is current action
+     *
      * @param string $action
      * @return bool
      */
-    public function isAction($action)
+    public function isCurrentAction($action)
     {
         return (bool)$this->query('action') == $action;
     }
 
     /**
+     * Is current page
+     *
      * @param string $page
      * @return bool
      */
-    public function isPage($page)
+    public function isCurrentPage($page)
     {
         return (bool)$this->query('page') == $page;
     }
@@ -248,34 +248,42 @@ class MbRequest extends Request
     }
 
     /**
+     * Get MbPage
+     *
      * @return MbPage
      */
-    public function getPagina()
+    public function getMbPage()
     {
-        return $this->pagina;
+        return $this->mbPage;
     }
 
     /**
-     * @param MbPage $pagina
+     * Set MbPage
+     *
+     * @param MbPage $mbPage
      */
-    public function setPagina(MbPage $pagina)
+    public function setMbPage(MbPage $mbPage)
     {
-        $this->pagina = $pagina;
+        $this->mbPage = $mbPage;
     }
 
     /**
+     * Get MbAction
+     *
      * @return MbAction
      */
-    public function getAcao()
+    public function getMbAction()
     {
-        return $this->acao;
+        return $this->mbAction;
     }
 
     /**
-     * @param MbAction $acao
+     * Set MbAction
+     *
+     * @param MbAction $mbAction
      */
-    public function setAcao(MbAction $acao)
+    public function setMbAction(MbAction $mbAction)
     {
-        $this->acao = $acao;
+        $this->mbAction = $mbAction;
     }
 }

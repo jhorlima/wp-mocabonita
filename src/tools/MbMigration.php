@@ -7,17 +7,27 @@ use MocaBonita\tools\eloquent\MbConnectionResolver;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
 /**
- * Class Migration
- * @package MocaBonita\tools
+ * Main class of the MocaBonita Migration
+ *
+ * How to use: https://laravel.com/docs/5.0/migrations
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
-class MbCapsule extends Manager
+class MbMigration extends Manager
 {
     /**
-     * Obter instancia da aplicação.
+     * Enable PDO for eloquent
      *
      * @return void
      */
-    public static function pdo()
+    public static function enablePdoConnection()
     {
        if(is_null(self::$instance)){
            global $wpdb;
@@ -38,10 +48,11 @@ class MbCapsule extends Manager
     }
 
     /**
-     * Adicionar o wpdb como resolver
+     * Enable WPDB for eloquent
      *
+     * @return void
      */
-    public static function wpdb(){
+    public static function enableWpdbConnection(){
         Eloquent::setConnectionResolver(MbConnectionResolver::getInstance());
     }
 }

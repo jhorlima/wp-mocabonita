@@ -15,143 +15,152 @@ define('mb_plg_bower' , mb_plg_url  . '/public/bower_components/');
 
 
 /**
- * Gerenciamento de requisições do moça bonita
  *
- * @author Jhordan Lima
+ * Main class of the MocaBonita Path
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\Tools
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbPath {
 
     /**
-     * Constante que define a url do plugin
+     * Constant that stores the URL of the plugin
      *
      * @var string
      */
     const PLUGIN_URL = mb_plg_url;
 
     /**
-     * Constante que define o nome base do plugin
+     * Constant that stores the base name of the plugin
      *
      * @var string
      */
     const PLUGIN_BASENAME = mb_plg_base;
 
     /**
-     * Constante que define o nome do plugin
+     * Constant that stores the plugin name
      *
      * @var string
      */
-    const PLUGIN_NOME = mb_plg_name;
+    const PLUGIN_NAME = mb_plg_name;
 
     /**
-     * Constante que define o diretório do plugin
+     * Constant that stores the plugin directory
      *
      * @var string
      */
-    const PLUGIN_DIRETORIO = mb_plg_path;
+    const PLUGIN_DIRECTORY = mb_plg_path;
 
     /**
-     * Constante que define o diretório view do plugin
+     * Constant that stores the plugin's view directory
      *
      * @var string
      */
     const PLUGIN_VIEW_DIR = mb_plg_view;
 
     /**
-     * Constante que define o diretório javascript do plugin
+     * Constant that stores the plugin's javascript directory
      *
      * @var string
      */
     const PLUGIN_JS_DIR = mb_plg_js;
 
     /**
-     * Constante que define o diretório css do plugin
+     * Constant that stores the css directory of the plugin
      *
      * @var string
      */
     const PLUGIN_CSS_DIR = mb_plg_css;
 
     /**
-     * Constante que define o diretório imagens do plugin
+     * Constant that stores directory images of the plugin
      *
      * @var string
      */
-    const PLUGIN_IMAGENS_DIR = mb_plg_images;
+    const PLUGIN_IMAGES_DIR = mb_plg_images;
 
     /**
-     * Constante que define o diretório bower_components do plugin
+     * Constant storing directory bower_components of plugin
      *
      * @var string
      */
     const PLUGIN_BOWER_DIR = mb_plg_bower;
 
     /**
-     * Diretório do plugin
+     * Get plugin directory
      *
-     * @param $diretorio
+     * @param $directory
+     *
      * @return string
      */
-    public static function pDir($diretorio)
+    public static function pDir($directory)
     {
-        return self::PLUGIN_DIRETORIO . $diretorio;
+        return self::PLUGIN_DIRECTORY . $directory;
     }
 
     /**
-     * Diretório view do plugin
+     * Get plugin view directory
      *
-     * @param $diretorio
+     * @param $directory
+     *
      * @return string
      */
-    public static function pViewDir($diretorio)
+    public static function pViewDir($directory)
     {
-        return self::PLUGIN_VIEW_DIR . $diretorio;
+        return self::PLUGIN_VIEW_DIR . $directory;
     }
 
     /**
-     * Diretório js do plugin
+     * Get Js directory of the plugin
      *
-     * @param $diretorio
+     * @param $directory
+     *
      * @return string
      */
-    public static function pJsDir($diretorio)
+    public static function pJsDir($directory)
     {
-        return self::PLUGIN_JS_DIR . $diretorio;
+        return self::PLUGIN_JS_DIR . $directory;
     }
 
     /**
-     * Diretório css do plugin
+     * Get plugin css directory
      *
-     * @param $diretorio
+     * @param $directory
+     *
      * @return string
      */
-    public static function pCssDir($diretorio)
+    public static function pCssDir($directory)
     {
-        return self::PLUGIN_CSS_DIR . $diretorio;
+        return self::PLUGIN_CSS_DIR . $directory;
     }
 
     /**
-     * Diretório imagens do plugin
+     * Get plugin images directory
      *
-     * @param $diretorio
+     * @param $directory
+     *
      * @return string
      */
-    public static function pImgDir($diretorio)
+    public static function pImgDir($directory)
     {
-        return self::PLUGIN_IMAGENS_DIR . $diretorio;
+        return self::PLUGIN_IMAGES_DIR . $directory;
     }
 
     /**
-     * Diretório bower_components do plugin
+     * Get plugin directory bower_components
      *
-     * @param $diretorio
+     * @param $directory
+     *
      * @return string
      */
-    public static function pBwDir($diretorio)
+    public static function pBwDir($directory)
     {
-        return self::PLUGIN_BOWER_DIR . $diretorio;
+        return self::PLUGIN_BOWER_DIR . $directory;
     }
 }

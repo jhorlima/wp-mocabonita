@@ -3,66 +3,67 @@
 namespace MocaBonita\tools;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Response;
-use MocaBonita\view\MbView;
 
 /**
- * Gerenciamento de respostas do moça bonita
+ * Main class of the MocaBonita Response
  *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package moca_bonita\tools
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbResponse extends Response
 {
-
     /**
-     * Váriavel que armazenda o request
+     * Stores the current MbRequest of the request
      *
      * @var MbRequest
      */
-    protected $request;
+    protected $mbRequest;
 
     /**
-     * @var string
-     */
-    protected $content;
-
-    /**
+     * Get MbRequest
+     *
      * @return MbRequest
      */
-    public function getRequest()
+    public function getMbRequest()
     {
-        return $this->request;
+        return $this->mbRequest;
     }
 
     /**
-     * @param MbRequest $request
+     * Set MbRequest to Controller
+     *
+     * @param MbRequest $mbRequest
+     *
      * @return MbResponse
      */
-    public function setRequest(MbRequest $request)
+    public function setMbRequest(MbRequest $mbRequest)
     {
-        $this->request = $request;
+        $this->mbRequest = $mbRequest;
         return $this;
     }
 
     /**
-     * Processar resposta para o navegador
+     * Set the content on the response.
      *
      * @param mixed $content
+     *
      * @return MbResponse
-     * @internal param mixed $dados Resposta para enviar ao navegador
      */
     public function setContent($content)
     {
-        if(is_null($this->request)){
+        if(is_null($this->mbRequest)){
             return $this;
-        } elseif ($this->request->isMethod("GET") || $this->request->isMethod("DELETE") ) {
+        } elseif ($this->mbRequest->isMethod("GET") || $this->mbRequest->isMethod("DELETE") ) {
             $this->statusCode = 200;
-        } elseif ($this->request->isMethod("POST") || $this->request->isMethod("PUT")) {
+        } elseif ($this->mbRequest->isMethod("POST") || $this->mbRequest->isMethod("PUT")) {
             $this->statusCode = 201;
         } else {
             $this->statusCode = 204;
@@ -70,27 +71,25 @@ class MbResponse extends Response
 
         if ($content instanceof \Exception) {
             $this->statusCode = $content->getCode();
-            $this->statusCode = $this->statusCode < 300 ? 400 : $this->statusCode;
+            $this->statusCode = $this->statusCode < 300 && $this->statusCode != 204 ? 400 : $this->statusCode;
         }
 
-        //Verificar se a página atual é ajax
-        if ($this->request->isAjax()) {
-            $this->respostaAjax($content);
-            //Caso a requisição não seja ajax
+        if ($this->mbRequest->isAjax()) {
+            $this->ajaxContent($content);
         } else {
-            $this->respostaHtml($content);
+            $this->htmlContent($content);
         }
 
         return $this;
     }
 
     /**
-     * Enviar o conteudo pra página
+     * Sends content for the current web response.
      *
      */
     public function sendContent()
     {
-        if ($this->request->isAjax()) {
+        if ($this->mbRequest->isAjax()) {
             wp_send_json($this->original, $this->statusCode);
         } else {
             parent::sendContent();
@@ -98,44 +97,48 @@ class MbResponse extends Response
     }
 
     /**
-     * Redirecionar uma página
+     * Redirect a page
      *
      * @param string $url
+     * @param array $params
+     *
      */
-    public function redirect($url)
+    public function redirect($url, array $params = [])
     {
+        if (!empty($params)) {
+            $url = rtrim(preg_replace('/\?.*/', '', $url), '/');
+            $url .= "?" . http_build_query($params);
+        }
+
         header("Location: {$url}");
         exit();
     }
 
     /**
-     * Transformar o array em JSON e formatar o retorno
+     * Format content for json output
      *
-     * @param array|\Exception $dados Os dados para resposta do Moça Bonita
+     * @param array|\Exception $content
      *
      * @return array[]
      */
-    protected function respostaAjax($dados)
+    protected function ajaxContent($content)
     {
         $message = null;
 
         $this->header('Content-Type', 'application/json');
 
-        if ($dados instanceof Arrayable) {
-            $dados = $dados->toArray();
-
-        } //Se os dados for uma string, é adicionado ao atributo content do Moça Bonita
-        elseif (is_string($dados)) {
-            $dados = ['content' => $dados];
-
-        } //Se não for array ou string, então retorna vázio
-        elseif (!is_array($dados) && !$dados instanceof \Exception) {
-            return $this->respostaAjax(new \Exception("Nenhum conteúdo válido foi enviado!", 400));
-
-        } elseif ($dados instanceof \Exception) {
-            $this->setStatusCode($dados->getCode() < 300 ? 400 : $dados->getCode());
-            $message = $dados->getMessage();
-            $dados   = $dados instanceof MbException ? $dados->getDadosArray() : null;
+        if ($content instanceof Arrayable) {
+            $content = $content->toArray();
+        }
+        elseif (is_string($content)) {
+            $content = ['content' => $content];
+        }
+        elseif (!is_array($content) && !$content instanceof \Exception) {
+            return $this->ajaxContent(new \Exception("No valid content has been submitted!", 204));
+        } elseif ($content instanceof \Exception) {
+            $this->setStatusCode($content->getCode() < 300 && $content->getCode() != 204 ? 400 : $content->getCode());
+            $message = $content->getMessage();
+            $content = $content instanceof MbException ? $content->getExcepitonDataArray() : null;
         }
 
         $this->original = [
@@ -143,7 +146,7 @@ class MbResponse extends Response
                 'code' => $this->getStatusCode(),
                 'message' => $message
             ],
-            'data' => $dados,
+            'data' => $content,
         ];
 
         return $this->original;
@@ -151,30 +154,42 @@ class MbResponse extends Response
     }
 
     /**
-     * Gerar resposta html
+     * Format content for html output
      *
-     * @param $dados
-     * @return string
+     * @param $content
+     *
+     * @return void
      */
-    protected function respostaHtml($dados)
+    protected function htmlContent($content)
     {
-        if ($dados instanceof \Exception) {
-            $dados = "<div class='notice notice-error'><p>{$dados->getMessage()}</p></div>";
-
-        } //Caso seja uma view
-        elseif ($dados instanceof MbView) {
-            $dados = $dados->render();
-
-        } //Caso seja algum valor diferente de string
-        elseif (!is_string($dados)) {
+        if ($content instanceof \Exception) {
+            $this->original = MbException::adminNoticeTemplate($content->getMessage());
+        } elseif (!is_string($content) && !$content instanceof Renderable) {
             ob_start();
-            var_dump($dados);
-            $dados = ob_get_contents();
+            var_dump($content);
+            $this->original = ob_get_contents();
             ob_end_clean();
         }
 
-        parent::setContent($dados);
+        parent::setContent($this->original);
+    }
 
-        return $dados;
+    /**
+     * Factory method for chainability.
+     *
+     * Example:
+     *
+     *     return Response::create($body, 200)
+     *         ->setSharedMaxAge(300);
+     *
+     * @param mixed $content The response content, see setContent()
+     * @param int $status The response status code
+     * @param array $headers An array of response headers
+     *
+     * @return MbResponse
+     */
+    public static function create($content = '', $status = 200, $headers = array())
+    {
+        return new static($content, $status, $headers);
     }
 }

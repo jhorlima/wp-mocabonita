@@ -2,49 +2,47 @@
 
 namespace MocaBonita\tools;
 
-use MocaBonita\MocaBonita;
-
 /**
- * Classe do WPAction do Wordpress.
+ * Main class of the MocaBonita ActionHook
  *
- *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\Tools
- * @copyright Copyright (c) 2016
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbWPActionHook {
 
 	/**
-    * Adicionar uma action no wordpress
+    * Add an action in wordpress
     *
-    * @param string $action nome da action
-    * @param MocaBonita $object Class
-    * @param string $method Método da class
+    * @param string $action
+    * @param object $object
+    * @param string $method
     */
-	public static function adicionarAction($action, MocaBonita $object, $method){
+	public static function addAction($action, $object, $method){
 		add_action($action, [$object, $method]);
 	}
 
 	/**
-	 * Adicionar uma action callback no wordpress
+	 * Add a callback action in wordpress
 	 *
-	 * @param string $action nome da action
-	 * @param \Closure $callback nome do callback para executar
+	 * @param string $action
+	 * @param \Closure $callback
 	 */
-	public static function adicionarCallbackAction($action, \Closure $callback){
+	public static function addActionCallback($action, \Closure $callback){
 		add_action($action, $callback);
 	}
 
 	/**
-    * Executar uma action do wordpress
+    * Perform a wordpress action
     *
-    * @param string $action nome da action
+    * @param string $action
     */
-	public static function realizarAction($action){
+	public static function doAction($action){
 		do_action($action);
 	}
 

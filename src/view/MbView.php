@@ -1,99 +1,103 @@
 <?php
+
 namespace MocaBonita\view;
 
+use Illuminate\Contracts\View\View;
+use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbPath;
 use MocaBonita\tools\MbRequest;
 use MocaBonita\tools\MbResponse;
 
 /**
- * Classe de View do MocaBonita
+ * Main class of the MocaBonita View
  *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\View
- * @copyright Copyright (c) 2016
+ * @package \MocaBonita\view
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
-class MbView
+class MbView implements View
 {
-
     /**
-     * Nome do layout da view
+     * Template name
      *
      * @var string
      */
     protected $template;
 
     /**
-     * Nome da página atual, respectivamente o nome da pasta onde se encontra a view
+     * Name of the current page, respectively the name of the folder where the view is located
      *
      * @var string
      */
     protected $page;
 
     /**
-     * Nome da ação atual, respectivamente o nome da view na pasta da página
+     * Name of the current action, respectively the name of the view in the page folder
      *
      * @var string
      */
     protected $action;
 
     /**
-     * Conjunto de variáveis que serão criadas na view enviadas pela controller
+     * Variables stored for use in view
      *
-     * @var string[]
+     * @var mixed[]
      */
-    protected $variaveis;
+    protected $variablesForView;
 
     /**
-     * Conteudo da view processado
-     *
-     * @var string
-     */
-    protected $conteudo;
-
-    /**
-     * Extensão da view atual
+     * View content
      *
      * @var string
      */
-    protected $extensao;
+    protected $content;
 
     /**
-     * Caminho atual da pasta view
+     * View file extension
      *
      * @var string
      */
-    protected $caminhoView;
+    protected $extension;
 
     /**
-     * Váriavel que armazenda o request
+     * View path
+     *
+     * @var string
+     */
+    protected $viewPath;
+
+    /**
+     * Stores the current MbRequest of the request
      *
      * @var MbRequest
      */
-    protected $request;
+    protected $mbRequest;
 
     /**
-     * Váriavel que armazenda a resposta
+     * Stores the current MbResponse of the response
      *
      * @var MbResponse
      */
-    protected $response;
+    protected $mbResponse;
 
     /**
-     * Construtor da View.
+     * View construct.
      */
     public function __construct()
     {
-        $this->variaveis = [];
-        $this->conteudo = "";
-        $this->extensao = "phtml";
-        $this->caminhoView = MbPath::PLUGIN_VIEW_DIR;
+        $this->setVariablesForView([]);
+        $this->setExtension("phtml");
+        $this->setViewPath(MbPath::PLUGIN_VIEW_DIR);
     }
 
     /**
+     * Get template name
+     *
      * @return string
      */
     public function getTemplate()
@@ -102,9 +106,11 @@ class MbView
     }
 
     /**
-     * É recomendado que no template seja chamado a função $this->getConteudo()
+     * Set template name
      *
      * @param string $template
+     *
+     * @return MbView
      */
     public function setTemplate($template)
     {
@@ -113,6 +119,8 @@ class MbView
     }
 
     /**
+     * Get page name
+     *
      * @return string
      */
     public function getPage()
@@ -121,7 +129,11 @@ class MbView
     }
 
     /**
+     * Set page name
+     *
      * @param string $page
+     *
+     * @return MbView
      */
     public function setPage($page)
     {
@@ -130,6 +142,8 @@ class MbView
     }
 
     /**
+     * Get action name
+     *
      * @return string
      */
     public function getAction()
@@ -138,7 +152,11 @@ class MbView
     }
 
     /**
+     * Set action name
+     *
      * @param string $action
+     *
+     * @return MbView
      */
     public function setAction($action)
     {
@@ -147,190 +165,270 @@ class MbView
     }
 
     /**
-     * @return string[]
+     * Get variables for view
+     *
+     * @return mixed[]
      */
-    public function getVariaveis()
+    public function getVariablesForView()
     {
-        return $this->variaveis;
+        return $this->variablesForView;
     }
 
     /**
-     * @param string[] $variaveis
+     * Set variables for view
+     *
+     * @param string[] $variablesForView
+     *
+     * @return MbView
      */
-    public function setVariaveis(array $variaveis)
+    public function setVariablesForView(array $variablesForView)
     {
-        $this->variaveis = $variaveis;
+        $this->variablesForView = $variablesForView;
         return $this;
     }
 
     /**
+     * Set variable for view
+     *
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return MbView
+     */
+    public function setVariableForView($name, $value)
+    {
+        $this->variablesForView[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Get content view
+     *
      * @return string
      */
-    public function getConteudo()
+    public function getContent()
     {
-        return $this->conteudo;
+        return !is_null($this->content) ? $this->content : "No valid content has been submitted!";
     }
 
     /**
-     * @param string $conteudo
+     * Set content view
+     *
+     * @param string $content
+     *
+     * @return MbView
      */
-    public function setConteudo($conteudo)
+    public function setContent($content)
     {
-        $this->conteudo = $conteudo;
+        $this->content = $content;
         return $this;
     }
 
     /**
+     * Get view file extension
+     *
      * @return string
      */
-    public function getExtensao()
+    public function getExtension()
     {
-        return $this->extensao;
+        return $this->extension;
     }
 
     /**
-     * @param string $extensao
+     * Set view file extension
+     *
+     * @param string $extension
+     *
+     * @return MbView
      */
-    public function setExtensao($extensao)
+    public function setExtension($extension)
     {
-        $this->extensao = $extensao;
+        $this->extension = $extension;
         return $this;
     }
 
     /**
+     * Get view path
+     *
      * @return string
      */
-    public function getCaminhoView()
+    public function getViewPath()
     {
-        return $this->caminhoView;
+        return $this->viewPath;
     }
 
     /**
-     * @param string $caminhoView
+     * Set view path
+     *
+     * @param string $viewPath
+     *
+     * @return MbView
      */
-    public function setCaminhoView($caminhoView)
+    public function setViewPath($viewPath)
     {
-        $this->caminhoView = $caminhoView;
+        $this->viewPath = $viewPath;
         return $this;
     }
 
     /**
+     * Get MbRequest
+     *
      * @return MbRequest
      */
-    public function getRequest()
+    public function getMbRequest()
     {
-        return $this->request;
+        return $this->mbRequest;
     }
 
     /**
-     * @param MbRequest $request
+     * Set MbRequest to MbView
+     *
+     * @param MbRequest $mbRequest
+     *
      * @return MbView
      */
-    public function setRequest(MbRequest $request)
+    public function setMbRequest(MbRequest $mbRequest)
     {
-        $this->request = $request;
+        $this->mbRequest = $mbRequest;
+
         return $this;
     }
 
     /**
+     * Get MbResponse
+     *
      * @return MbResponse
      */
-    public function getResponse()
+    public function getMbResponse()
     {
-        return $this->response;
+        return $this->mbResponse;
     }
 
     /**
-     * @param MbResponse $response
+     * Set MbResponse to MbView
+     *
+     * @param MbResponse $mbResponse
+     *
      * @return MbView
      */
-    public function setResponse(MbResponse $response)
+    public function setMbResponse(MbResponse $mbResponse)
     {
-        $this->response = $response;
+        $this->mbResponse = $mbResponse;
+
         return $this;
     }
 
     /**
-     * Definir atributos da view em uma unica instância
+     * Set parameters for view
      *
-     * @param string $template Template da página atual, é recomendado que no template seja chamado a função $this->getConteudo()
-     * @param string $page Pasta da view
-     * @param string $action Nome da view
-     * @param array $variaveis Variaveis da view
-     * @param string $extensao Extensão da view padrão
+     * @param string $templateName
+     * @param string $currentPage
+     * @param string $currentAction
+     * @param array $variablesForView
+     * @param string $extension
+     *
      * @return MbView
      */
-    public function setView($template, $page, $action, array $variaveis = [], $extensao = "phtml")
+    public function setView($templateName, $currentPage, $currentAction, array $variablesForView = [], $extension = "phtml")
     {
-        $this->setTemplate($template);
-        $this->setPage($page);
-        $this->setAction($action);
-        $this->setVariaveis($variaveis);
-        $this->setExtensao($extensao);
+        $this->setTemplate($templateName);
+        $this->setPage($currentPage);
+        $this->setAction($currentAction);
+        $this->setVariablesForView($variablesForView);
+        $this->setExtension($extension);
         return $this;
     }
 
     /**
-     * Processar o caminho da view ou template
+     * Get File Full Path with extension
      *
-     * @param string $tipo Tipo de caminho para ser criado
+     * @param string $typeFile If the file either is a view or is a template
+     *
      * @return string
      */
-    private function processarCaminho($tipo = 'action')
+    protected function getFileFullPath($typeFile = 'action')
     {
-        if ($tipo == 'action')
-            return $this->caminhoView . "{$this->page}/{$this->action}.{$this->extensao}";
-        else
-            return $this->caminhoView . "{$this->template}.{$this->extensao}";
+        if ($typeFile == 'action') {
+            return $this->viewPath . "{$this->page}/{$this->action}.{$this->extension}";
+        } else {
+            return $this->viewPath . "{$this->template}.{$this->extension}";
+        }
     }
 
     /**
-     * Processar a view no template com as váriaveis definidas
+     * Get a piece to include in the view
      *
-     * Apos esse processo, todos os dados processados estarão na variável $conteudo e a view será exibida
+     * @param string $filePiece File part address
+     *
+     * @return void
+     */
+    public function piece($filePiece)
+    {
+        $filePiece = $this->viewPath . "{$filePiece}.{$this->extension}";
+
+        if (file_exists($filePiece)) {
+            include $filePiece;
+        } else {
+            MbException::adminNoticeError(new \Exception("The file {$filePiece} not found!"));
+        }
+    }
+
+    /**
+     * Get the evaluated contents of the object.
      *
      * @return string
      */
     public function render()
     {
-        //Obter caminhos da view e template respectivamente
-        $caminhoView = $this->processarCaminho();
-        $caminhoTemplate = $this->processarCaminho('template');
+        $viewPath     = $this->getFileFullPath();
+        $templatePath = $this->getFileFullPath('template');
 
-        //Atribuir variaveis definidas para a view e template
-        foreach ($this->variaveis as $attr => $value) {
-            if (is_string($attr)){
-                $$attr = $value;
-            }
+        //Assign defined variables to the view and template
+        foreach ($this->variablesForView as $attr => $value) {
+            $$attr = $value;
         }
 
-        //Verificar se a view existe e processa-la
-        if (file_exists($caminhoView)) {
+        if (file_exists($viewPath)) {
             ob_start();
-            include $caminhoView;
-            $conteudo = ob_get_contents();
+            include $viewPath;
+            $this->setContent(ob_get_contents());
             ob_end_clean();
-        } else //Caso o arquivo não exista, enviar um erro para a tela do wordpress
-            $conteudo = "<div class='notice notice-error'>
-                            <p>O arquivo <strong>{$caminhoView}</strong> não foi encontrado!</p>
-                         </div>";
+        } else {
+            MbException::adminNoticeError(new \Exception("The file {$viewPath} not found!"));
+        }
 
-        //Atribuir a view processada para o conteudo
-        $this->setConteudo($conteudo);
-
-        //Verificar se o template existe e processa-lo
-        if (file_exists($caminhoTemplate)) {
+        if (file_exists($templatePath)) {
             ob_start();
-            include $caminhoTemplate;
-            $conteudo = ob_get_contents();
+            include $templatePath;
+            $this->setContent(ob_get_contents());
             ob_end_clean();
-        } else //Caso o arquivo não exista, enviar um erro para a tela do wordpress
-            $conteudo = "<div class='notice notice-error'>
-                            <p>O arquivo <strong>{$caminhoTemplate}</strong> de template não foi encontrado!</p>
-                         </div>";
+        } else {
+            MbException::adminNoticeError(new \Exception("The file {$templatePath} not found!"));
+        }
 
-        //Mostrar o conteudo na tela
-        return $conteudo;
+        return $this->getContent();
+    }
+
+    /**
+     * Get the name of the view.
+     *
+     * @return string
+     */
+    public function name()
+    {
+        return "{$this->getPage()}.{$this->getAction()}";
+    }
+
+    /**
+     * Add a piece of data to the view.
+     *
+     * @param  string|array $key
+     * @param  mixed $value
+     * @return $this
+     */
+    public function with($key, $value = null)
+    {
+        return $this->variablesForView[$key] = $value;
     }
 
 }

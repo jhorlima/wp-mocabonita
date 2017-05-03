@@ -7,64 +7,78 @@ use Katzgrau\KLogger\Logger;
 use MocaBonita\view\MbView;
 
 /**
- * Classe de Exceção do Moça Bonita.
+ * Main class of the MocaBonita Exception
  *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\Tools
- * @copyright Copyright (c) 2016
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbException extends \Exception
 {
 
     /**
+     * Stored if exception log is required
+     *
      * @var bool
      */
-    protected static $salvarLog;
+    protected static $registerExceptionLog;
 
     /**
+     * Stored log path
+     *
      * @var string
      */
-    protected static $logPath;
+    protected static $exceptionLogPath;
 
     /**
+     * Stored exception data
+     *
      * @var null|array|Arrayable
      */
-    protected $dados;
+    protected $exceptionData;
 
     /**
+     * Get exception data
+     *
      * @return array|string
      */
-    public function getDados()
+    public function getExceptionData()
     {
-        return $this->dados;
+        return $this->exceptionData;
     }
 
     /**
+     * Get exception data in array
+     *
      * @return array|null
      */
-    public function getDadosArray()
+    public function getExcepitonDataArray()
     {
-        if ($this->dados instanceof Arrayable) {
-            $this->dados = $this->dados->toArray();
+        if ($this->exceptionData instanceof Arrayable) {
+            $this->exceptionData = $this->exceptionData->toArray();
         }
 
-        if (!is_array($this->dados)) {
-            $this->dados = null;
+        if (!is_array($this->exceptionData)) {
+            $this->exceptionData = null;
         }
-        return $this->dados;
+
+        return $this->exceptionData;
     }
 
     /**
-     * @param array|Arrayable|MbView $dados
+     * Set exception data
+     *
+     * @param array|Arrayable $exceptionData
      * @return MbException
      */
-    public function setDados($dados)
+    public function setExceptionData($exceptionData)
     {
-        $this->dados = $dados;
+        $this->exceptionData = $exceptionData;
         return $this;
     }
 
@@ -86,73 +100,104 @@ class MbException extends \Exception
     {
         parent::__construct($msg, $code);
 
-        $this->setDados($dados);
+        $this->setExceptionData($dados);
     }
 
     /**
-     * @return mixed
+     * Get exception log path
+     *
+     * @return string
      */
-    public static function getLogPath()
+    public static function getExceptionLogPath()
     {
-        if(is_null(self::$salvarLog)){
-            self::$salvarLog = MbPath::PLUGIN_DIRETORIO . '/logs';
+        if(is_null(self::$registerExceptionLog)){
+            self::setExceptionLogPath(MbPath::pDir('/logs'));
         }
 
-        return self::$salvarLog;
+        return self::$registerExceptionLog;
     }
 
     /**
-     * @param string $logPath
+     * Set exception log path
+     *
+     * @param string $exceptionLogPath
      */
-    public static function setLogPath($logPath)
+    public static function setExceptionLogPath($exceptionLogPath)
     {
-        self::$salvarLog = $logPath;
+        self::$registerExceptionLog = $exceptionLogPath;
     }
 
     /**
+     * Is register exception log
+     *
      * @return boolean
      */
-    public static function isSalvarLog()
+    public static function isRegisterExceptionLog()
     {
-        return (bool) self::$salvarLog;
+        return (bool) self::$registerExceptionLog;
     }
 
     /**
-     * @param boolean $salvarLog
+     * Set register exception log
+     *
+     * @param boolean $registerExceptionLog
      */
-    public static function setSalvarLog($salvarLog = true)
+    public static function setRegisterExceptionLog($registerExceptionLog = true)
     {
-        self::$salvarLog = (bool) $salvarLog;
+        self::$registerExceptionLog = (bool) $registerExceptionLog;
     }
 
     /**
+     * Register exception log
+     *
      * @param \Exception $e
+     *
+     * @return bool
      */
-    public static function adminNotice(\Exception $e){
-        MbWPActionHook::adicionarCallbackAction('admin_notices', function () use ($e){
-            echo "<div class='notice notice-error'><p>{$e->getMessage()}</p></div>";
-        });
-        self::salvarLog($e);
-    }
-
-    /**
-     * @param \Exception $e
-     */
-    public static function adminDebug(\Exception $e){
-        MbWPActionHook::adicionarCallbackAction('admin_notices', function () use ($e){
-            echo "<div class='notice notice-info'><p>{$e->getMessage()}</p></div>";
-        });
-        self::salvarLog($e);
-    }
-
-    protected static function salvarLog(\Exception $e){
-        if(!self::isSalvarLog()){
+    protected static function registerExceptionLog(\Exception $e){
+        if(!self::isRegisterExceptionLog()){
             return false;
         }
 
-        $logger = new Logger(self::getLogPath());
+        $logger = new Logger(self::getExceptionLogPath());
         $logger->debug($e->getMessage());
 
         return true;
+    }
+
+    /**
+     * Post an error notice on the dashboard
+     *
+     * @param \Exception $e
+     */
+    public static function adminNoticeError(\Exception $e){
+        MbWPActionHook::addActionCallback('admin_notices', function () use ($e){
+            echo self::adminNoticeTemplate($e->getMessage(), 'error');
+        });
+        self::registerExceptionLog($e);
+    }
+
+    /**
+     * Post an debug notice on the dashboard
+     *
+     * @param \Exception $e
+     */
+    public static function adminNoticeDebug(\Exception $e){
+        MbWPActionHook::addActionCallback('admin_notices', function () use ($e){
+            echo self::adminNoticeTemplate($e->getMessage(), 'info');
+        });
+        self::registerExceptionLog($e);
+    }
+
+    /**
+     * Get admin notice structure template
+     *
+     * @param string $message
+     * @param string $type
+     *
+     * @return string
+     */
+    public static function adminNoticeTemplate($message, $type = 'error'){
+        return "<div class='notice notice-{$type}'><p>{$message}</p></div>";
     }
 }

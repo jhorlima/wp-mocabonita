@@ -1,43 +1,30 @@
 <?php
-/**
- * Historico de Alterações
- *
- * @created_at 1.0.0 : 01/02/2017 Jhordan Lima - Emissão inicial
- *
- */
 
 namespace MocaBonita\tools;
 
 /**
- * Class MbSingleton - Implementar o design pattern Singleton
+ * Main class of the MocaBonita Singleton
  *
- * O padrão singleton é útil quando precisamos ter certeza de que só temos uma única instância de uma classe para
- * todo o ciclo de vida do pedido em um aplicativo da Web. Isso normalmente ocorre quando temos objetos
- * globais (como uma classe de configuração) ou um recurso compartilhado (como uma fila de eventos).
- *
- * @author Jhordan Lima - jhordanlima.uema.dpd@gmail.com
- *
- * @category PHP
- *
- * @package MocaBonita\tools
- * @version 1.0.0
- * @copyright Copyright (c) 2017 NTI UEMA
- * @date 31/01/2017
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 abstract class MbSingleton
 {
     /**
-     * Atributo que armazena as instancias das classes
+     * Stores instances of classes
      *
      * @var MbSingleton[]
      */
     protected static $instances = [];
 
     /**
-     * O construtor __construct() é declarado como private para evitar a criação de uma nova instância fora da classe
-     * através do operador new.
-     *
-     * Executa o método inicializar, caso exista algum método pra ser executado no construtor
+     * Singleton construct
      *
      */
     final protected function __construct()
@@ -46,45 +33,44 @@ abstract class MbSingleton
     }
 
     /**
-     * Método que será iniciado
+     * Method to be started
      *
      */
     protected function init(){
-
+        //
     }
 
     /**
-     * O padrão singleton é útil quando precisamos ter certeza de que só temos uma única instância de uma classe para
-     * todo o ciclo de vida do pedido em um aplicativo da Web. Isso normalmente ocorre quando temos objetos
-     * globais (como uma classe de configuração) ou um recurso compartilhado (como uma fila de eventos).
+     * The singleton pattern is useful when we need to make sure that we only have a single instance of a class for
+     * the entire request lifecycle in a Web application. This usually occurs when we have global objects
+     * (such as a configuration class) or a resource (Such as an event queue).
      *
      * @return static
      */
     public final static function getInstance()
     {
-        $nomeClasse = get_called_class();
+        $className = get_called_class();
 
-        if (!isset(self::$instances[$nomeClasse])){
-            self::$instances[$nomeClasse] = new $nomeClasse();
+        if (!isset(self::$instances[$className])){
+            self::$instances[$className] = new $className();
         }
 
-        $oInstance = self::$instances[$nomeClasse];
-        return $oInstance;
+        return self::$instances[$className];
     }
 
     /**
-     * O método mágico __clone() é declarado como private para impedir a clonagem de uma instância da classe através
-     * do operador clone.
+     * The __clone () magic method is declared private to prevent cloning of an instance of the class through
+     * the clone operator.
      *
      */
     final private function __clone()
     {
         //
-    }/** @noinspection PhpUnusedPrivateMethodInspection */
+    }
 
     /**
-     * O método mágico __wakeup() é declarado como private para evitar unserializing de uma instância da classe via
-     * a função global unserialize ().
+     * The magic method __wakeup () is declared as private to avoid unserializing an instance of the class via the
+     * global unserialize () function.
      *
      */
     final private function __wakeup()
@@ -93,7 +79,7 @@ abstract class MbSingleton
     }
 
     /**
-     * Realizar o var_dump das instancias
+     * var_dump debug
      *
      */
     public static function var_dump(){

@@ -5,220 +5,229 @@ use MocaBonita\MocaBonita;
 use MocaBonita\view\MbView;
 
 /**
- * Classe de Shortcode do Wordpress
+ * Main class of the MocaBonita Shortcode
  *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\Tools
- * @copyright Copyright (c) 2016
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbShortCode
 {
 
     /**
-     * Nome do Shortcode
+     * Shortcode name
      *
      * @var string
      */
-    private $nome;
+    private $name;
 
     /**
-     * Ação do Shortcode
+     * Shortcode MbAction
      *
      * @var MbAction
      */
-    private $acao;
+    private $mbAction;
 
     /**
-     * Assets do Shortcode
+     * Shortcode MbAsset
      *
      * @var MbAsset
      */
-    private $assets;
+    private $mbAsset;
 
     /**
+     * Get name
+     *
      * @return string
      */
-    public function getNome()
+    public function getName()
     {
-        return $this->nome;
+        return $this->name;
     }
 
     /**
-     * @param string $nome
+     * Set name
+     *
+     * @param string $name
+     *
      * @return MbShortCode
      */
-    public function setNome($nome)
+    public function setName($name)
     {
-        $this->nome = $nome;
+        $this->name = $name;
         return $this;
     }
 
     /**
+     * Get MbAction
+     *
      * @return MbAction
      */
-    public function getAcao()
+    public function getMbAction()
     {
-        return $this->acao;
+        return $this->mbAction;
     }
 
     /**
-     * @param MbAction $acao
+     * Set MbAction
+     *
+     * @param MbAction $mbAction
+     *
      * @return MbShortCode
      */
-    public function setAcao(MbAction $acao)
+    public function setMbAction(MbAction $mbAction)
     {
-        $this->acao = $acao;
+        $this->mbAction = $mbAction;
         return $this;
     }
 
     /**
+     * Get MbAsset
+     *
      * @return MbAsset
      */
-    public function getAssets()
+    public function getMbAsset()
     {
-        return $this->assets;
+        return $this->mbAsset;
     }
 
     /**
-     * @param MbAsset $assets
+     * Set MbAsset
+     *
+     * @param MbAsset $mbAsset
+     *
      * @return MbShortCode
      */
-    public function setAssets(MbAsset $assets)
+    public function setMbAsset(MbAsset $mbAsset)
     {
-        $this->assets = $assets;
+        $this->mbAsset = $mbAsset;
         return $this;
     }
 
     /**
-     * Adicionar Shortcode ao Wordpress
+     * Shortcode construct
      *
-     * @param string $nome nome do shortcode
-     * @param MbAction $acao ação do shortcode
-     * @param MbAsset $assets Assets do shortcode
+     * @param string $name nome do shortcode
+     * @param MbAction $mbAction
+     * @param MbAsset $mbAsset
      */
-    public function __construct($nome, MbAction $acao, MbAsset $assets)
+    public function __construct($name, MbAction $mbAction, MbAsset $mbAsset)
     {
-        $this->setNome($nome)
-            ->setAcao($acao)
-            ->setAssets($assets);
+        $this->setName($name)
+            ->setMbAction($mbAction)
+            ->setMbAsset($mbAsset);
     }
 
-    public function processarShorcode(MbAsset $assets, MbRequest $request, MbResponse $response)
+    public function processarShorcode(MbAsset $mbAsset, MbRequest $mbRequest, MbResponse $mbResponse)
     {
-        //Adicionar a instancia da class para uma váriavel
         $shortCode = $this;
 
-        //Inicializar Shorcode
-        add_shortcode($this->getNome(), function ($atributos, $conteudo, $tags) use ($shortCode, $assets, $request, $response) {
+        //Initialize Shorcode
+        add_shortcode($this->getName(), function ($attributes, $content, $tags) use ($shortCode, $mbAsset, $mbRequest, $mbResponse) {
 
-            MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::BEFORE_SHORTCODE, $shortCode);
+            MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_SHORTCODE, $shortCode);
 
-            $request->setShortcode(true);
+            $mbRequest->setShortcode(true);
 
-            //Adicionar assets do plugin
-            $assets->setActionEnqueue('front')->processarAssets('plugin');
+            //Add plugin assets
+            $mbAsset->setActionEnqueue('front')->runAssets('plugin');
 
-            //Adicionar assets do shortcode
-            $shortCode->getAssets()->setActionEnqueue('front')->processarAssets($shortCode->getNome());
+            //Add shortcode assets
+            $shortCode->getMbAsset()->setActionEnqueue('front')->runAssets($shortCode->getName());
 
-            //Verificar se é uma ação valida
-            if ($shortCode->getAcao()->metodoValido()) {
+            //Check if function exist
+            if ($shortCode->getMbAction()->functionExist()) {
 
                 try {
-                    //Atribuir request e response pra view
-                    $shortCode->getAcao()
-                        ->getPagina()
+                    //Set MbRequest and MbResponde to view
+                    $shortCode->getMbAction()
+                        ->getMbPage()
                         ->getController()
-                        ->setView(new MbView())
-                        ->getView()
-                        ->setRequest($request)
-                        ->setResponse($response);
+                        ->setMbView(new MbView())
+                        ->getMbView()
+                        ->setMbRequest($mbRequest)
+                        ->setMbResponse($mbResponse);
 
-                    //Carregar dados da controller
-                    $shortCode->getAcao()
-                        ->getPagina()
+                    //Set MbRequest and MbResponde to controller
+                    $shortCode->getMbAction()
+                        ->getMbPage()
                         ->getController()
-                        ->setRequest($request)
-                        ->setResponse($response);
+                        ->setMbRequest($mbRequest)
+                        ->setMbResponse($mbResponse);
 
-                    //Definir controller como shortcode
-                    $request->setShortcode(true);
+                    //Set request as shortcode
+                    $mbRequest->setShortcode(true);
 
-                    //Definir template principal
-                    $shortCode->getAcao()
-                        ->getPagina()
+                    //Set shortcode template
+                    $shortCode->getMbAction()
+                        ->getMbPage()
                         ->getController()
-                        ->getView()
+                        ->getMbView()
                         ->setTemplate('shortcode');
 
-                    //Definir página principal
-                    $shortCode->getAcao()
-                        ->getPagina()
+                    //Set shortcode page
+                    $shortCode->getMbAction()
+                        ->getMbPage()
                         ->getController()
-                        ->getView()
+                        ->getMbView()
                         ->setPage('shortcode');
 
-                    //Definir shortcode metodo
-                    $shortCode->getAcao()
-                        ->getPagina()
+                    //Set shortcode action
+                    $shortCode->getMbAction()
+                        ->getMbPage()
                         ->getController()
-                        ->getView()
-                        ->setAction($shortCode->getAcao()->getNome());
+                        ->getMbView()
+                        ->setAction($shortCode->getMbAction()->getName());
 
                     try{
-                        //Começar a processar a controller
                         ob_start();
 
-                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::BEFORE_ACTION, $shortCode->getAcao());
-                        $respostaController = $shortCode->getAcao()
-                            ->getPagina()
+                        MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_ACTION, $shortCode->getMbAction());
+                        $actionResponse = $shortCode->getMbAction()
+                            ->getMbPage()
                             ->getController()
-                            ->{$shortCode->getAcao()->getMetodo()}($atributos, $conteudo, $tags);
+                            ->{$shortCode->getMbAction()->getFunction()}($attributes, $content, $tags);
 
-                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::AFTER_ACTION, $shortCode->getAcao());
+                        MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::AFTER_ACTION, $shortCode->getMbAction());
 
                     } catch (\Exception $e){
-                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::EXCEPTION_ACTION, $e);
-                        $respostaController = $e->getMessage();
+                        MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::EXCEPTION_ACTION, $e);
+                        $actionResponse = $e->getMessage();
                     } finally {
-                        MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::FINISH_ACTION, $shortCode->getAcao());
-                        $conteudoController = ob_get_contents();
+                        MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::FINISH_ACTION, $shortCode->getMbAction());
+                        $controllerLog = ob_get_contents();
                         ob_end_clean();
                     }
 
-                    //Verificar se a controller imprimiu alguma coisa e exibir no errolog
-                    if ($conteudoController != ""){
-                        error_log($conteudoController);
+                    if ($controllerLog != ""){
+                        error_log($controllerLog);
                     }
 
-                    //Verificar se a resposta é nula e então ele pega a view da controller
-                    if(is_null($respostaController)){
-                        $respostaController = $shortCode->getAcao()->getPagina()->getController()->getView();
+                    if(is_null($actionResponse)){
+                        $actionResponse = $shortCode->getMbAction()->getMbPage()->getController()->getMbView();
                     }
 
                 } catch (\Exception $e){
-                    $respostaController = $e->getMessage();
+                    $actionResponse = $e->getMessage();
 
                 } finally {
-                    //Processar a página
-                    $response->setContent($respostaController);
+                    $mbResponse->setContent($actionResponse);
                 }
 
             } else {
-                //Processar a página
-                $response->setContent(
-                    "O shortcode {$shortCode->getNome()} não foi definido! Método: {$shortCode->getAcao()->getMetodo()}."
+                $mbResponse->setContent(
+                    "The shortcode {$shortCode->getName()} has not been defined! Function: {$shortCode->getMbAction()->getFunction()}."
                 );
             }
 
-            //Imprimir conteudo
-            $response->sendContent();
+            $mbResponse->sendContent();
 
-            MbEvent::processarEventos(MocaBonita::getInstance(), MbEvent::AFTER_SHORTCODE, $shortCode);
+            MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::AFTER_SHORTCODE, $shortCode);
         });
     }
 }

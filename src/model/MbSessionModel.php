@@ -2,22 +2,39 @@
 
 namespace MocaBonita\model;
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
+use MocaBonita\tools\eloquent\MbModel;
 
 /**
- * Class MocabonitaSessao
+ * MocaBonita session class
  *
- *
- * @package MocaBonita\model
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\model
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
-class MbSessionModel extends Eloquent
+class MbSessionModel extends MbModel
 {
     /**
+     * The primary key for the model.
+     *
      * @var string
      */
     protected $primaryKey = "sess_id";
 
     /**
+     * The attributes that aren't mass assignable.
+     *
+     * @var array
+     */
+    protected $guarded = ["sess_id"];
+
+    /**
+     * Get the primary key of this model.
+     *
      * @return string
      */
     public function getPrimaryKey()

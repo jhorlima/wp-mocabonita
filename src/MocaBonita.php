@@ -4,7 +4,7 @@ namespace MocaBonita;
 
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
 use MocaBonita\tools\MbPath;
-use MocaBonita\tools\MbCapsule;
+use MocaBonita\tools\MbMigration;
 use MocaBonita\tools\MbResponse;
 use MocaBonita\tools\MbRequest;
 use MocaBonita\tools\MbEvent;
@@ -322,7 +322,7 @@ final class MocaBonita extends MbSingleton
 
         $this->setMbRequest(MbRequest::capture());
         $this->setMbResponse(MbResponse::create());
-        $this->getMbResponse()->setRequest($this->mbRequest);
+        $this->getMbResponse()->setMbRequest($this->mbRequest);
         $this->setPage($this->mbRequest->query('page'));
         $this->setAction($this->mbRequest->query('action'));
         $this->setBlogAdmin(is_blog_admin());
@@ -334,7 +334,7 @@ final class MocaBonita extends MbSingleton
 
         $this->mbEvents = [];
 
-        MbCapsule::wpdb();
+        MbMigration::enableWpdbConnection();
     }
 
     /**
@@ -354,7 +354,7 @@ final class MocaBonita extends MbSingleton
             $mocaBonita->desableCaches();
         }
 
-        MbWPActionHook::adicionarCallbackAction('plugins_loaded', function () use ($pluginStructure, $mocaBonita) {
+        MbWPActionHook::addActionCallback('plugins_loaded', function () use ($pluginStructure, $mocaBonita) {
             try {
                 $pluginStructure($mocaBonita);
                 $mocaBonita->runPlugin();
@@ -381,7 +381,7 @@ final class MocaBonita extends MbSingleton
         register_activation_hook(MbPath::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
             try {
                 self::checkApplication();
-                MbCapsule::pdo();
+                MbMigration::enablePdoConnection();
                 $active($mocaBonita);
             } catch (\Exception $e) {
                 deactivate_plugins(basename(MbPath::PLUGIN_BASENAME));
@@ -403,11 +403,11 @@ final class MocaBonita extends MbSingleton
 
         register_deactivation_hook(MbPath::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
             try {
-                MbCapsule::pdo();
+                MbMigration::enablePdoConnection();
                 $deactive($mocaBonita);
             } catch (\Exception $e) {
-                MbException::setSalvarLog(true);
-                MbException::adminNotice($e);
+                MbException::setRegisterExceptionLog(true);
+                MbException::adminNoticeError($e);
                 wp_die($e->getMessage());
             }
         });
@@ -424,7 +424,7 @@ final class MocaBonita extends MbSingleton
     {
         if (defined('WP_UNINSTALL_PLUGIN')) {
             $mocaBonita = self::getInstance();
-            MbCapsule::pdo();
+            MbMigration::enablePdoConnection();
             $unistall($mocaBonita);
         } else {
             wp_die("Você não pode executar este método fora do arquivo uninstall.php");
@@ -444,16 +444,16 @@ final class MocaBonita extends MbSingleton
             $exception = new \Exception(
                 "Your PHP or WP is outdated and some MocaBonita features may not work!"
             );
-        } elseif (!is_writable(MbPath::PLUGIN_DIRETORIO)) {
+        } elseif (!is_writable(MbPath::PLUGIN_DIRECTORY)) {
             $exception = new \Exception(
                 "MocaBonita does not have write permission in the plugin directory!"
             );
         }
 
         if($exception instanceof \Exception){
-            MbException::adminNotice($exception);
+            MbException::adminNoticeError($exception);
 
-            MbWPActionHook::adicionarCallbackAction('init', function () {
+            MbWPActionHook::addActionCallback('init', function () {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
                 deactivate_plugins(MbPath::PLUGIN_BASENAME);
             });
@@ -470,7 +470,7 @@ final class MocaBonita extends MbSingleton
     private function runPlugin()
     {
         //Call the MbAsset from WordPress
-        $this->getMbAssets(true)->processarAssets('*');
+        $this->getMbAssets(true)->runAssets('*');
 
         //Call the Shortcode from plugin
         foreach ($this->mbShortCodes as $shortcode) {
@@ -479,11 +479,11 @@ final class MocaBonita extends MbSingleton
 
         //Add wordpress administrative menu if needed
         if ($this->isBlogAdmin()) {
-            MbWPActionHook::adicionarAction('admin_menu', $this, 'processarMenu');
+            MbWPActionHook::addAction('admin_menu', $this, 'processarMenu');
         }
 
         //Call MbEvent from wordpress (START_WORDPRESS)
-        MbEvent::processarEventos($this, MbEvent::START_WORDPRESS);
+        MbEvent::callEvents($this, MbEvent::START_WORDPRESS);
 
         if ($this->isMocabonitaPage()) {
 
@@ -491,12 +491,12 @@ final class MocaBonita extends MbSingleton
             $mbPage = $this->getMbPage($this->page);
 
             //Set current MbPage to MbRequest
-            $this->getMbRequest()->setPagina($mbPage);
+            $this->getMbRequest()->setMbPage($mbPage);
 
             try {
 
                 //Call MvEvent from page (BEFORE_PAGE)
-                MbEvent::processarEventos($this, MbEvent::BEFORE_PAGE, $mbPage);
+                MbEvent::callEvents($this, MbEvent::BEFORE_PAGE, $mbPage);
 
                 //Get all query params from url
                 $paramsQuery = $this->mbRequest->query();
@@ -523,27 +523,27 @@ final class MocaBonita extends MbSingleton
                 });
 
                 //Call the MbAsset from plugin
-                $this->getMbAssets()->processarAssets('plugin');
+                $this->getMbAssets()->runAssets('plugin');
 
                 //Call the MbAsset from page
-                $mbPage->getAssets()->processarAssets($this->page);
+                $mbPage->getMbAsset()->runAssets($this->page);
 
                 //Run current page
                 $this->runCurrentPage($mbPage);
 
                 //Call MvEvent from page (AFTER_PAGE)
-                MbEvent::processarEventos($this, MbEvent::AFTER_PAGE, $mbPage);
+                MbEvent::callEvents($this, MbEvent::AFTER_PAGE, $mbPage);
             } catch (\Exception $e) {
                 //Call MvEvent from page (EXCEPTION_PAGE)
-                MbEvent::processarEventos($this, MbEvent::EXCEPTION_PAGE, $e);
+                MbEvent::callEvents($this, MbEvent::EXCEPTION_PAGE, $e);
                 throw $e;
             } finally {
                 //Call MvEvent from page (FINISH_PAGE)
-                MbEvent::processarEventos($this, MbEvent::FINISH_PAGE, $mbPage);
+                MbEvent::callEvents($this, MbEvent::FINISH_PAGE, $mbPage);
             }
         }
         //Call MbEvent from wordpress (FINISH_WORDPRESS)
-        MbEvent::processarEventos($this, MbEvent::FINISH_WORDPRESS);
+        MbEvent::callEvents($this, MbEvent::FINISH_WORDPRESS);
     }
 
     /**
@@ -559,7 +559,7 @@ final class MocaBonita extends MbSingleton
         $controllerName = get_class($mbPage->getController());
 
         //Get MbAction from current action
-        $mbAction = $mbPage->getAcao($this->action);
+        $mbAction = $mbPage->getMbAction($this->action);
 
         //Check if MbAction is invalid
         if (is_null($mbAction)) {
@@ -573,74 +573,74 @@ final class MocaBonita extends MbSingleton
         }
 
         //Check if MbAction requires login and if there is any user logged in
-        if ($mbAction->isLogin() && !$this->mbRequest->isLogin()) {
+        if ($mbAction->isRequiresLogin() && !$this->mbRequest->isLogged()) {
             throw new MbException(
                 "The action {$this->action} of the page {$this->page} requires wordpress login!"
             );
         }
         //Check if MbAction capability is allowed
-        elseif ($mbAction->isLogin() && !current_user_can($mbAction->getCapability())) {
+        elseif ($mbAction->isRequiresLogin() && !current_user_can($mbAction->getCapability())) {
             throw new MbException(
                 "The action {$this->action} of the page {$this->page} requires a user with more access permissions!"
             );
         }
         //Check if MbAction requires a MbRequest ajax
-        elseif ($mbAction->isAjax() && !$this->mbRequest->isAjax()) {
+        elseif ($mbAction->isRequiresAjax() && !$this->mbRequest->isAjax()) {
             throw new MbException(
                 "The action {$this->action} of the page {$this->page} needs to be requested in admin-ajax.php!"
             );
         }
         //Check if the method request defined in MbAction is allowed
-        elseif ($mbAction->getRequisicao() != $this->mbRequest->method() && !is_null($mbAction->getRequisicao())) {
+        elseif ($mbAction->getRequiresMethod() != $this->mbRequest->method() && !is_null($mbAction->getRequiresMethod())) {
             throw new MbException(
-                "The action {$this->action} of the page {$this->page} must be called by request method {$mbAction->getRequisicao()}!"
+                "The action {$this->action} of the page {$this->page} must be called by request method {$mbAction->getRequiresMethod()}!"
             );
         }
         //Check if the method the MbAction exist in Controller
-        elseif (!$mbAction->metodoValido()) {
+        elseif (!$mbAction->functionExist()) {
             throw new MbException(
                 "The action {$this->action} of the page {$this->page} does not have a public method in the controller {$controllerName}. " .
-                "Please create or make public the method {$mbAction->getMetodo()}!"
+                "Please create or make public the method {$mbAction->getFunction()}!"
             );
         }
 
         //Set current MbAction to MbRequest
-        $this->getMbRequest()->setAcao($mbAction);
+        $this->getMbRequest()->setMbAction($mbAction);
 
         //Set page parameter to View
         $mbView = new MbView();
 
-        $mbView->setRequest($this->mbRequest)
-            ->setResponse($this->mbResponse)
+        $mbView->setMbRequest($this->mbRequest)
+            ->setMbResponse($this->mbResponse)
             ->setView('index', $this->page, $this->action);
 
         //Set the MbView to Controller
-        $mbAction->getPagina()
+        $mbAction->getMbPage()
             ->getController()
-            ->setView($mbView);
+            ->setMbView($mbView);
 
         //Set MbRequest and MbResponse to current controller of MbAction
-        $mbAction->getPagina()
+        $mbAction->getMbPage()
             ->getController()
-            ->setRequest($this->mbRequest)
-            ->setResponse($this->mbResponse);
+            ->setMbRequest($this->mbRequest)
+            ->setMbResponse($this->mbResponse);
 
         ob_start();
 
         try {
-            MbEvent::processarEventos($this, MbEvent::BEFORE_ACTION, $mbAction);
+            MbEvent::callEvents($this, MbEvent::BEFORE_ACTION, $mbAction);
 
             //Execute method of controller
-            $actionResponse = $mbAction->getPagina()
+            $actionResponse = $mbAction->getMbPage()
                 ->getController()
-                ->{$mbAction->getMetodo()}($this->mbRequest, $this->mbResponse);
-            MbEvent::processarEventos($this, MbEvent::AFTER_ACTION, $mbAction);
+                ->{$mbAction->getFunction()}($this->mbRequest, $this->mbResponse);
+            MbEvent::callEvents($this, MbEvent::AFTER_ACTION, $mbAction);
 
         } catch (\Exception $e) {
-            MbEvent::processarEventos($this, MbEvent::EXCEPTION_ACTION, $e);
+            MbEvent::callEvents($this, MbEvent::EXCEPTION_ACTION, $e);
             $actionResponse = $e;
         } finally {
-            MbEvent::processarEventos($this, MbEvent::FINISH_ACTION, $mbAction);
+            MbEvent::callEvents($this, MbEvent::FINISH_ACTION, $mbAction);
             $controllerPrint = ob_get_contents();
         }
 
@@ -651,7 +651,7 @@ final class MocaBonita extends MbSingleton
         }
 
         if (is_null($actionResponse) && !$this->mbRequest->isAjax()) {
-            $actionResponse = $mbAction->getPagina()->getController()->getView();
+            $actionResponse = $mbAction->getMbPage()->getController()->getMbView();
         }
 
         $this->mbResponse->setContent($actionResponse);
@@ -670,7 +670,7 @@ final class MocaBonita extends MbSingleton
         }
 
         //Check if a user is logged in Wordpress
-        if ($this->mbRequest->isLogin()) {
+        if ($this->mbRequest->isLogged()) {
             //Check if the current request is ajax
             if ($this->mbRequest->isAjax()) {
                 //add hook admin_ajax
@@ -693,7 +693,7 @@ final class MocaBonita extends MbSingleton
         }
 
         //Register WordpressHook
-        MbWPActionHook::adicionarAction($actionHook, $this, 'sendContent');
+        MbWPActionHook::addAction($actionHook, $this, 'sendContent');
         return true;
     }
 
@@ -792,18 +792,16 @@ final class MocaBonita extends MbSingleton
      */
     public function addMbPage(MbPage $mbPage)
     {
-        $mbPage->setSubmenu(false);
+        $mbPage->setSubMenu(false);
 
-        $mbPage->setMenuPrincipal(true);
+        $mbPage->setMainMenu(true);
 
         $this->mbPages[$mbPage->getSlug()] = $mbPage;
 
-        foreach ($mbPage->getSubPaginas() as $subPagina) {
-            $subPagina->setPaginaParente($mbPage);
-            $this->addSubMbPage($subPagina);
+        foreach ($mbPage->getSubPages() as $subPage) {
+            $this->addSubMbPage($subPage);
+            $subPage->setParentPage($mbPage);
         }
-
-        $mbPage->setMocaBonita($this);
 
         return $this;
     }
@@ -817,13 +815,11 @@ final class MocaBonita extends MbSingleton
      */
     public function addSubMbPage(MbPage $mbPage)
     {
-        $mbPage->setMenuPrincipal(false);
+        $mbPage->setMainMenu(false);
 
-        $mbPage->setSubmenu(true);
+        $mbPage->setSubMenu(true);
 
         $this->mbPages[$mbPage->getSlug()] = $mbPage;
-
-        $mbPage->setMocaBonita($this);
 
         return $this;
     }
@@ -842,7 +838,7 @@ final class MocaBonita extends MbSingleton
     {
         $mbAction = new MbAction($mbPage, $method);
 
-        $mbAction->setShortcode(true)->setComplemento('Shortcode');
+        $mbAction->setShortcode(true)->setFunctionComplement('Shortcode');
 
         $this->mbShortCodes[$name] = new MbShortCode($name, $mbAction, is_null($mbAsset) ? new MbAsset() : $mbAsset);
 
@@ -857,7 +853,7 @@ final class MocaBonita extends MbSingleton
     public function addAdminMenuToWordpress()
     {
         foreach ($this->mbPages as $pagina) {
-            $pagina->adicionarMenuWordpress();
+            $pagina->addMenuWordpress();
         }
     }
 

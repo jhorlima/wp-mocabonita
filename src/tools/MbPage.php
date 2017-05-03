@@ -6,175 +6,176 @@ use MocaBonita\controller\MbController;
 use MocaBonita\MocaBonita;
 
 /**
- * Classe de páginas do Wordpress
+ * Main class of the MocaBonita Page
  *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\Tools
- * @copyright Copyright (c) 2016
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbPage
 {
     /**
-     * Nome da página
+     * Page name
      *
      * @var string
      */
-    private $nome;
+    private $name;
 
     /**
-     * Capacidade da página
+     * Stores the capability of the action
      *
      * @var string
      */
     private $capability;
 
     /**
-     * Slug da página
+     * Page slug
      *
      * @var string
      */
     private $slug;
 
     /**
-     * Ícone da página
+     * Page dashicon
      *
      * @var string
      */
-    private $icone;
+    private $dashicon;
 
     /**
-     * Posição da página no menu
+     * Page menu position
      *
      * @var int
      */
-    private $posicao;
+    private $menuPosition;
 
     /**
-     * Página Parente
+     * Page parent
      *
      * @var MbPage
      */
-    private $paginaParente;
+    private $parentPage;
 
     /**
-     * Remover página do submenu quando houver
+     * Remove page from submenu when available
      *
      * @var bool
      */
-    private $removerSubMenuPagina;
+    private $removePageSubmenu;
 
     /**
-     * Lista de Páginas
+     * Subpages of this page
      *
      * @var MbPage[]
      */
-    private $subPaginas = [];
+    private $subPages = [];
 
     /**
-     * Verificar se é página do menu principal
+     * Store if page is main menu
      *
      * @var bool
      */
-    private $menuPrincipal;
+    private $mainMenu;
 
     /**
-     * Verificar se é página do submenu do wordpress
+     * Store if page is subMenu
      *
      * @var bool
      */
-    private $submenu;
+    private $subMenu;
 
     /**
-     * Objeto Moca Bonita
-     *
-     * @var MocaBonita
-     */
-    private $mocaBonita;
-
-    /**
-     * Controller da página
+     * Page Controller
      *
      * @var MbController|string
      */
     private $controller;
 
     /**
-     * Verificar se é necessário esconder o menu dessa página
+     * Check if it is necessary to hide the menu of this page
      *
      * @var bool
      */
-    private $esconderMenu;
+    private $hideMenu;
 
     /**
-     * Ações da página
+     * Page actions
      *
      * @var MbAction[]
      */
-    private $acoes = [];
+    private $mbActions = [];
 
     /**
-     * Complementos da página
+     * Page asset
      *
      * @var MbAsset
      */
-    private $assets;
+    private $mbAsset;
 
     /**
-     * Construir uma página a partir do parente
+     * MbPage construct
      *
-     * @param MbPage $paginaParente
-     * @param bool $menuPrincipal
-     * @param int $posicao
+     * @param MbPage $parentPage
+     * @param bool $mainMenu
+     * @param int $position
      */
-    public function __construct(MbPage $paginaParente = null, $menuPrincipal = true, $posicao = 100)
+    public function __construct(MbPage $parentPage = null, $mainMenu = true, $position = 1)
     {
-        $this->setNome("Moça Bonita")
+        $this->setName("Moça Bonita")
             ->setCapability("manage_options")
-            ->setIcone("dashicons-editor-code")
-            ->setEsconderMenu(false)
-            ->setAssets(new MbAsset())
-            ->setPaginaParente($paginaParente)
-            ->setMenuPrincipal($menuPrincipal)
-            ->setSubmenu(!$menuPrincipal)
-            ->setPosicao($posicao)
-            ->adicionarAcao('index');
+            ->setDashicon("dashicons-editor-code")
+            ->setHideMenu(false)
+            ->setMbAsset(new MbAsset())
+            ->setParentPage($parentPage)
+            ->setMainMenu($mainMenu)
+            ->setSubMenu(!$mainMenu)
+            ->setMenuPosition($position)
+            ->addMbAction('index');
     }
 
     /**
-     * @param string $nome Nome da página a ser criada
+     * Create a new MbPage
+     *
+     * @param string $name
      *
      * @return MbPage
      */
-    public static function create($nome){
-        $pagina = new self();
-
-        return $pagina->setNome($nome);
+    public static function create($name){
+        $mbPage = new self();
+        return $mbPage->setName($name);
     }
 
     /**
+     * Get name
+     *
      * @return string
      */
-    public function getNome()
+    public function getName()
     {
-        return $this->nome;
+        return $this->name;
     }
 
     /**
-     * @param string $nome
+     * Set name
+     *
+     * @param string $name
      * @return MbPage
      */
-    public function setNome($nome)
+    public function setName($name)
     {
-        $this->nome = $nome;
-        $this->setSlug($nome);
+        $this->name = $name;
+        $this->setSlug($name);
         return $this;
     }
 
     /**
+     * Get capability
+     *
      * @return string
      */
     public function getCapability()
@@ -183,6 +184,8 @@ class MbPage
     }
 
     /**
+     * Set capability
+     *
      * @param string $capability
      * @return MbPage
      */
@@ -193,6 +196,8 @@ class MbPage
     }
 
     /**
+     * Get slug
+     *
      * @return string
      */
     public function getSlug()
@@ -201,6 +206,8 @@ class MbPage
     }
 
     /**
+     * Set slug
+     *
      * @param string $slug
      * @return MbPage
      */
@@ -211,182 +218,214 @@ class MbPage
     }
 
     /**
+     * Get dashicon
+     *
      * @return string
      */
-    public function getIcone()
+    public function getDashicon()
     {
-        return $this->icone;
+        return $this->dashicon;
     }
 
     /**
-     * @param string $icone
+     * Set dashicon
+     *
+     * @param string $dashicon
      * @return MbPage
      */
-    public function setIcone($icone)
+    public function setDashicon($dashicon)
     {
-        $this->icone = $icone;
+        $this->dashicon = $dashicon;
         return $this;
     }
 
     /**
+     * Get menu position
+     *
      * @return int
      */
-    public function getPosicao()
+    public function getMenuPosition()
     {
-        return $this->posicao;
+        return $this->menuPosition;
     }
 
     /**
-     * @param int $posicao
+     * Set menu position
+     *
+     * @param int $menuPosition
      * @return MbPage
      */
-    public function setPosicao($posicao)
+    public function setMenuPosition($menuPosition)
     {
-        $this->posicao = $posicao;
+        $this->menuPosition = $menuPosition;
         return $this;
     }
 
     /**
+     * Get parent page
+     *
      * @throws MbException
+     *
      * @return MbPage
      */
-    public function getPaginaParente()
+    public function getParentPage()
     {
-        if (is_null($this->paginaParente))
-            throw new MbException("Nenhuma página parente foi definida em {$this->getNome()}");
+        if (is_null($this->parentPage)){
+            throw new MbException("No parent pages found in {$this->getName()}");
+        }
 
-        return $this->paginaParente;
+        return $this->parentPage;
     }
 
     /**
-     * @param MbPage $paginaParente
+     * Set parent page
+     *
+     * @param MbPage $parentPage
+     *
+     * @throws MbException
+     *
      * @return MbPage
      */
-    public function setPaginaParente(MbPage $paginaParente = null)
+    public function setParentPage(MbPage $parentPage = null)
     {
-        $this->paginaParente = $paginaParente;
+        if (!$this->subMenu){
+            throw new MbException("Only subpage can have parent pages: {$this->getName()}");
+        }
+
+        $this->parentPage = $parentPage;
         return $this;
     }
 
     /**
+     * Is remove page submenu
+     *
      * @return boolean
      */
-    public function isRemoverSubMenuPagina()
+    public function isRemovePageSubmenu()
     {
-        return $this->removerSubMenuPagina;
+        return $this->removePageSubmenu;
     }
 
     /**
-     * @param boolean $removerSubMenuPagina
+     * Set remove page submenu
+     *
+     * @param boolean $removePageSubmenu
+     *
      * @return MbPage
      */
-    public function setRemoverSubMenuPagina($removerSubMenuPagina = true)
+    public function setRemovePageSubmenu($removePageSubmenu = true)
     {
-        $this->removerSubMenuPagina = $removerSubMenuPagina;
+        $this->removePageSubmenu = $removePageSubmenu;
         return $this;
     }
 
     /**
+     * Get sub pages
+     *
      * @return MbPage[]
      */
-    public function getSubPaginas()
+    public function getSubPages()
     {
-        return $this->subPaginas;
+        return $this->subPages;
     }
 
     /**
-     * @param string $slug
+     * Get sub page
+     *
+     * @param string $pageSlug
+     *
      * @return MbPage|null
      */
-    public function getSubPagina($slug)
+    public function getSubMenu($pageSlug)
     {
-        if (!isset($this->subPaginas[$slug]))
+        if (!isset($this->subPages[$pageSlug])){
             return null;
+        }
 
-        return $this->subPaginas[$slug];
+        return $this->subPages[$pageSlug];
     }
 
     /**
-     * @param MbPage $pagina
-     * @return MbPage Retorna a SubPagina para melhor tratamento
+     * Set sub page
+     *
+     * @param MbPage $mbPage
+     *
+     * @return MbPage subpage
      */
-    public function setSubPagina(MbPage $pagina)
+    public function setSubPage(MbPage $mbPage)
     {
-        $this->subPaginas[$pagina->getSlug()] = $pagina;
-        $pagina->setPaginaParente($this);
-        return $pagina;
+        $this->subPages[$mbPage->getSlug()] = $mbPage;
+        $mbPage->setParentPage($this);
+        return $mbPage;
     }
 
     /**
+     * Add sub page
+     *
+     * @param string $name
      * @param string $slug
-     * @return MbPage Retorna a SubPagina para melhor tratamento
+     *
+     * @return MbPage subpage
      */
-    public function adicionarSubPagina($slug)
+    public function addSubPage($name, $slug)
     {
-        $pagina = new self();
-        $pagina->setSlug($slug)
-            ->setPaginaParente($this);
+        $subpage = self::create($name)
+            ->setSlug($slug)
+            ->setParentPage($this);
 
-        $this->subPaginas[$pagina->getSlug()] = $pagina;
-        return $pagina;
+        $this->subPages[$subpage->getSlug()] = $subpage;
+        return $subpage;
     }
 
     /**
+     * Is main menu
+     *
      * @return boolean
      */
-    public function isMenuPrincipal()
+    public function isMainMenu()
     {
-        return $this->menuPrincipal;
+        return $this->mainMenu;
     }
 
     /**
-     * @param boolean $menuPrincipal
+     * Set main menu
+     *
+     * @param boolean $mainMenu
      * @return MbPage
      */
-    public function setMenuPrincipal($menuPrincipal = true)
+    public function setMainMenu($mainMenu = true)
     {
-        $this->menuPrincipal = $menuPrincipal;
+        $this->mainMenu = $mainMenu;
         return $this;
     }
 
     /**
+     * Is submenu
+     *
      * @return boolean
      */
-    public function isSubmenu()
+    public function isSubMenu()
     {
-        return $this->submenu;
+        return $this->subMenu;
     }
 
     /**
-     * @param boolean $submenu
+     * Set submenu
+     *
+     * @param boolean $subMenu
      * @return MbPage
      */
-    public function setSubmenu($submenu = true)
+    public function setSubMenu($subMenu = true)
     {
-        $this->submenu = $submenu;
+        $this->subMenu = $subMenu;
         return $this;
     }
 
     /**
-     * @return MocaBonita
-     */
-    public function getMocaBonita()
-    {
-        return $this->mocaBonita;
-    }
-
-    /**
-     * @param MocaBonita $mocaBonita
-     * @return MbPage
-     */
-    public function setMocaBonita(MocaBonita $mocaBonita)
-    {
-        $this->mocaBonita = $mocaBonita;
-        return $this;
-    }
-
-    /**
-     * @throws MbException caso não exista controller definido
+     * Get page controller
+     *
+     * @throws MbException
+     *
      * @return MbController
      */
     public function getController()
@@ -394,14 +433,17 @@ class MbPage
         if (is_string($this->controller)) {
             $this->controller = MbController::create($this->controller);
         } elseif (is_null($this->controller) || !$this->controller instanceof MbController) {
-            throw new MbException("Nenhum Controller foi definido para a página {$this->getNome()}.");
+            throw new MbException("No Controller has been set for the page {$this->getName()}.");
         }
 
         return $this->controller;
     }
 
     /**
+     * Set controller
+     *
      * @param MbController|string $controller
+     *
      * @return MbPage
      */
     public function setController($controller)
@@ -411,120 +453,136 @@ class MbPage
     }
 
     /**
+     * Is hide menu
+     *
      * @return boolean
      */
-    public function isEsconderMenu()
+    public function isHideMenu()
     {
-        return $this->esconderMenu;
+        return $this->hideMenu;
     }
 
     /**
-     * @param boolean $esconderMenu
+     * Set hide menu
+     *
+     * @param boolean $hideMenu
+     *
      * @return MbPage
      */
-    public function setEsconderMenu($esconderMenu = true)
+    public function setHideMenu($hideMenu = true)
     {
-        $this->esconderMenu = $esconderMenu;
+        $this->hideMenu = $hideMenu;
         return $this;
     }
 
     /**
-     * @param string $acao
+     * Get MbAction
+     *
+     * @param string $actionName
+     *
      * @return MbAction|null
      */
-    public function getAcao($acao)
+    public function getMbAction($actionName)
     {
-        if (!isset($this->acoes[$acao]))
+        if (!isset($this->mbActions[$actionName])){
             return null;
+        }
 
-        return $this->acoes[$acao];
+        return $this->mbActions[$actionName];
     }
 
     /**
-     * @param MbAction $acao
+     * Set MbAction
+     *
+     * @param MbAction $mbAction
      * @return MbAction
      */
-    public function setAcao(MbAction $acao)
+    public function setMbAction(MbAction $mbAction)
     {
-        $this->acoes[$acao->getNome()] = $acao;
-        return $acao;
+        $this->mbActions[$mbAction->getName()] = $mbAction;
+        return $mbAction;
     }
 
     /**
-     * @param string $nome
+     * add new MbAction
+     *
+     * @param string $actionName
+     *
      * @return MbAction
      */
-    public function adicionarAcao($nome)
+    public function addMbAction($actionName)
     {
-        $this->acoes[$nome] = new MbAction($this, $nome);
-        return $this->acoes[$nome];
+        $this->mbActions[$actionName] = new MbAction($this, $actionName);
+        return $this->mbActions[$actionName];
     }
 
     /**
+     * Get MbAsset
+     *
      * @return MbAsset
      */
-    public function getAssets()
+    public function getMbAsset()
     {
-        return $this->assets;
+        return $this->mbAsset;
     }
 
     /**
-     * @param MbAsset $assets
+     * Set MbAsset
+     *
+     * @param MbAsset $mbAsset
+     *
      * @return MbPage
      */
-    public function setAssets(MbAsset $assets)
+    public function setMbAsset(MbAsset $mbAsset)
     {
-        $this->assets = $assets;
+        $this->mbAsset = $mbAsset;
         return $this;
     }
 
     /**
-     * Adicionar as páginas ao menu do wordpress
+     * Add Menu in Wordpress
      *
+     * @return void
      */
-    public function adicionarMenuWordpress()
+    public function addMenuWordpress()
     {
-        //Adicionar menu principal
-        if ($this->isEsconderMenu()) {
+        if ($this->isHideMenu()) {
 
             add_submenu_page(
                 null,
-                $this->getNome(),
-                $this->getNome(),
+                $this->getName(),
+                $this->getName(),
                 $this->getCapability(),
                 $this->getSlug(),
                 [MocaBonita::getInstance(), 'sendContent']
             );
 
-            //Adicionar menu principal
-        } elseif ($this->isMenuPrincipal()) {
+        } elseif ($this->isMainMenu()) {
 
             add_menu_page(
-                $this->getNome(),
-                $this->getNome(),
+                $this->getName(),
+                $this->getName(),
                 $this->getCapability(),
                 $this->getSlug(),
                 [MocaBonita::getInstance(), 'sendContent'],
-                $this->getIcone(),
-                $this->getPosicao()
+                $this->getDashicon(),
+                $this->getMenuPosition()
             );
 
-            //Adicionar submenu
-        } elseif ($this->isSubmenu()) {
+        } elseif ($this->isSubMenu()) {
 
             add_submenu_page(
-                $this->getPaginaParente()->getSlug(),
-                $this->getNome(),
-                $this->getNome(),
+                $this->getParentPage()->getSlug(),
+                $this->getName(),
+                $this->getName(),
                 $this->getCapability(),
                 $this->getSlug(),
                 [MocaBonita::getInstance(), 'sendContent']
             );
 
-            //Remover submenu semelhante ao menu principal
-            if ($this->getPaginaParente()->isRemoverSubMenuPagina()) {
-                remove_submenu_page($this->getPaginaParente()->getSlug(), $this->getPaginaParente()->getSlug());
-                $this->getPaginaParente()->setRemoverSubMenuPagina(false);
+            if ($this->getParentPage()->isRemovePageSubmenu()) {
+                remove_submenu_page($this->getParentPage()->getSlug(), $this->getParentPage()->getSlug());
+                $this->getParentPage()->setRemovePageSubmenu(false);
             }
         }
 

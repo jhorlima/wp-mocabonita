@@ -8,21 +8,28 @@ use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 
 /**
- * Class Session
- * @package MocaBonita\tools
+ * Main class of the MocaBonita Session
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbSession extends Base
 {
-
     /**
-     * Instancia da classe.
+     * Class Instance
      *
      * @var MbSession
      */
     protected static $instance;
 
     /**
-     * Obter instancia da aplicação.
+     * Get instance.
      *
      * @return MbSession
      */
@@ -32,15 +39,17 @@ class MbSession extends Base
             $model   = new MbSessionModel();
             $storage = new NativeSessionStorage();
 
+            MbMigration::enablePdoConnection();
+
             $pdoHandle = new PdoSessionHandler(
-                MbCapsule::connection()->getPdo(),
+                MbMigration::connection()->getPdo(),
                 [
                     'db_table'  => $model->getTable(),
                     'db_id_col' => $model->getPrimaryKey(),
                 ]
             );
 
-            if(!MbCapsule::schema()->hasTable($model->getTable())){
+            if(!MbMigration::schema()->hasTable($model->getTable())){
                 $pdoHandle->createTable();
             }
 

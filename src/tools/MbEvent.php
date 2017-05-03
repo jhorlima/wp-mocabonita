@@ -5,322 +5,236 @@ namespace MocaBonita\tools;
 use MocaBonita\MocaBonita;
 
 /**
- * Classe de gerenciamento de eventos do moçabonita.
+ * Main class of the MocaBonita Event
  *
- *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\service
- * @copyright Copyright (c) 2017
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 abstract class MbEvent extends MbSingleton
 {
-
     /**
-     *Nome evento ao iniciar o wordpress
+     * Event name that will start after wordpress initialize
      */
     const START_WORDPRESS = "startWpDispatcher";
 
     /**
-     * Nome do evento ao finalizar o wordpress
-     *
+     * Event name that will start before WordPress finishes
      */
     const FINISH_WORDPRESS = "finishWpDispatcher";
 
     /**
-     * Nome evento ao iniciar a página
-     *
+     * Event name that will start before running the page
      */
     const BEFORE_PAGE = "beforePageDispatcher";
 
     /**
-     * Nome do evento depois de executar a página
-     *
+     * Event name that will start after running the page
      */
     const AFTER_PAGE = "afterPageDispatcher";
 
     /**
-     * Nome do evento ao finalizar a página
-     *
+     * Event name that will start before finishes the page, even with the exception
      */
     const FINISH_PAGE = "finishPageDispatcher";
 
     /**
-     * Nome do evento ao receber uma exception do página
-     *
+     * Event name that will start after the page launches an exception
      */
     const EXCEPTION_PAGE = "exceptionPageDispatcher";
 
     /**
-     * Nome evento ao iniciar o shortcode
-     *
+     * Event name that will start before running the shortcode
      */
     const BEFORE_SHORTCODE = "beforeShortcodeDispatcher";
 
     /**
-     * Nome do evento depois de executar o shortcode
-     *
+     * Event name that will start after running the shortcode
      */
     const AFTER_SHORTCODE = "afterShortcodeDispatcher";
 
     /**
-     * Nome do evento para ser executado antes da action
-     *
+     * Event name that will start before running the action
      */
     const BEFORE_ACTION = "beforeActionDispatcher";
 
     /**
-     * Nome do evento para ser executado depois da action
-     *
+     * Event name that will start after running the action
      */
     const AFTER_ACTION = "afterActionDispatcher";
 
     /**
-     * Nome do evento ao finalizar a action, mesmo com excpetion
-     *
+     * Event name that will start before finishes the action, even with the exception
      */
     const FINISH_ACTION = "finishActionDispatcher";
 
     /**
-     * Nome do evento para ser executado ao lançar uma exception da action
-     *
+     * Event name that will start after the action launches an exception
      */
     const EXCEPTION_ACTION = "exceptionActionDispatcher";
 
     /**
-     * Váriavel que armazenda o request
-     *
-     * @var MbRequest
-     */
-    protected $request;
-
-    /**
-     * Váriavel que armazenda a resposta
-     *
-     * @var MbResponse
-     */
-    protected $response;
-
-    /**
-     * @return MbRequest
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
-     * @param MbRequest $request
-     *
-     * @return MbEvent
-     */
-    public function setRequest(MbRequest $request)
-    {
-        $this->request = $request;
-        return $this;
-    }
-
-    /**
-     * @return MbResponse
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * @param MbResponse $response
-     *
-     * @return MbEvent
-     */
-    public function setResponse(MbResponse $response)
-    {
-        $this->response = $response;
-        return $this;
-    }
-
-    /**
-     * Redirecionar uma página
-     *
-     * @param string $url
-     * @param array $params
-     */
-    protected final function redirect($url, array $params = [])
-    {
-        if (is_string($url)) {
-            $url .= !empty($params) ? "?" . http_build_query($params) : "";
-            $this->response->redirect($url);
-        }
-    }
-
-    /**
-     * Processar eventos da página
+     * Call page events
      *
      * @param MocaBonita $mocaBonita
      * @param string $dispatch
-     * @param object $exceptionOrPage
+     * @param object $complement
      *
      * @throws MbException
      *
      * @return void
      */
-    public static function processarEventos(MocaBonita $mocaBonita, $dispatch, $exceptionOrPage = null)
+    public static function callEvents(MocaBonita $mocaBonita, $dispatch, $complement = null)
     {
         foreach ($mocaBonita->getMbEvents($dispatch) as &$evento) {
-            $evento->{$dispatch}($mocaBonita->getMbRequest(), $mocaBonita->getMbResponse(), $exceptionOrPage);
+            $evento->{$dispatch}($mocaBonita->getMbRequest(), $mocaBonita->getMbResponse(), $complement);
         }
     }
 
     /**
-     * Evento para ser executado antes do wordpress processar o plugin (Executado sempre quando o plugin for ativado)
+     * Event that will start after wordpress initialize
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
      */
-    public function startWpDispatcher(MbRequest $request, MbResponse $response)
+    public function startWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar o plugin (Executado sempre quando o plugin for ativado)
+     * Event that will start before WordPress finishes
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
      */
-    public function finishWpDispatcher(MbRequest $request, MbResponse $response)
+    public function finishWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse)
     {
         //
     }
 
     /**
-     * Evento para ser executado antes do wordpress processar a página (Somente em páginas da página)
+     * Event that will start before running the page
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbPage $paginas
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbPage $mbPage
      */
-    public function beforePageDispatcher(MbRequest $request, MbResponse $response, MbPage $paginas)
+    public function beforePageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbPage $mbPage)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar a página, caso não tenha exceptions na página
-     * Somente em páginas do plugin
+     * Event that will start after running the page
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbPage $paginas
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbPage $mbPage
      */
-    public function afterPageDispatcher(MbRequest $request, MbResponse $response, MbPage $paginas)
+    public function afterPageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbPage $mbPage)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar a página
-     * Somente em páginas do plugin
+     * Event that will start before finishes the page, even with the exception
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbPage $paginas
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbPage $mbPage
      */
-    public function finishPageDispatcher(MbRequest $request, MbResponse $response, MbPage $paginas)
+    public function finishPageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbPage $mbPage)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar a página e seja lançada uma exception
-     * Somente em páginas do plugin
+     * Event that will start after the page launches an exception
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
      * @param \Exception $exception
      */
-    public function exceptionPageDispatcher(MbRequest $request, MbResponse $response, \Exception $exception)
+    public function exceptionPageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, \Exception $exception)
     {
         //
     }
 
     /**
-     * Evento para ser executado antes do wordpress processar o shortcode
-     * Somente em shortcodes
+     * Event that will start before running the shortcode
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbShortCode $shortCode
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbShortCode $mbShortCode
      */
-    public function beforeShortcodeDispatcher(MbRequest $request, MbResponse $response, MbShortCode $shortCode)
+    public function beforeShortcodeDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbShortCode $mbShortCode)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar o shortcode
-     * Somente em shortcodes
+     * Event that will start after running the shortcode
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbShortCode $shortCode
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbShortCode $mbShortCode
      */
-    public function afterShortcodeDispatcher(MbRequest $request, MbResponse $response, MbShortCode $shortCode)
+    public function afterShortcodeDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbShortCode $mbShortCode)
     {
         //
     }
 
     /**
-     * Evento para ser executado antes do wordpress processar a action da página
-     * Somente em páginas do plugin
+     * Event that will start before running the action
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbAction $acao
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbAction $mbAction
      */
-    public function beforeActionDispatcher(MbRequest $request, MbResponse $response, MbAction $acao)
+    public function beforeActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbAction $mbAction)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar a action da página, caso não tenha exceptions na action
-     * Somente em páginas do plugin
+     * Event that will start after running the action
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbAction $acao
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbAction $acaombAction
      */
-    public function afterActionDispatcher(MbRequest $request, MbResponse $response, MbAction $acao)
+    public function afterActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbAction $acaombAction)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar a action
-     * Somente em páginas do plugin
+     * Event that will start before finishes the action, even with the exception
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
-     * @param MbAction $acao
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     * @param MbAction $mbAction
      */
-    public function finishActionDispatcher(MbRequest $request, MbResponse $response, MbAction $acao)
+    public function finishActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbAction $mbAction)
     {
         //
     }
 
     /**
-     * Evento para ser executado depois do wordpress processar a action e seja lançada uma exception
-     * Somente em páginas do plugin
+     * Event that will start after the action launches an exception
      *
-     * @param MbRequest $request
-     * @param MbResponse $response
+     *
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
      * @param \Exception $exception
      */
-    public function exceptionActionDispatcher(MbRequest $request, MbResponse $response, \Exception $exception)
+    public function exceptionActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, \Exception $exception)
     {
         //
     }

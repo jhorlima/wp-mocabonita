@@ -1,44 +1,49 @@
 <?php
 
 namespace MocaBonita\tools;
+
 use MocaBonita\MocaBonita;
 
 /**
- * Classe de Componentes do Wordpress
  *
- * @author Jhordan Lima
+ * Main class of the MocaBonita Asset
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
- * @package \MocaBonita\Tools
- * @copyright Copyright (c) 2016
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbAsset
 {
     /**
-     * Array de CSS
+     * CSS array
      *
-     * @var array
+     * @var string[]
      */
-    private $css = [];
+    protected $css = [];
 
     /**
-     * Array de Javascript
+     * Javascript array
      *
-     * @var array
+     * @var array[]
      */
-    private $javascript = [];
+    protected $js = [];
 
     /**
-     * Enqueue de Javascript
+     * Stored hook enqueue
      *
      * @var string
      */
-    private $actionEnqueue;
+    protected $actionEnqueue;
 
     /**
-     * @return array
+     * Get css
+     *
+     * @return string[]
      */
     public function getCss()
     {
@@ -46,68 +51,73 @@ class MbAsset
     }
 
     /**
-     * Adicionar CSS
+     * Set css
      *
-     * @param string $caminho
+     * @param string $cssPath
+     *
      * @return MbAsset
      */
-    public function setCss($caminho)
+    public function setCss($cssPath)
     {
-        $this->css[] = $caminho;
+        $this->css[] = $cssPath;
         return $this;
     }
 
     /**
-     * @return array
+     * Get Js
+     *
+     * @return array[]
      */
-    public function getJavascript()
+    public function getJs()
     {
-        return $this->javascript;
+        return $this->js;
     }
 
     /**
-     * Adicionar Javascript
+     * Set Javascript
      *
-     * @param string $caminho
-     * @param bool $noFooter
-     * @param bool $versao
+     * @param string $jsPath
+     * @param bool $inTheFooter
+     * @param double|bool $version
+     *
      * @return MbAsset
      */
-    public function setJavascript($caminho, $noFooter = true, $versao = false)
+    public function setJs($jsPath, $inTheFooter = true, $version = false)
     {
-        $this->javascript[] = [
-            'caminho' => $caminho,
-            'footer'  => (bool) $noFooter,
-            'versao'  => $versao,
+        $this->js[] = [
+            'path'    => $jsPath,
+            'footer'  => (bool) $inTheFooter,
+            'version' => $version,
         ];
 
         return $this;
     }
 
     /**
-     * Adicionar o CSS no Wordpress
+     * Send assets to wordpress
      *
-     * @param string $slug Slug da página
+     * @param string $pageSlug
      *
+     * @return void
      */
-    public function processarAssets($slug)
+    public function runAssets($pageSlug)
     {
-        $style = $this->css;
-        $javascript = $this->javascript;
+        $cssList = $this->css;
+        $jsList  = $this->js;
 
-        MbWPActionHook::adicionarCallbackAction($this->getActionEnqueue(), function () use ($slug, $style, $javascript){
-            foreach ($style as $i => $css) {
-                wp_enqueue_style("style_mb_{$slug}_{$i}", $css);
+        MbWPActionHook::addActionCallback($this->getActionEnqueue(), function () use ($pageSlug, $cssList, $jsList){
+            foreach ($cssList as $i => $css) {
+                wp_enqueue_style("style_mb_{$pageSlug}_{$i}", $css);
             }
 
-            foreach ($javascript as $i => $js) {
-                wp_enqueue_script("script_mb_{$slug}_{$i}", $js['caminho'], [], $js['versao'], $js['footer']);
-            }
+            foreach ($jsList as $i => $js) {
+                wp_enqueue_script("script_mb_{$pageSlug}_{$i}", $js['path'], [], $js['version'], $js['footer']);
+           }
         });
     }
 
     /**
-     * Obter a action do enqueue
+     * Get action enqueue
      *
      * @return string
      */
@@ -120,13 +130,14 @@ class MbAsset
     }
 
     /**
-     * Gerar action de acordo com a requisição atual
+     * Auto Enqueue to wordpress
      *
+     * @return void
      */
-    private function autoEnqueue(){
+    protected function autoEnqueue(){
         $request = MocaBonita::getInstance()->getMbRequest();
 
-        if($request->isPageLogin()){
+        if($request->isLoginPage()){
             $this->actionEnqueue = "login_enqueue_scripts";
         } elseif ($request->isAdmin()){
             $this->actionEnqueue = "admin_enqueue_scripts";
@@ -136,13 +147,14 @@ class MbAsset
     }
 
     /**
-     * Definir em qual action o assets será executado
+     * Set a type of enqueue
      *
-     * @param $actionEnqueue
+     * @param $typePage
+     *
      * @return $this
      */
-    public function setActionEnqueue($actionEnqueue){
-        switch ($actionEnqueue) {
+    public function setActionEnqueue($typePage){
+        switch ($typePage) {
             case 'admin' :
                 $this->actionEnqueue = "admin_enqueue_scripts";
                 break;
