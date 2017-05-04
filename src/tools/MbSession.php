@@ -45,7 +45,7 @@ class MbSession extends Base
                 MbMigration::connection()->getPdo(),
                 [
                     'db_table'  => $model->getTable(),
-                    'db_id_col' => $model->getPrimaryKey(),
+                    'db_id_col' => $model->getKeyName(),
                 ]
             );
 
