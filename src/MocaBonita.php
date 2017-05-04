@@ -407,7 +407,7 @@ final class MocaBonita extends MbSingleton
                 $deactive($mocaBonita);
             } catch (\Exception $e) {
                 MbException::setRegisterExceptionLog(true);
-                MbException::adminNoticeError($e);
+                MbException::registerError($e);
                 wp_die($e->getMessage());
             }
         });
@@ -451,7 +451,7 @@ final class MocaBonita extends MbSingleton
         }
 
         if($exception instanceof \Exception){
-            MbException::adminNoticeError($exception);
+            MbException::registerError($exception);
 
             MbWPActionHook::addActionCallback('init', function () {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');

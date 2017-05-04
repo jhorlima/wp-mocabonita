@@ -163,8 +163,8 @@ class MbResponse extends Response
     protected function htmlContent($content)
     {
         if ($content instanceof \Exception) {
-            MbException::adminNoticeError($content);
-            $this->original = MbException::adminNoticeTemplate(
+            $this->adminNotice($content, 'error');
+            $this->original = $this->adminNoticeTemplate(
                 "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}",
                 "warning"
             );
@@ -195,5 +195,30 @@ class MbResponse extends Response
     public static function create($content = '', $status = 200, $headers = array())
     {
         return new static($content, $status, $headers);
+    }
+
+    /**
+     * Post an admin notice on the dashboard
+     *
+     * @param string $message
+     * @param string $type
+     *
+     */
+    public function adminNotice($message, $type = 'success'){
+        MbWPActionHook::addActionCallback('admin_notices', function () use ($message, $type){
+            echo self::adminNoticeTemplate($message, $type);
+        });
+    }
+
+    /**
+     * Get admin notice structure template
+     *
+     * @param string $message
+     * @param string $type
+     *
+     * @return string
+     */
+    public function adminNoticeTemplate($message, $type = 'error'){
+        return "<div class='notice notice-{$type}'><p>{$message}</p></div>";
     }
 }

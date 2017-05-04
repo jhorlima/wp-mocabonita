@@ -369,7 +369,7 @@ class MbView implements View
         if (file_exists($filePiece)) {
             include $filePiece;
         } else {
-            MbException::adminNoticeError(new \Exception("The file {$filePiece} not found!"));
+            MbException::registerError(new \Exception("The file {$filePiece} not found!"));
         }
     }
 
@@ -394,7 +394,7 @@ class MbView implements View
             $this->setContent(ob_get_contents());
             ob_end_clean();
         } else {
-            MbException::adminNoticeError(new \Exception("The file {$viewPath} not found!"));
+            MbException::registerError(new \Exception("The file {$viewPath} not found!"));
         }
 
         if (file_exists($templatePath)) {
@@ -403,7 +403,7 @@ class MbView implements View
             $this->setContent(ob_get_contents());
             ob_end_clean();
         } else {
-            MbException::adminNoticeError(new \Exception("The file {$templatePath} not found!"));
+            MbException::registerError(new \Exception("The file {$templatePath} not found!"));
         }
 
         return $this->getContent();
