@@ -1,0 +1,170 @@
+<?php
+
+namespace MocaBonita\tools;
+
+use MocaBonita\MocaBonita;
+
+/**
+ *
+ * Main class of the MocaBonita Asset
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\tools
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
+ */
+class MbAsset
+{
+    /**
+     * CSS array
+     *
+     * @var string[]
+     */
+    protected $css = [];
+
+    /**
+     * Javascript array
+     *
+     * @var array[]
+     */
+    protected $js = [];
+
+    /**
+     * Stored hook enqueue
+     *
+     * @var string
+     */
+    protected $actionEnqueue;
+
+    /**
+     * Get css
+     *
+     * @return string[]
+     */
+    public function getCss()
+    {
+        return $this->css;
+    }
+
+    /**
+     * Set css
+     *
+     * @param string $cssPath
+     *
+     * @return MbAsset
+     */
+    public function setCss($cssPath)
+    {
+        $this->css[] = $cssPath;
+        return $this;
+    }
+
+    /**
+     * Get Js
+     *
+     * @return array[]
+     */
+    public function getJs()
+    {
+        return $this->js;
+    }
+
+    /**
+     * Set Javascript
+     *
+     * @param string $jsPath
+     * @param bool $inTheFooter
+     * @param double|bool $version
+     *
+     * @return MbAsset
+     */
+    public function setJs($jsPath, $inTheFooter = true, $version = false)
+    {
+        $this->js[] = [
+            'path'    => $jsPath,
+            'footer'  => (bool) $inTheFooter,
+            'version' => $version,
+        ];
+
+        return $this;
+    }
+
+    /**
+     * Send assets to wordpress
+     *
+     * @param string $pageSlug
+     *
+     * @return void
+     */
+    public function runAssets($pageSlug)
+    {
+        $cssList = $this->css;
+        $jsList  = $this->js;
+
+        MbWPActionHook::addActionCallback($this->getActionEnqueue(), function () use ($pageSlug, $cssList, $jsList){
+            foreach ($cssList as $i => $css) {
+                wp_enqueue_style("style_mb_{$pageSlug}_{$i}", $css);
+            }
+
+            foreach ($jsList as $i => $js) {
+                wp_enqueue_script("script_mb_{$pageSlug}_{$i}", $js['path'], [], $js['version'], $js['footer']);
+           }
+        });
+    }
+
+    /**
+     * Get action enqueue
+     *
+     * @return string
+     */
+    public function getActionEnqueue(){
+        if(is_null($this->actionEnqueue)){
+            $this->autoEnqueue();
+        }
+
+        return $this->actionEnqueue;
+    }
+
+    /**
+     * Auto Enqueue to wordpress
+     *
+     * @return void
+     */
+    protected function autoEnqueue(){
+        $request = MocaBonita::getInstance()->getMbRequest();
+
+        if($request->isLoginPage()){
+            $this->actionEnqueue = "login_enqueue_scripts";
+        } elseif ($request->isAdmin()){
+            $this->actionEnqueue = "admin_enqueue_scripts";
+        } else {
+            $this->actionEnqueue = "wp_enqueue_scripts";
+        }
+    }
+
+    /**
+     * Set a type of enqueue
+     *
+     * @param $typePage
+     *
+     * @return $this
+     */
+    public function setActionEnqueue($typePage){
+        switch ($typePage) {
+            case 'admin' :
+                $this->actionEnqueue = "admin_enqueue_scripts";
+                break;
+            case 'login' :
+                $this->actionEnqueue = "login_enqueue_scripts";
+                break;
+            default :
+                $this->actionEnqueue = "wp_enqueue_scripts";
+                break;
+        }
+        return $this;
+    }
+}

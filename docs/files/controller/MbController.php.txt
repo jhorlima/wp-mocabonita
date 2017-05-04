@@ -2,252 +2,179 @@
 
 namespace MocaBonita\controller;
 
-use MocaBonita\tools\MbRespostas;
-use MocaBonita\tools\MbRequisicoes;
+use MocaBonita\tools\MbResponse;
+use MocaBonita\tools\MbRequest;
 use MocaBonita\tools\MbException;
-use MocaBonita\view\View;
+use MocaBonita\view\MbView;
 
 /**
- * Classe de gerenciamento de controller do moçabonita.
+ * Main class of the MocaBonita Controller
  *
- *
- * @author Jhordan Lima
+ * @author Jhordan Lima <jhorlima@icloud.com>
  * @category WordPress
  * @package \MocaBonita\controller
- * @copyright Copyright (c) 2016
+ * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- */
+ * @version 3.1.0
+ **/
 abstract class MbController
 {
 
     /**
-     * Contém a view atual da ação da controller.
+     * Stores the current MbView of the action
      *
-     * @var View
+     * @var MbView
      */
-    protected $view;
+    protected $mbView;
 
     /**
-     * Váriavel que armazenda o request
+     * Stores the current MbRequest of the request
      *
-     * @var MbRequisicoes
+     * @var MbRequest
      */
-    protected $request;
+    protected $mbRequest;
 
     /**
-     * Váriavel que armazenda a resposta
+     * Stores the current MbResponse of the response
      *
-     * @var MbRespostas
+     * @var MbResponse
      */
-    protected $response;
+    protected $mbResponse;
 
     /**
-     * Ação principal da controller
+     * Example of index action
      *
-     * Se o retorno for null, ele irá chamar a view desta controller e redenrizar
-     * Se o retorno for string, ele irá imprimir a string na tela
-     * Se o retorno for View, ele irá redenrizar a view desta controller
-     * Se o retorno for qualquer outro tipo, ele irá fazer um var_dump do retorno
+     * If the return is null, then it will call MbView from this controller and then render it (Common request)
+     * If the return is null, then it will print a message saying "No valid content has been submitted!" (Ajax Request)
      *
-     * @param MbRequisicoes $request
-     * @param MbRespostas $response
+     * If the return is string, then it will print the string (Common request)
+     * If the return is string, then it will add the string in the key "content" on the data (Ajax Request)
      *
-     * @return null|string|View|void
+     * If the return is MbView, then it will render it (Common request)
+     * If the return is MbView, then it will print a message saying "No valid content has been submitted!" (Ajax Request)
+     *
+     * If the return is mixed, then it will call a var_dump of the returned value (Common request)
+     * If the return is mixed, then it will print a message saying "No valid content has been submitted!" (Ajax Request)
+     *
+     * @param MbRequest $mbRequest
+     * @param MbResponse $mbResponse
+     *
+     * @return null|string|MbView|mixed
      */
-    public function indexAction(MbRequisicoes $request, MbRespostas $response)
+    public function indexAction(MbRequest $mbRequest, MbResponse $mbResponse)
     {
-        return $this->view;
+        return $this->mbView;
     }
 
     /**
-     * @return MbRequisicoes
+     * Get MbRequest
+     *
+     * @return MbRequest
      */
-    public function getRequest()
+    public function getMbRequest()
     {
-        return $this->request;
+        return $this->mbRequest;
     }
 
     /**
-     * @param MbRequisicoes $request
+     * Set MbRequest to Controller
+     *
+     * @param MbRequest $mbRequest
      *
      * @return MbController
      */
-    public function setRequest(MbRequisicoes $request)
+    public function setMbRequest(MbRequest $mbRequest)
     {
-        $this->request = $request;
+        $this->mbRequest = $mbRequest;
         return $this;
     }
 
     /**
-     * @return MbRespostas
+     * Get MbResponse
+     *
+     * @return MbResponse
      */
-    public function getResponse()
+    public function getMbResponse()
     {
-        return $this->response;
+        return $this->mbResponse;
     }
 
     /**
-     * @param MbRespostas $response
+     * Set MbResponse to Controller
+     *
+     * @param MbResponse $mbResponse
      *
      * @return MbController
      */
-    public function setResponse(MbRespostas $response)
+    public function setMbResponse(MbResponse $mbResponse)
     {
-        $this->response = $response;
+        $this->mbResponse = $mbResponse;
         return $this;
     }
 
     /**
-     * @return View
+     * Get MbView
+     *
+     * @return MbView
      */
-    public final function getView()
+    public final function getMbView()
     {
-        return $this->view;
+        return $this->mbView;
     }
 
     /**
-     * @param View $view
+     * Set MbView to Controller
+     *
+     * @param MbView $mbView
      *
      * @return MbController
      */
-    public final function setView(View $view)
+    public final function setMbView(MbView $mbView)
     {
-        $this->view = $view;
+        $this->mbView = $mbView;
         return $this;
     }
 
     /**
-     * @return string
-     */
-    public final function getMetodoRequisicao()
-    {
-        return $this->request->method();
-    }
-
-    /**
-     * Receber conteudo enviado no corpo da requisição
+     * Controller Factory
      *
-     * @param string|null $key
-     * @return array|string|null
-     */
-    public final function getConteudo($key = null)
-    {
-        if (is_null($key)) {
-            return $this->request->input();
-        } elseif ($this->request->has($key)) {
-            return $this->request->input($key);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * @param string|null $key
-     * @return array|string|null
-     */
-    public final function getHttpGet($key = null)
-    {
-        if (is_null($key)) {
-            return $this->request->query();
-        } elseif (!is_null($this->request->query($key))) {
-            return $this->request->query($key);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * @return string
-     */
-    public final function getPage()
-    {
-        return $this->request->query('page');
-    }
-
-    /**
-     * @return string
-     */
-    public final function getAction()
-    {
-        return $this->request->query('action');
-    }
-
-    /**
-     * @return bool
-     */
-    public final function isAdmin()
-    {
-        return $this->request->isAdmin();
-    }
-
-    /**
-     * @return bool
-     */
-    public final function isAjax()
-    {
-        return $this->request->isAjax();
-    }
-
-    /**
-     * @return bool
-     */
-    public final function isShortcode()
-    {
-        return $this->request->isShortcode();
-    }
-
-    /**
-     * Redirecionar uma página
+     * @param string $className
      *
-     * @param string $url
-     * @param array $params
-     */
-    protected final function redirect($url, array $params = [])
-    {
-        if (is_string($url)) {
-            $url .= !empty($params) ? "?" . http_build_query($params) : "";
-            $this->response->redirect($url);
-        }
-    }
-
-    /**
-     * Construtor de Controller
+     * @throws MbException When the controller is not an instance of MbController
      *
-     * @param $class
      * @return MbController
-     * @throws MbException
      */
-    public static function create($class)
+    public static function create($className)
     {
-        $controller = new $class();
+        $controller = new $className();
 
         if (!$controller instanceof MbController) {
-            throw new MbException("O Controller {$class} não extendeu o Controller do MocaBonita!");
+            throw new MbException("The Controller {$className} is not an instance of MbController!");
         }
 
         return $controller;
     }
 
     /**
-     * Método clone do tipo privado previne a clonagem dessa instância
-     * da classe
+     * Private type __clone method prevents cloning of this class instance
      *
      * @return void
      */
     private function __clone()
     {
+        //
     }
 
     /**
-     * Método unserialize do tipo privado para prevenir a desserialização
-     * da instância dessa classe.
+     * Unserialize method of the private type to prevent the deserialization of the instance of this class.
      *
      * @return void
      */
     private function __wakeup()
     {
+        //
     }
 }
 
