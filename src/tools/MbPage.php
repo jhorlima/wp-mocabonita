@@ -288,10 +288,6 @@ class MbPage
      */
     public function setParentPage(MbPage $parentPage = null)
     {
-        if (!$this->subMenu){
-            throw new MbException("Only subpage can have parent pages: {$this->getName()}");
-        }
-
         $this->parentPage = $parentPage;
         return $this;
     }
