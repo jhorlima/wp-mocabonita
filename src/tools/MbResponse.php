@@ -59,9 +59,9 @@ class MbResponse extends Response
      */
     public function setContent($content)
     {
-        if(is_null($this->mbRequest)){
+        if (is_null($this->mbRequest)) {
             return $this;
-        } elseif ($this->mbRequest->isMethod("GET") || $this->mbRequest->isMethod("DELETE") ) {
+        } elseif ($this->mbRequest->isMethod("GET") || $this->mbRequest->isMethod("DELETE")) {
             $this->statusCode = 200;
         } elseif ($this->mbRequest->isMethod("POST") || $this->mbRequest->isMethod("PUT")) {
             $this->statusCode = 201;
@@ -129,11 +129,9 @@ class MbResponse extends Response
 
         if ($content instanceof Arrayable) {
             $content = $content->toArray();
-        }
-        elseif (is_string($content)) {
+        } elseif (is_string($content)) {
             $content = ['content' => $content];
-        }
-        elseif (!is_array($content) && !$content instanceof \Exception) {
+        } elseif (!is_array($content) && !$content instanceof \Exception) {
             return $this->ajaxContent(new \Exception("No valid content has been submitted!", 204));
         } elseif ($content instanceof \Exception) {
             $this->setStatusCode($content->getCode() < 300 && $content->getCode() != 204 ? 400 : $content->getCode());
@@ -163,7 +161,7 @@ class MbResponse extends Response
     protected function htmlContent($content)
     {
         if ($content instanceof \Exception) {
-            $this->adminNotice($content, 'error');
+            $this->adminNotice($content->getMessage(), 'error');
             $this->original = $this->adminNoticeTemplate(
                 "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}",
                 "warning"
@@ -173,6 +171,8 @@ class MbResponse extends Response
             var_dump($content);
             $this->original = ob_get_contents();
             ob_end_clean();
+        } else {
+            $this->original = $content;
         }
 
         parent::setContent($this->original);
@@ -204,8 +204,9 @@ class MbResponse extends Response
      * @param string $type
      *
      */
-    public function adminNotice($message, $type = 'success'){
-        MbWPActionHook::addActionCallback('admin_notices', function () use ($message, $type){
+    public function adminNotice($message, $type = 'success')
+    {
+        MbWPActionHook::addActionCallback('admin_notices', function () use ($message, $type) {
             echo self::adminNoticeTemplate($message, $type);
         });
     }
@@ -218,7 +219,8 @@ class MbResponse extends Response
      *
      * @return string
      */
-    public function adminNoticeTemplate($message, $type = 'error'){
+    public function adminNoticeTemplate($message, $type = 'error')
+    {
         return "<div class='notice notice-{$type}'><p>{$message}</p></div>";
     }
 }
