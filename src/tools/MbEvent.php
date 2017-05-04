@@ -101,8 +101,9 @@ abstract class MbEvent extends MbSingleton
      *
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
+     * @param MocaBonita $mocaBonita
      */
-    public function startWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse)
+    public function startWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MocaBonita $mocaBonita)
     {
         //
     }
@@ -112,8 +113,9 @@ abstract class MbEvent extends MbSingleton
      *
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
+     * @param MocaBonita $mocaBonita
      */
-    public function finishWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse)
+    public function finishWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MocaBonita $mocaBonita)
     {
         //
     }

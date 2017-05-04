@@ -351,7 +351,7 @@ final class MocaBonita extends MbSingleton
         $mocaBonita->development = (bool) $development;
 
         if ($development) {
-            $mocaBonita->desableCaches();
+            $mocaBonita->disableCache();
         }
 
         MbWPActionHook::addActionCallback('plugins_loaded', function () use ($pluginStructure, $mocaBonita) {
@@ -469,21 +469,21 @@ final class MocaBonita extends MbSingleton
      */
     private function runPlugin()
     {
+        //Call MbEvent from wordpress (START_WORDPRESS)
+        MbEvent::callEvents($this, MbEvent::START_WORDPRESS, $this);
+
         //Call the MbAsset from WordPress
         $this->getMbAssets(true)->runAssets('*');
 
         //Call the Shortcode from plugin
         foreach ($this->mbShortCodes as $shortcode) {
-            $shortcode->processarShorcode($this->getMbAssets(), $this->mbRequest, $this->mbResponse);
+            $shortcode->runShortcode($this->getMbAssets(), $this->mbRequest, $this->mbResponse);
         }
 
         //Add wordpress administrative menu if needed
         if ($this->isBlogAdmin()) {
             MbWPActionHook::addAction('admin_menu', $this, 'processarMenu');
         }
-
-        //Call MbEvent from wordpress (START_WORDPRESS)
-        MbEvent::callEvents($this, MbEvent::START_WORDPRESS);
 
         if ($this->isMocabonitaPage()) {
 
@@ -543,7 +543,7 @@ final class MocaBonita extends MbSingleton
             }
         }
         //Call MbEvent from wordpress (FINISH_WORDPRESS)
-        MbEvent::callEvents($this, MbEvent::FINISH_WORDPRESS);
+        MbEvent::callEvents($this, MbEvent::FINISH_WORDPRESS, $this);
     }
 
     /**
@@ -712,7 +712,7 @@ final class MocaBonita extends MbSingleton
      *
      * @return void
      */
-    private function desableCaches()
+    private function disableCache()
     {
         $this->mbResponse
             ->header("Cache-Control", "no-cache, no-store, must-revalidate")

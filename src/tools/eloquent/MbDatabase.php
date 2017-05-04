@@ -3,7 +3,19 @@
 namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Support\Facades\Facade;
+
 /**
+ * Main class of the MocaBonita DatabaseFacade
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\tools\eloquent
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
+ *
  * @see \Illuminate\Database\DatabaseManager
  * @see \Illuminate\Database\Connection
  */
@@ -16,6 +28,6 @@ class MbDatabase extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return MbDatabaseManager::instance();
+        return MbDatabaseManager::getInstance();
     }
 }

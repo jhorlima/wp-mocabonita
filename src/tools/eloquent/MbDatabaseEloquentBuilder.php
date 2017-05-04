@@ -8,14 +8,22 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 
 /**
- * Class MbDatabaseEloquentBuilder
+ * Main class of the MocaBonita DatabaseEloquentBuilder
  *
- *
- * @package MocaBonita\tools\eloquent
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\tools\eloquent
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
 class MbDatabaseEloquentBuilder extends Builder
 {
     /**
+     * Paginate the given query.
+     *
      * @param null $perPage
      * @param array $columns
      * @param null $pageName
@@ -37,7 +45,7 @@ class MbDatabaseEloquentBuilder extends Builder
         $results = $total ? $this->forPage($page, $perPage)->get($columns) : new Collection();
 
         return new LengthAwarePaginator($results, $total, $perPage, $page, [
-            'path' => Paginator::resolveCurrentPath(),
+            'path'     => Paginator::resolveCurrentPath(),
             'pageName' => $pageName,
         ]);
     }

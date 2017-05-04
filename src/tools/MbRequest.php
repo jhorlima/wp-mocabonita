@@ -168,7 +168,7 @@ class MbRequest extends Request
         if (is_null($this->ajax)) {
             $this->ajax = (bool)(defined('DOING_AJAX') && DOING_AJAX);
         }
-        return (bool)($this->ajax || $this->isXmlHttpRequest());
+        return (bool)($this->ajax || parent::ajax());
     }
 
     /**

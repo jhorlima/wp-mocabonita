@@ -1,4 +1,5 @@
 <?php
+
 namespace MocaBonita\tools;
 
 use MocaBonita\MocaBonita;
@@ -123,7 +124,16 @@ class MbShortCode
             ->setMbAsset($mbAsset);
     }
 
-    public function processarShorcode(MbAsset $mbAsset, MbRequest $mbRequest, MbResponse $mbResponse)
+    /**
+     * Run shortcode
+     *
+     * @param MbAsset $mbAsset
+     *
+     * @param MbRequest $mbRequest
+     *
+     * @param MbResponse $mbResponse
+     */
+    public function runShortcode(MbAsset $mbAsset, MbRequest $mbRequest, MbResponse $mbResponse)
     {
         $shortCode = $this;
 

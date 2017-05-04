@@ -3,42 +3,30 @@
 namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\ConnectionResolverInterface;
+use MocaBonita\tools\MbSingleton;
 
 /**
- * Class Resolver
- * @package MocaBonita\tools\Eloquent
+ * Main class of the MocaBonita WpdbConnectionResolver
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\tools\eloquent
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
  */
-class MbConnectionResolver implements ConnectionResolverInterface
+class MbConnectionResolver extends MbSingleton implements ConnectionResolverInterface
 {
-
     /**
-     * Instancia da classe.
+     * Connection Name
      *
-     * @var MbConnectionResolver
-     */
-    protected static $instance;
-
-    /**
-     * Obter instancia da aplicação.
-     *
-     * @return MbConnectionResolver
-     */
-    public static function getInstance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
-    /**
      * @var string
      */
     protected $connectionName = "wpdb";
 
-    /** @noinspection PhpUnusedParameterInspection
-     *
+    /**
      * Get a database connection instance.
      *
      * @param  string $name
@@ -47,7 +35,7 @@ class MbConnectionResolver implements ConnectionResolverInterface
      */
     public function connection($name = null)
     {
-        return MbDatabaseManager::instance();
+        return MbDatabaseManager::getInstance();
     }
 
     /**
