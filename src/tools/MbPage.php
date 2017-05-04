@@ -336,7 +336,7 @@ class MbPage
      *
      * @return MbPage|null
      */
-    public function getSubMenu($pageSlug)
+    public function getSubPage($pageSlug)
     {
         if (!isset($this->subPages[$pageSlug])){
             return null;
