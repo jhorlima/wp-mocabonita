@@ -221,7 +221,7 @@ class MbRequest extends Request
      */
     public function isCurrentAction($action)
     {
-        return (bool)$this->query('action') == $action;
+        return $this->query('action') === $action;
     }
 
     /**
@@ -232,7 +232,7 @@ class MbRequest extends Request
      */
     public function isCurrentPage($page)
     {
-        return (bool)$this->query('page') == $page;
+        return $this->query('page') === $page;
     }
 
     /**
