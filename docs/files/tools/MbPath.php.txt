@@ -33,6 +33,8 @@ class MbPath {
      * Constant that stores the URL of the plugin
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_URL = mb_plg_url;
 
@@ -40,6 +42,8 @@ class MbPath {
      * Constant that stores the base name of the plugin
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_BASENAME = mb_plg_base;
 
@@ -47,6 +51,8 @@ class MbPath {
      * Constant that stores the plugin name
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_NAME = mb_plg_name;
 
@@ -54,6 +60,8 @@ class MbPath {
      * Constant that stores the plugin directory
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_DIRECTORY = mb_plg_path;
 
@@ -61,6 +69,8 @@ class MbPath {
      * Constant that stores the plugin's view directory
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_VIEW_DIR = mb_plg_view;
 
@@ -68,6 +78,8 @@ class MbPath {
      * Constant that stores the plugin's javascript directory
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_JS_DIR = mb_plg_js;
 
@@ -75,6 +87,8 @@ class MbPath {
      * Constant that stores the css directory of the plugin
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_CSS_DIR = mb_plg_css;
 
@@ -82,6 +96,8 @@ class MbPath {
      * Constant that stores directory images of the plugin
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_IMAGES_DIR = mb_plg_images;
 
@@ -89,6 +105,8 @@ class MbPath {
      * Constant storing directory bower_components of plugin
      *
      * @var string
+     *
+     * @deprecate
      */
     const PLUGIN_BOWER_DIR = mb_plg_bower;
 
@@ -99,7 +117,7 @@ class MbPath {
      *
      * @return string
      */
-    public static function pDir($directory)
+    public static function pDir($directory = "")
     {
         return self::PLUGIN_DIRECTORY . $directory;
     }
@@ -111,7 +129,7 @@ class MbPath {
      *
      * @return string
      */
-    public static function pViewDir($directory)
+    public static function pViewDir($directory = "")
     {
         return self::PLUGIN_VIEW_DIR . $directory;
     }
@@ -123,7 +141,7 @@ class MbPath {
      *
      * @return string
      */
-    public static function pJsDir($directory)
+    public static function pJsDir($directory = "")
     {
         return self::PLUGIN_JS_DIR . $directory;
     }
@@ -135,7 +153,7 @@ class MbPath {
      *
      * @return string
      */
-    public static function pCssDir($directory)
+    public static function pCssDir($directory = "")
     {
         return self::PLUGIN_CSS_DIR . $directory;
     }
@@ -147,7 +165,7 @@ class MbPath {
      *
      * @return string
      */
-    public static function pImgDir($directory)
+    public static function pImgDir($directory = "")
     {
         return self::PLUGIN_IMAGES_DIR . $directory;
     }
@@ -159,7 +177,7 @@ class MbPath {
      *
      * @return string
      */
-    public static function pBwDir($directory)
+    public static function pBwDir($directory = "")
     {
         return self::PLUGIN_BOWER_DIR . $directory;
     }

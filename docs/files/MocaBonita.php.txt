@@ -407,7 +407,7 @@ final class MocaBonita extends MbSingleton
                 $deactive($mocaBonita);
             } catch (\Exception $e) {
                 MbException::setRegisterExceptionLog(true);
-                MbException::adminNoticeError($e);
+                MbException::registerError($e);
                 wp_die($e->getMessage());
             }
         });
@@ -451,7 +451,7 @@ final class MocaBonita extends MbSingleton
         }
 
         if($exception instanceof \Exception){
-            MbException::adminNoticeError($exception);
+            MbException::registerError($exception);
 
             MbWPActionHook::addActionCallback('init', function () {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
@@ -482,7 +482,7 @@ final class MocaBonita extends MbSingleton
 
         //Add wordpress administrative menu if needed
         if ($this->isBlogAdmin()) {
-            MbWPActionHook::addAction('admin_menu', $this, 'processarMenu');
+            MbWPActionHook::addAction('admin_menu', $this, 'addAdminMenuToWordpress');
         }
 
         if ($this->isMocabonitaPage()) {

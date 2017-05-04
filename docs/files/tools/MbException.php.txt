@@ -4,6 +4,7 @@ namespace MocaBonita\tools;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Katzgrau\KLogger\Logger;
+use MocaBonita\MocaBonita;
 use MocaBonita\view\MbView;
 
 /**
@@ -166,38 +167,12 @@ class MbException extends \Exception
     }
 
     /**
-     * Post an error notice on the dashboard
+     * Post an error notice on the dashboard and save
      *
      * @param \Exception $e
      */
-    public static function adminNoticeError(\Exception $e){
-        MbWPActionHook::addActionCallback('admin_notices', function () use ($e){
-            echo self::adminNoticeTemplate($e->getMessage(), 'error');
-        });
+    public static function registerError(\Exception $e){
+        MocaBonita::getInstance()->getMbResponse()->adminNotice($e->getMessage(), 'error');
         self::registerExceptionLog($e);
-    }
-
-    /**
-     * Post an debug notice on the dashboard
-     *
-     * @param \Exception $e
-     */
-    public static function adminNoticeDebug(\Exception $e){
-        MbWPActionHook::addActionCallback('admin_notices', function () use ($e){
-            echo self::adminNoticeTemplate($e->getMessage(), 'info');
-        });
-        self::registerExceptionLog($e);
-    }
-
-    /**
-     * Get admin notice structure template
-     *
-     * @param string $message
-     * @param string $type
-     *
-     * @return string
-     */
-    public static function adminNoticeTemplate($message, $type = 'error'){
-        return "<div class='notice notice-{$type}'><p>{$message}</p></div>";
     }
 }

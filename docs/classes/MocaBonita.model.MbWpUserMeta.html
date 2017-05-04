@@ -21,7 +21,55 @@
     <script src="../js/jquery.smooth-scroll.js"></script>
     <script src="../js/prism.min.js"></script>
     <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
-    
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
     <link rel="shortcut icon" href="../images/favicon.ico"/>
     <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
     <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
@@ -96,28 +144,28 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-219412479"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1274165493"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-219412479" class="accordion-body collapse in">
+            <div id="namespace-1274165493" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-334437030"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-99244696"></a>
                                 <a href="../namespaces/MocaBonita.html" style="margin-left: 30px; padding-left: 0">MocaBonita</a>
             </div>
-            <div id="namespace-334437030" class="accordion-body collapse ">
+            <div id="namespace-99244696" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2026061418"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-367079500"></a>
                                 <a href="../namespaces/MocaBonita.controller.html" style="margin-left: 30px; padding-left: 0">controller</a>
             </div>
-            <div id="namespace-2026061418" class="accordion-body collapse ">
+            <div id="namespace-367079500" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -132,10 +180,10 @@
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-328493237"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-116525885"></a>
                                 <a href="../namespaces/MocaBonita.model.html" style="margin-left: 30px; padding-left: 0">model</a>
             </div>
-            <div id="namespace-328493237" class="accordion-body collapse ">
+            <div id="namespace-116525885" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -152,19 +200,19 @@
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-102689624"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2101932750"></a>
                                 <a href="../namespaces/MocaBonita.tools.html" style="margin-left: 30px; padding-left: 0">tools</a>
             </div>
-            <div id="namespace-102689624" class="accordion-body collapse ">
+            <div id="namespace-2101932750" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1681424844"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1143330061"></a>
                                 <a href="../namespaces/MocaBonita.tools.eloquent.html" style="margin-left: 30px; padding-left: 0">eloquent</a>
             </div>
-            <div id="namespace-1681424844" class="accordion-body collapse ">
+            <div id="namespace-1143330061" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -184,10 +232,10 @@
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-312718735"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-839421275"></a>
                                 <a href="../namespaces/MocaBonita.tools.validation.html" style="margin-left: 30px; padding-left: 0">validation</a>
             </div>
-            <div id="namespace-312718735" class="accordion-body collapse ">
+            <div id="namespace-839421275" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -229,10 +277,10 @@
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1943025978"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1480962964"></a>
                                 <a href="../namespaces/MocaBonita.view.html" style="margin-left: 30px; padding-left: 0">view</a>
             </div>
-            <div id="namespace-1943025978" class="accordion-body collapse ">
+            <div id="namespace-1480962964" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -266,42 +314,298 @@
     <section class="row-fluid">
         <div class="span10 offset2">
             <div class="row-fluid">
-                <div class="span8 content namespace">
+                <div class="span8 content class">
                     <nav>
-                                                <a href="../namespaces/MocaBonita.html">\MocaBonita</a>
+                                                <a href="../namespaces/MocaBonita.model.html">\MocaBonita\model</a> <i class="icon-level-up"></i>
                                             </nav>
-                    <h1><small>\MocaBonita</small>controller</h1>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
 
+                    <h1><small>\MocaBonita\model</small>MbWpUserMeta</h1>
+                    <p><em>Main class of the MocaBonita UserMeta</em></p>
                     
                     
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_newEloquentBuilder" class="">newEloquentBuilder()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_newBaseQueryBuilder" class="">newBaseQueryBuilder()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/MocaBonita.model.MbWpUserMeta.html#property_table" class="">$table</a><br />
+                                                                    <a href="../classes/MocaBonita.model.MbWpUserMeta.html#property_primaryKey" class="">$primaryKey</a><br />
+                                                                    <a href="../classes/MocaBonita.model.MbWpUserMeta.html#property_timestamps" class="">$timestamps</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No private properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
                     
-                                        <h2>Classes</h2>
-                    <table class="table table-hover">
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/model.MbWpUserMeta.html"><div class="path-wrapper">model/MbWpUserMeta.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">MocaBonita\model</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                        <div class="namespace-wrapper">\Illuminate\Database\Eloquent\Model</div>
+                                                                    
+                                        <div class="namespace-wrapper"><a href="../classes/MocaBonita.tools.eloquent.MbModel.html">\MocaBonita\tools\eloquent\MbModel</a></div>
+                                                                                                    <div class="namespace-wrapper">\MocaBonita\model\MbWpUserMeta</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
                                             <tr>
-                            <td><a href="../classes/MocaBonita.controller.MbController.html">MbController</a></td>
-                            <td><em>Main class of the MocaBonita Controller</em></td>
+                            <th>
+                                author
+                            </th>
+                            <td>
+                                                                    <p>Jhordan Lima <a href="mailto:jhorlima@icloud.com">jhorlima@icloud.com</a></p>
+                                                            </td>
+                        </tr>
+                                            <tr>
+                            <th>
+                                category
+                            </th>
+                            <td>
+                                                                    <p>WordPress</p>
+                                                            </td>
+                        </tr>
+                                            <tr>
+                            <th>
+                                copyright
+                            </th>
+                            <td>
+                                                                    <p>Jhordan Lima 2017</p>
+                                                                    <p>Divisão de Projetos e Desenvolvimento - DPD</p>
+                                                                    <p>Núcleo de Tecnologia da Informação - NTI</p>
+                                                                    <p>Universidade Estadual do Maranhão - UEMA</p>
+                                                            </td>
+                        </tr>
+                                            <tr>
+                            <th>
+                                version
+                            </th>
+                            <td>
+                                                                    
+                                                            </td>
                         </tr>
                                         </table>
-                                    </div>
-
-                <aside class="span4 detailsbar">
-                    <dl>
-                        <dt>Namespace hierarchy</dt>
-                        <dd class="hierarchy">
-                                                                                                                                                                                                                                                                                                                                                                                                            
-                                    <div class="namespace-wrapper"><a href="../namespaces/default.html">\</a></div>
-                                                            
-                                    <div class="namespace-wrapper"><a href="../namespaces/MocaBonita.html">\MocaBonita</a></div>
-                                                                                        <div class="namespace-wrapper">\MocaBonita\controller</div>
-                        </dd>
-                    </dl>
                 </aside>
             </div>
 
-            
-            
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_table" name="property_table" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$table</h3>
+                <pre class="signature">$table : string</pre>
+                <p><em>Stored table name</em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                                            </article>
         </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_primaryKey" name="property_primaryKey" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$primaryKey</h3>
+                <pre class="signature">$primaryKey : string</pre>
+                <p><em>Stored table primarykey</em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_timestamps" name="property_timestamps" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$timestamps</h3>
+                <pre class="signature">$timestamps : boolean</pre>
+                <p><em>Stored if table has timestamps</em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_newEloquentBuilder" name="method_newEloquentBuilder" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">newEloquentBuilder()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">newEloquentBuilder(\Illuminate\Database\Query\Builder  <span class="argument">$query</span>) : \Illuminate\Database\Eloquent\Builder|\MocaBonita\tools\eloquent\MbDatabaseEloquentBuilder</pre>
+                <p><em>Create a new Eloquent query builder for the model.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Query\Builder</td>
+                                <td>$query </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Illuminate\Database\Eloquent\Builder|<a href="../classes/MocaBonita.tools.eloquent.MbDatabaseEloquentBuilder.html">\MocaBonita\tools\eloquent\MbDatabaseEloquentBuilder</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_newBaseQueryBuilder" name="method_newBaseQueryBuilder" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">newBaseQueryBuilder()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">newBaseQueryBuilder() : \MocaBonita\tools\eloquent\MbDatabaseQueryBuilder</pre>
+                <p><em>New base query builder</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/MocaBonita.tools.eloquent.MbDatabaseQueryBuilder.html">\MocaBonita\tools\eloquent\MbDatabaseQueryBuilder</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                    </div>
     </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">MbWpUserMeta.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/model/MbWpUserMeta.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
 
     <footer class="row-fluid">
         <section class="span10 offset2">
