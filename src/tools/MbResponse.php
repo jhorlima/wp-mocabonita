@@ -164,7 +164,10 @@ class MbResponse extends Response
     {
         if ($content instanceof \Exception) {
             MbException::adminNoticeError($content);
-            $this->original = "Something did not go well. Error: {$content->getMessage()}.";
+            $this->original = MbException::adminNoticeTemplate(
+                "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}",
+                "warning"
+            );
         } elseif (!is_string($content) && !$content instanceof Renderable) {
             ob_start();
             var_dump($content);

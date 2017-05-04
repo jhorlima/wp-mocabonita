@@ -482,7 +482,7 @@ final class MocaBonita extends MbSingleton
 
         //Add wordpress administrative menu if needed
         if ($this->isBlogAdmin()) {
-            MbWPActionHook::addAction('admin_menu', $this, 'processarMenu');
+            MbWPActionHook::addAction('admin_menu', $this, 'addAdminMenuToWordpress');
         }
 
         if ($this->isMocabonitaPage()) {
