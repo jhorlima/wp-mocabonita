@@ -77,6 +77,13 @@ class MbRequest extends Request
     protected $mbAction;
 
     /**
+     * Checks if the current page is one of the blog's admin pages
+     *
+     * @var boolean
+     */
+    private $blogAdmin;
+
+    /**
      * Is admin
      *
      * @return boolean
@@ -285,5 +292,28 @@ class MbRequest extends Request
     public function setMbAction(MbAction $mbAction)
     {
         $this->mbAction = $mbAction;
+    }
+
+    /**
+     * Checks if the current page is one of the blog's admin pages
+     *
+     * @return boolean
+     */
+    public function isBlogAdmin()
+    {
+        return $this->blogAdmin;
+    }
+
+    /**
+     * Set if the current page is one of the blog's admin pages
+     *
+     * @param boolean $blogAdmin
+     *
+     * @return MbRequest
+     */
+    public function setBlogAdmin($blogAdmin)
+    {
+        $this->blogAdmin = $blogAdmin;
+        return $this;
     }
 }

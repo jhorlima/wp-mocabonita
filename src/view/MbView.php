@@ -92,7 +92,7 @@ class MbView implements View
     {
         $this->setVariablesForView([]);
         $this->setExtension("phtml");
-        $this->setViewPath(MbPath::PLUGIN_VIEW_DIR);
+        $this->setViewPath(MbPath::pViewDir());
     }
 
     /**

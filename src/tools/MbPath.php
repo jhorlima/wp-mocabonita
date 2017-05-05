@@ -2,18 +2,6 @@
 
 namespace MocaBonita\tools;
 
-define('mb_plg_name'  , explode('/',  plugin_basename(__FILE__))[0]);
-define('mb_plg_base'  , mb_plg_name . "/index.php");
-define('mb_plg_path'  , WP_PLUGIN_DIR . "/" . mb_plg_name);
-define('mb_plg_url'   , WP_PLUGIN_URL . "/" . mb_plg_name);
-define('mb_plg_view'  , mb_plg_path . '/view/');
-define('mb_plg_js'    , mb_plg_url  . '/public/js/');
-define('mb_plg_css'   , mb_plg_url  . '/public/css/');
-define('mb_plg_images', mb_plg_url  . '/public/images/');
-define('mb_plg_fonts' , mb_plg_url  . '/public/fonts/');
-define('mb_plg_bower' , mb_plg_url  . '/public/bower_components/');
-
-
 /**
  *
  * Main class of the MocaBonita Path
@@ -30,155 +18,151 @@ define('mb_plg_bower' , mb_plg_url  . '/public/bower_components/');
 class MbPath {
 
     /**
-     * Constant that stores the URL of the plugin
+     * Stored the plugin name
      *
      * @var string
-     *
-     * @deprecate
      */
-    const PLUGIN_URL = mb_plg_url;
+    protected static $pluginName;
 
     /**
-     * Constant that stores the base name of the plugin
+     * Stored the base name of the plugin
      *
      * @var string
-     *
-     * @deprecate
      */
-    const PLUGIN_BASENAME = mb_plg_base;
+    protected static $pluginBaseName;
 
     /**
-     * Constant that stores the plugin name
+     * Stored the plugin directory
      *
      * @var string
-     *
-     * @deprecate
      */
-    const PLUGIN_NAME = mb_plg_name;
+    protected static $pluginDirectory;
 
     /**
-     * Constant that stores the plugin directory
+     * Stored the URL of the plugin
      *
      * @var string
-     *
-     * @deprecate
      */
-    const PLUGIN_DIRECTORY = mb_plg_path;
+    protected static $pluginUrl;
 
     /**
-     * Constant that stores the plugin's view directory
+     * Get plugin name
      *
-     * @var string
-     *
-     * @deprecate
+     * @return string
      */
-    const PLUGIN_VIEW_DIR = mb_plg_view;
+    public static function pName()
+    {
+        if(is_null(self::$pluginName)){
+            self::$pluginName = explode('/',  plugin_basename(__FILE__))[0];
+        }
+        return self::$pluginName;
+    }
 
     /**
-     * Constant that stores the plugin's javascript directory
+     * Get plugin base name
      *
-     * @var string
-     *
-     * @deprecate
+     * @return string
      */
-    const PLUGIN_JS_DIR = mb_plg_js;
-
-    /**
-     * Constant that stores the css directory of the plugin
-     *
-     * @var string
-     *
-     * @deprecate
-     */
-    const PLUGIN_CSS_DIR = mb_plg_css;
-
-    /**
-     * Constant that stores directory images of the plugin
-     *
-     * @var string
-     *
-     * @deprecate
-     */
-    const PLUGIN_IMAGES_DIR = mb_plg_images;
-
-    /**
-     * Constant storing directory bower_components of plugin
-     *
-     * @var string
-     *
-     * @deprecate
-     */
-    const PLUGIN_BOWER_DIR = mb_plg_bower;
+    public static function pBaseN()
+    {
+        if(is_null(self::$pluginBaseName)){
+            self::$pluginBaseName = self::pName() . "/index.php";
+        }
+        return self::$pluginBaseName;
+    }
 
     /**
      * Get plugin directory
      *
-     * @param $directory
+     * @param string $complement
      *
      * @return string
      */
-    public static function pDir($directory = "")
+    public static function pDir($complement = "")
     {
-        return self::PLUGIN_DIRECTORY . $directory;
+        if(is_null(self::$pluginDirectory)){
+            self::$pluginDirectory = WP_PLUGIN_DIR . "/" . self::pName();
+        }
+        return self::$pluginDirectory  . $complement;
+    }
+
+    /**
+     * Get plugin url
+     *
+     * @param string $complement
+     *
+     * @return string
+     */
+    public static function pUrl($complement = "")
+    {
+        if(is_null(self::$pluginUrl)){
+            self::$pluginUrl = WP_PLUGIN_URL . "/" . self::pName();
+        }
+        return self::$pluginUrl  . $complement;
     }
 
     /**
      * Get plugin view directory
      *
-     * @param $directory
+     * @param string $complement
+     * @param string $path
      *
      * @return string
      */
-    public static function pViewDir($directory = "")
+    public static function pViewDir($complement = "", $path = 'view')
     {
-        return self::PLUGIN_VIEW_DIR . $directory;
+        return self::pDir() . "/{$path}/{$complement}";
     }
 
     /**
      * Get Js directory of the plugin
      *
-     * @param $directory
+     * @param string $complement
+     * @param string $path
      *
      * @return string
      */
-    public static function pJsDir($directory = "")
+    public static function pJsDir($complement = "", $path = 'public/js')
     {
-        return self::PLUGIN_JS_DIR . $directory;
+        return self::pDir() . "/{$path}/{$complement}";
     }
 
     /**
      * Get plugin css directory
      *
-     * @param $directory
+     * @param string $complement
+     * @param string $path
      *
      * @return string
      */
-    public static function pCssDir($directory = "")
+    public static function pCssDir($complement = "", $path = 'public/css')
     {
-        return self::PLUGIN_CSS_DIR . $directory;
+        return self::pDir() . "/{$path}/{$complement}";
     }
 
     /**
      * Get plugin images directory
      *
-     * @param $directory
+     * @param string $complement
+     * @param string $path
      *
      * @return string
      */
-    public static function pImgDir($directory = "")
+    public static function pImgDir($complement = "", $path = 'public/images')
     {
-        return self::PLUGIN_IMAGES_DIR . $directory;
+        return self::pDir() . "/{$path}/{$complement}";
     }
 
     /**
      * Get plugin directory bower_components
      *
-     * @param $directory
+     * @param string $complement
+     * @param string $path
      *
      * @return string
      */
-    public static function pBwDir($directory = "")
+    public static function pBwDir($complement = "", $path = 'public/bower_components')
     {
-        return self::PLUGIN_BOWER_DIR . $directory;
+        return self::pDir() . "/{$path}/{$complement}";
     }
 }

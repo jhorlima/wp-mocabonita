@@ -81,13 +81,6 @@ final class MocaBonita extends MbSingleton
     private $development;
 
     /**
-     * Checks if the current page is one of the blog's admin pages
-     *
-     * @var boolean
-     */
-    private $blogAdmin;
-
-    /**
      * Stores the current MbRequest of the request
      *
      * @var MbRequest
@@ -237,29 +230,6 @@ final class MocaBonita extends MbSingleton
     }
 
     /**
-     * Checks if the current page is one of the blog's admin pages
-     *
-     * @return boolean
-     */
-    public function isBlogAdmin()
-    {
-        return $this->blogAdmin;
-    }
-
-    /**
-     * Set if the current page is one of the blog's admin pages
-     *
-     * @param boolean $blogAdmin
-     *
-     * @return MocaBonita current instance of MocaBonita
-     */
-    public function setBlogAdmin($blogAdmin)
-    {
-        $this->blogAdmin = $blogAdmin;
-        return $this;
-    }
-
-    /**
      * Get the current name of the wordpress page
      *
      * @return string
@@ -325,7 +295,7 @@ final class MocaBonita extends MbSingleton
         $this->getMbResponse()->setMbRequest($this->mbRequest);
         $this->setPage($this->mbRequest->query('page'));
         $this->setAction($this->mbRequest->query('action'));
-        $this->setBlogAdmin(is_blog_admin());
+        $this->getMbRequest()->setBlogAdmin(is_blog_admin());
 
         $this->mbAssets = [
             'plugin'    => new MbAsset(),
@@ -378,13 +348,13 @@ final class MocaBonita extends MbSingleton
     {
         $mocaBonita = self::getInstance();
 
-        register_activation_hook(MbPath::PLUGIN_BASENAME, function () use ($active, $mocaBonita) {
+        register_activation_hook(MbPath::pBaseN(), function () use ($active, $mocaBonita) {
             try {
                 self::checkApplication();
                 MbMigration::enablePdoConnection();
                 $active($mocaBonita);
             } catch (\Exception $e) {
-                deactivate_plugins(basename(MbPath::PLUGIN_BASENAME));
+                deactivate_plugins(basename(MbPath::pBaseN()));
                 wp_die($e->getMessage());
             }
         });
@@ -401,7 +371,7 @@ final class MocaBonita extends MbSingleton
     {
         $mocaBonita = self::getInstance();
 
-        register_deactivation_hook(MbPath::PLUGIN_BASENAME, function () use ($deactive, $mocaBonita) {
+        register_deactivation_hook(MbPath::pBaseN(), function () use ($deactive, $mocaBonita) {
             try {
                 MbMigration::enablePdoConnection();
                 $deactive($mocaBonita);
@@ -444,7 +414,7 @@ final class MocaBonita extends MbSingleton
             $exception = new \Exception(
                 "Your PHP or WP is outdated and some MocaBonita features may not work!"
             );
-        } elseif (!is_writable(MbPath::PLUGIN_DIRECTORY)) {
+        } elseif (!is_writable(MbPath::pDir())) {
             $exception = new \Exception(
                 "MocaBonita does not have write permission in the plugin directory!"
             );
@@ -455,7 +425,7 @@ final class MocaBonita extends MbSingleton
 
             MbWPActionHook::addActionCallback('init', function () {
                 require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-                deactivate_plugins(MbPath::PLUGIN_BASENAME);
+                deactivate_plugins(MbPath::pBaseN());
             });
         }
     }
@@ -481,7 +451,7 @@ final class MocaBonita extends MbSingleton
         }
 
         //Add wordpress administrative menu if needed
-        if ($this->isBlogAdmin()) {
+        if ($this->getMbRequest()->isBlogAdmin()) {
             MbWPActionHook::addAction('admin_menu', $this, 'addAdminMenuToWordpress');
         }
 
@@ -665,7 +635,7 @@ final class MocaBonita extends MbSingleton
     private function runHookCurrentAction()
     {
         //Check if needed add the hook
-        if (!$this->isMocabonitaPage() || $this->isBlogAdmin()) {
+        if (!$this->isMocabonitaPage() || $this->getMbRequest()->isBlogAdmin()) {
             return false;
         }
 
