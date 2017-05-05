@@ -111,7 +111,7 @@ class MbPath {
      */
     public static function pViewDir($complement = "", $path = 'view')
     {
-        return self::pDir() . "/{$path}/{$complement}";
+        return self::pUrl() . "/{$path}/{$complement}";
     }
 
     /**
@@ -124,7 +124,7 @@ class MbPath {
      */
     public static function pJsDir($complement = "", $path = 'public/js')
     {
-        return self::pDir() . "/{$path}/{$complement}";
+        return self::pUrl() . "/{$path}/{$complement}";
     }
 
     /**
@@ -137,7 +137,7 @@ class MbPath {
      */
     public static function pCssDir($complement = "", $path = 'public/css')
     {
-        return self::pDir() . "/{$path}/{$complement}";
+        return self::pUrl() . "/{$path}/{$complement}";
     }
 
     /**
@@ -150,7 +150,7 @@ class MbPath {
      */
     public static function pImgDir($complement = "", $path = 'public/images')
     {
-        return self::pDir() . "/{$path}/{$complement}";
+        return self::pUrl() . "/{$path}/{$complement}";
     }
 
     /**
@@ -163,6 +163,6 @@ class MbPath {
      */
     public static function pBwDir($complement = "", $path = 'public/bower_components')
     {
-        return self::pDir() . "/{$path}/{$complement}";
+        return self::pUrl() . "/{$path}/{$complement}";
     }
 }

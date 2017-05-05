@@ -161,11 +161,11 @@ class MbResponse extends Response
     protected function htmlContent($content)
     {
         if ($content instanceof \Exception) {
-            $this->adminNotice($content->getMessage(), 'error');
-            $this->original = $this->adminNoticeTemplate(
-                "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}",
-                "warning"
-            );
+            if($this->getMbRequest()->isBlogAdmin()){
+                $this->adminNotice($content->getMessage(), 'error');
+            } else {
+                $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}";
+            }
         } elseif (!is_string($content) && !$content instanceof Renderable) {
             ob_start();
             var_dump($content);
