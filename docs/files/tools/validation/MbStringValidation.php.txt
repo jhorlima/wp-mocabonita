@@ -3,6 +3,7 @@
 namespace MocaBonita\tools\validation;
 
 use Exception;
+use Illuminate\Support\Arr;
 
 /**
  * String validation class
@@ -49,17 +50,17 @@ class MbStringValidation extends MbValidationBase
     public function validate($value, array $arguments = [])
     {
         $isString = is_string($value);
-        $min = isset($arguments['min']) ? $arguments['min'] : false;
-        $max = isset($arguments['max']) ? $arguments['max'] : false;
-        $trim = isset($arguments['trim']) ? (bool)$arguments['trim'] : false;
-        $striptags = isset($arguments['striptags']) ? $arguments['striptags'] : false;
-        $regex = isset($arguments['regex']) ? $arguments['regex'] : false;;
-        $mask = isset($arguments['mask']) ? $arguments['mask'] : false;
-        $strLower = isset($arguments['str_lower']) ? (bool) $arguments['str_lower'] : false;
-        $strUpper = isset($arguments['str_upper']) ? (bool) $arguments['str_upper'] : false;
-        $alphaNumeric = isset($arguments['alpha_numeric']) ? (bool) $arguments['alpha_numeric'] : false;
-        $email = isset($arguments['email']) ? (bool) $arguments['email'] : false;
-        $htmlEscape = isset($arguments['html_escape']) ? (bool) $arguments['html_escape'] : false;
+        $min = Arr::get($arguments, 'min', false);
+        $max = Arr::get($arguments, 'max', false);
+        $trim = Arr::get($arguments, 'trim', false);
+        $striptags = Arr::get($arguments, 'striptags', false);
+        $regex = Arr::get($arguments, 'regex', false);;
+        $mask = Arr::get($arguments, 'mask', false);
+        $strLower = Arr::get($arguments, 'str_lower', false);
+        $strUpper = Arr::get($arguments, 'str_upper', false);
+        $alphaNumeric = Arr::get($arguments, 'alpha_numeric', false);
+        $email = Arr::get($arguments, 'email', false);
+        $htmlEscape = Arr::get($arguments, 'html_escape', false);
 
         if (!$isString) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um string!");

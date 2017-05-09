@@ -3,6 +3,7 @@
 namespace MocaBonita\tools\validation;
 
 use Exception;
+use Illuminate\Support\Arr;
 
 
 /**
@@ -39,9 +40,9 @@ class MbNumberValidation extends MbValidationBase
     public function validate($value, array $arguments = [])
     {
         $isNumeric = is_numeric($value);
-        $min = isset($arguments['min']) ? $arguments['min'] : false;
-        $max = isset($arguments['max']) ? $arguments['max'] : false;
-        $float = isset($arguments['float']) ? (bool)$arguments['float'] : false;
+        $min = Arr::get($arguments, 'min', false);
+        $max = Arr::get($arguments, 'max', false);
+        $float = Arr::get($arguments, 'float', false);
 
         if (!$isNumeric) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um número!");

@@ -3,6 +3,7 @@
 namespace MocaBonita\tools\validation;
 
 use Exception;
+use Illuminate\Support\Arr;
 
 
 /**
@@ -37,7 +38,7 @@ class MbObjectValidation extends MbValidationBase
     public function validate($value, array $arguments = [])
     {
         $isObject = is_object($value);
-        $instanceOf = isset($arguments['instanceof']) ? $arguments['instanceof'] : false;
+        $instanceOf = Arr::get($arguments, 'instanceof', false);
 
         if (!$isObject) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um objeto!");

@@ -198,10 +198,10 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewAction($action, $query = null)
+    public function fullUrlWithNewAction($action, array $query = [])
     {
-        $query = is_array($query) ? $query : $this->query();
         $query['action'] = $action;
+        $query = array_replace($this->query(), $query);
         return $this->url() . '?' . http_build_query($query);
     }
 
@@ -213,10 +213,10 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewPagination($pagination, $query = null)
+    public function fullUrlWithNewPagination($pagination, array $query = [])
     {
-        $query = is_array($query) ? $query : $this->query();
         $query[MbDatabaseQueryBuilder::getPagination()] = $pagination;
+        $query = array_replace($this->query(), $query);
         return $this->url() . '?' . http_build_query($query);
     }
 
