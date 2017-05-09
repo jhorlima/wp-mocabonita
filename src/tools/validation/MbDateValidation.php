@@ -4,6 +4,7 @@ namespace MocaBonita\tools\validation;
 
 use Exception;
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 
 /**
@@ -40,10 +41,10 @@ class MbDateValidation extends MbValidationBase
      */
     public function validate($value, array $arguments = [])
     {
-        $timezone = isset($arguments['timezone']) ? $arguments['timezone'] : false;
-        $inputFormat = isset($arguments['input_format']) ? $arguments['input_format'] : false;
-        $outputFormat = isset($arguments['output_format']) ? $arguments['output_format'] : false;
-        $outputTimezone = isset($arguments['output_timestamp']) ? (bool)$arguments['output_timestamp'] : false;
+        $timezone = Arr::get($arguments, 'timezone', false);
+        $inputFormat = Arr::get($arguments, 'input_format', false);
+        $outputFormat = Arr::get($arguments, 'output_format', false);
+        $outputTimezone = Arr::get($arguments, 'output_timestamp', false);
 
         if(is_string($inputFormat)){
             $value = is_string($value) ? Carbon::createFromFormat($inputFormat, $value) : false;

@@ -3,6 +3,7 @@
 namespace MocaBonita\tools\validation;
 
 use Exception;
+use Illuminate\Support\Arr;
 
 
 /**
@@ -39,10 +40,10 @@ class MbArrayValidation extends MbValidationBase
      */
     public function validate($value, array $arguments = [])
     {
-        $min = isset($arguments['min']) ? $arguments['min'] : false;
-        $max = isset($arguments['max']) ? $arguments['max'] : false;
-        $callable = isset($arguments['callable']) ? $arguments['callable'] : false;
-        $json = isset($arguments['json']) ? (bool)$arguments['json'] : false;
+        $min = Arr::get($arguments, 'min', false);
+        $max = Arr::get($arguments, 'max', false);
+        $callable = Arr::get($arguments, 'callable', false);
+        $json = Arr::get($arguments, 'json', false);
 
         if ($json && $this->isJson($value)) {
             $value = json_decode($value);
