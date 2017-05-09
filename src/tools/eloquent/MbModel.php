@@ -4,7 +4,6 @@ namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
-use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbMigration;
 use MocaBonita\tools\validation\MbValidation;
 
@@ -41,7 +40,7 @@ class MbModel extends Model
      * Create a new Eloquent query builder for the model.
      *
      * @param  \Illuminate\Database\Query\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder|MbDatabaseEloquentBuilder
+     * @return \Illuminate\Database\Eloquent\Builder|MbD
      */
     public function newEloquentBuilder($query)
     {
@@ -132,19 +131,15 @@ class MbModel extends Model
     }
 
     /**
-     * Fill the model with an array of attributes.
+     * Save the model to the database.
      *
-     * @param  array $attributes
-     *
-     * @return Model
-     *
-     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
-     *
-     * @throws MbException
+     * @param  array  $options
+     * @return bool
      */
-    public function fill(array $attributes)
+    public function save(array $options = [])
     {
-        $validation = $this->validation($attributes);
+        $attributes = $this->getAttributes();
+        $validation = count($attributes) ? $this->validation($attributes) : null;
 
         if ($validation instanceof MbValidation) {
             $validation->check(true);
@@ -153,7 +148,9 @@ class MbModel extends Model
             $attributes = $validation;
         }
 
-        return parent::fill($attributes);
+        $this->fill($attributes);
+
+        return parent::save($options);
     }
 
     /**
