@@ -72,7 +72,7 @@ class MbModel extends Model
     public final static function createSchemaModel($deleteIfExists = false)
     {
 
-        $model = new self();
+        $model = new static();
 
         if (!MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
@@ -110,7 +110,7 @@ class MbModel extends Model
     public final static function updateSchemaModel()
     {
 
-        $model = new self();
+        $model = new static();
 
         if (MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->table($model->getTable(), function (Blueprint $table) use ($model) {
@@ -127,7 +127,7 @@ class MbModel extends Model
      */
     public final static function dropSchemaModel()
     {
-        $model = new self();
+        $model = new static();
         MbMigration::schema()->dropIfExists($model->getTable());
     }
 
