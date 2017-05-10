@@ -55,13 +55,13 @@ class MbNumberValidation extends MbValidationBase
             $value = (int)$value;
         }
 
-        if ($min && is_numeric($min)) {
+        if ($min) {
             $min = $min + 0;
         } else {
             $min = false;
         }
 
-        if ($max && is_numeric($max)) {
+        if ($max) {
             $max = $max + 0;
         } else {
             $max = false;

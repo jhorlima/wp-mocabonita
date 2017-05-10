@@ -60,14 +60,14 @@ class MbDateValidation extends MbValidationBase
             throw new Exception("O atributo '{$this->getAttribute()}' não é uma data válida!");
         }
 
-        if (!is_string($timezone)) {
+        if (!$timezone) {
             $timezone = get_option('timezone_string');
             $timezone = !empty($timezone) ? $timezone : 'America/Fortaleza';
         }
 
         $value->setTimezone($timezone);
 
-        if (is_string($outputFormat)) {
+        if ($outputFormat) {
             $value = $value->format($outputFormat);
 
             if (!$value) {

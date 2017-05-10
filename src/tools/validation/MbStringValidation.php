@@ -111,13 +111,13 @@ class MbStringValidation extends MbValidationBase
 
         $qntCaracteres = strlen($value);
 
-        if ($min && is_numeric($min)) {
+        if ($min) {
             $min = intval($min);
         } else {
             $min = false;
         }
 
-        if ($max && is_numeric($max)) {
+        if ($max) {
             $max = intval($max);
         } else {
             $max = false;
@@ -137,13 +137,13 @@ class MbStringValidation extends MbValidationBase
 
         }
 
-        if ($regex && is_string($regex) && !preg_match($regex, $value)) {
+        if ($regex && !preg_match($regex, $value)) {
             throw new Exception(
                 "O atributo '{$this->getAttribute()}' não atende a validação regex!"
             );
         }
 
-        if($mask && is_string($mask)){
+        if($mask){
             $valorNovo = '';
             $k = 0;
             for($i = 0; $i<=strlen($mask)-1; $i++)

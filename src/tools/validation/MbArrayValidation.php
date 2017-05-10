@@ -57,13 +57,13 @@ class MbArrayValidation extends MbValidationBase
 
         $count = count($value);
 
-        if ($min && is_numeric($min)) {
+        if ($min) {
             $min = intval($min);
         } else {
             $min = false;
         }
 
-        if ($max && is_numeric($max)) {
+        if ($max) {
             $max = intval($max);
         } else {
             $max = false;
