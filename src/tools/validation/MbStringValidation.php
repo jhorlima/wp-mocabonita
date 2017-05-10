@@ -33,6 +33,7 @@ use Illuminate\Support\Arr;
  * @uses $arguments['email'] (bool) : Validate if the string is a valid email.
  * @uses $arguments['html_escape'] (bool) : Converts special characters to HTML reality
  * @uses $arguments['in_array'] (string[]) : Check if the value is in array
+ * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
  *
  */
 class MbStringValidation extends MbValidationBase
@@ -63,6 +64,7 @@ class MbStringValidation extends MbValidationBase
         $email = Arr::get($arguments, 'email', false);
         $htmlEscape = Arr::get($arguments, 'html_escape', false);
         $inArray = Arr::get($arguments, 'in_array', false);
+        $filter = Arr::get($arguments, 'filter', false);
 
         if (!$isString) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um string!");
@@ -165,6 +167,12 @@ class MbStringValidation extends MbValidationBase
 
         if($inArray && !in_array($value, $inArray)){
             throw new Exception("O atributo '{$this->getAttribute()}' não pertence ao conjunto de dados!");
+        }
+
+        if($filter && $filter instanceof \Closure){
+            $value = $filter($filter);
+        } elseif ($filter){
+            $value = call_user_func($filter, $value);
         }
 
         return $value;
