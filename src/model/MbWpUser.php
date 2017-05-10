@@ -39,6 +39,23 @@ class MbWpUser extends MbModel
      */
     protected $timestamp = false;
 
+
+    /**
+     * Fillable elements
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_login',
+        'user_pass',
+        'user_nicename',
+        'user_email',
+        'user_url',
+        'user_registered',
+        'user_status',
+        'display_name',
+    ];
+
     /**
      * Get user meta
      *
