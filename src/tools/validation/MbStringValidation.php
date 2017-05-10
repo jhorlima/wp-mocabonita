@@ -32,6 +32,7 @@ use Illuminate\Support\Arr;
  * @uses $arguments['alpha_numeric'] (bool) : Format alphanumeric in string.
  * @uses $arguments['email'] (bool) : Validate if the string is a valid email.
  * @uses $arguments['html_escape'] (bool) : Converts special characters to HTML reality
+ * @uses $arguments['in_array'] (string[]) : Check if the value is in array
  *
  */
 class MbStringValidation extends MbValidationBase
@@ -61,6 +62,7 @@ class MbStringValidation extends MbValidationBase
         $alphaNumeric = Arr::get($arguments, 'alpha_numeric', false);
         $email = Arr::get($arguments, 'email', false);
         $htmlEscape = Arr::get($arguments, 'html_escape', false);
+        $inArray = Arr::get($arguments, 'in_array', false);
 
         if (!$isString) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um string!");
@@ -159,6 +161,10 @@ class MbStringValidation extends MbValidationBase
             }
             $value = $valorNovo;
 
+        }
+
+        if($inArray && !in_array($value, $inArray)){
+            throw new Exception("O atributo '{$this->getAttribute()}' não pertence ao conjunto de dados!");
         }
 
         return $value;
