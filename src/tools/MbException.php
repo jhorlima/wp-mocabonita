@@ -3,6 +3,8 @@
 namespace MocaBonita\tools;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Contracts\View\View;
 use Katzgrau\KLogger\Logger;
 use MocaBonita\MocaBonita;
 use MocaBonita\view\MbView;
@@ -58,6 +60,25 @@ class MbException extends \Exception
         }
 
         if (!is_array($this->exceptionData)) {
+            $this->exceptionData = null;
+        }
+
+        return $this->exceptionData;
+    }
+
+    /**
+     * Get exception data view
+     *
+     * @return string|null
+     */
+    public function getExcepitonDataView()
+    {
+        if ($this->exceptionData instanceof View) {
+            $this->exceptionData->with('wpError', $this->getWpError());
+            $this->exceptionData = $this->exceptionData->render();
+        }
+
+        if (!is_string($this->exceptionData)) {
             $this->exceptionData = null;
         }
 

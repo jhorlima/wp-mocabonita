@@ -168,13 +168,13 @@ class MbResponse extends Response
                     foreach ($content->getWpErrorMessages(true) as $errorMessage) {
                         $this->adminNotice($errorMessage, 'warning');
                     }
+                    $this->original = $content->getExcepitonDataView();
                 }
             } else {
-                $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
                 if($content instanceof MbException){
-                    foreach ($content->getWpErrorMessages(true) as $errorMessage) {
-                        $this->original .= "{$errorMessage}<br>";
-                    }
+                    $this->original = $content->getExcepitonDataView();
+                } else {
+                    $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
                 }
             }
         } elseif (!is_string($content) && !$content instanceof Renderable) {
