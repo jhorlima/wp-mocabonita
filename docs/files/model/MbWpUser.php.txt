@@ -37,7 +37,7 @@ class MbWpUser extends MbModel
      *
      * @var bool
      */
-    protected $timestamp = false;
+    public $timestamps = false;
 
 
     /**
