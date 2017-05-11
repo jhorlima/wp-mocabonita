@@ -163,12 +163,13 @@ class MbResponse extends Response
     {
         if ($content instanceof \Exception) {
             if($this->getMbRequest()->isBlogAdmin()){
-                $this->adminNotice($content->getMessage(), 'error');
                 if($content instanceof MbException){
                     foreach ($content->getWpErrorMessages(true) as $errorMessage) {
                         $this->adminNotice($errorMessage, 'warning');
                     }
                     $this->original = $content->getExcepitonDataView();
+                } else {
+                    $this->adminNotice($content->getMessage(), 'error');
                 }
             } else {
                 if($content instanceof MbException){
