@@ -5,6 +5,7 @@ namespace MocaBonita\tools;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Response;
+use Illuminate\Support\Debug\Dumper;
 
 /**
  * Main class of the MocaBonita Response
@@ -168,7 +169,7 @@ class MbResponse extends Response
             }
         } elseif (!is_string($content) && !$content instanceof Renderable) {
             ob_start();
-            var_dump($content);
+            (new Dumper())->dump($content);
             $this->original = ob_get_contents();
             ob_end_clean();
         } else {

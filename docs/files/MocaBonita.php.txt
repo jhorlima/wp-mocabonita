@@ -533,12 +533,17 @@ final class MocaBonita extends MbSingleton
 
         //Check if MbAction is invalid
         if (is_null($mbAction)) {
-            throw new MbException(
-                "The action {$this->action} was not instantiated in " . MbPage::class . " of the page {$this->page}!"
-            );
+            $mbAction = $mbPage->addMbAction($this->action);
+
+            if(!$mbAction->functionExist()){
+                throw new MbException(
+                    "The action {$this->action} was not instantiated in " . MbPage::class . " of the page {$this->page}!"
+                );
+            }
         }
+
         //Set capability of page if the capability of MbAction is not defined
-        elseif (is_null($mbAction->getCapability())) {
+        if (is_null($mbAction->getCapability())) {
             $mbAction->setCapability($mbPage->getCapability());
         }
 

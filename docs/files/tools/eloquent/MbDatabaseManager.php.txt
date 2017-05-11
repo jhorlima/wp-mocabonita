@@ -1,4 +1,5 @@
 <?php
+
 namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\ConnectionInterface;
@@ -284,7 +285,7 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
             throw new QueryException($query, [], new \Exception($this->wpdb->last_error));
         }
 
-        return ($result === false || $this->wpdb->last_error);
+        return $result;
     }
 
     /**
@@ -344,10 +345,8 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      */
     public function beginTransaction()
     {
-        $transaction = $this->unprepared("START TRANSACTION;");
-        if ($transaction) {
-            $this->transactionCount++;
-        }
+        $this->unprepared("START TRANSACTION;");
+        $this->transactionCount++;
     }
 
     /**
@@ -360,10 +359,8 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
         if ($this->transactionCount < 1) {
             return;
         }
-        $transaction = $this->unprepared("COMMIT;");
-        if ($transaction) {
-            $this->transactionCount--;
-        }
+        $this->unprepared("COMMIT;");
+        $this->transactionCount--;
     }
 
     /**
@@ -376,10 +373,8 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
         if ($this->transactionCount < 1) {
             return;
         }
-        $transaction = $this->unprepared("ROLLBACK;");
-        if ($transaction) {
-            $this->transactionCount--;
-        }
+        $this->unprepared("ROLLBACK;");
+        $this->transactionCount--;
     }
 
     /**

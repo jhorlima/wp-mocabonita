@@ -25,6 +25,7 @@ use Illuminate\Support\Arr;
  * @uses $arguments['input_format'] (string) : Date input format
  * @uses $arguments['output_format'] (string) : Date Return Format
  * @uses $arguments['output_timestamp'] (bool) : Return value in timestamp
+ * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
  */
 class MbDateValidation extends MbValidationBase
 {
@@ -45,6 +46,7 @@ class MbDateValidation extends MbValidationBase
         $inputFormat = Arr::get($arguments, 'input_format', false);
         $outputFormat = Arr::get($arguments, 'output_format', false);
         $outputTimezone = Arr::get($arguments, 'output_timestamp', false);
+        $filter = Arr::get($arguments, 'filter', false);
 
         if(is_string($inputFormat)){
             $value = is_string($value) ? Carbon::createFromFormat($inputFormat, $value) : false;
@@ -60,14 +62,14 @@ class MbDateValidation extends MbValidationBase
             throw new Exception("O atributo '{$this->getAttribute()}' não é uma data válida!");
         }
 
-        if (!is_string($timezone)) {
+        if (!$timezone) {
             $timezone = get_option('timezone_string');
             $timezone = !empty($timezone) ? $timezone : 'America/Fortaleza';
         }
 
         $value->setTimezone($timezone);
 
-        if (is_string($outputFormat)) {
+        if ($outputFormat) {
             $value = $value->format($outputFormat);
 
             if (!$value) {
@@ -77,6 +79,12 @@ class MbDateValidation extends MbValidationBase
 
         if ($outputTimezone) {
             $value = $value->getTimestamp();
+        }
+
+        if($filter && $filter instanceof \Closure){
+            $value = $filter($value);
+        } elseif ($filter){
+            $value = call_user_func($filter, $value);
         }
 
         return $value;
