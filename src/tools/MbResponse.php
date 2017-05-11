@@ -163,22 +163,19 @@ class MbResponse extends Response
     {
         if ($content instanceof \Exception) {
             if($this->getMbRequest()->isBlogAdmin()){
+                $this->adminNotice($content->getMessage(), 'error');
                 if($content instanceof MbException){
-                    $this->adminNotice($content->getMessage(), 'error');
                     foreach ($content->getWpErrorMessages(true) as $errorMessage) {
                         $this->adminNotice($errorMessage, 'error');
                     }
-                } else {
-                    $this->adminNotice($content->getMessage(), 'error');
                 }
             } else {
+                $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}<br>";
+
                 if($content instanceof MbException){
-                    $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}<br>";
                     foreach ($content->getWpErrorMessages(true) as $errorMessage) {
                         $this->original .= "{$errorMessage}<br>";
                     }
-                } else {
-                    $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}";
                 }
             }
         } elseif (!is_string($content) && !$content instanceof Renderable) {
