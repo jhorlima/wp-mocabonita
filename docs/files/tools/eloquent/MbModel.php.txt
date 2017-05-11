@@ -66,11 +66,9 @@ class MbModel extends Model
      *
      * @param bool $deleteIfExists To recreate scheme
      *
-     * @throws \Exception
      */
     public final static function createSchemaModel($deleteIfExists = false)
     {
-
         $model = new static();
 
         if (!MbMigration::schema()->hasTable($model->getTable())) {
@@ -82,8 +80,6 @@ class MbModel extends Model
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
                 $model->createSchema($table);
             });
-        } else {
-            throw new \Exception("Schema {$model->getTable()} already exists");
         }
     }
 
