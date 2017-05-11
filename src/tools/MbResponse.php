@@ -136,7 +136,7 @@ class MbResponse extends Response
             return $this->ajaxContent(new \Exception("No valid content has been submitted!", 204));
         } elseif ($content instanceof \Exception) {
             $this->setStatusCode($content->getCode() < 300 && $content->getCode() != 204 ? 400 : $content->getCode());
-            $message = $content->getMessage();
+            $message = $content instanceof MbException ? $content->getWpErrorMessages() : $content->getMessage();
             $content = $content instanceof MbException ? $content->getExcepitonDataArray() : null;
         }
 
@@ -163,9 +163,23 @@ class MbResponse extends Response
     {
         if ($content instanceof \Exception) {
             if($this->getMbRequest()->isBlogAdmin()){
-                $this->adminNotice($content->getMessage(), 'error');
+                if($content instanceof MbException){
+                    $this->adminNotice($content->getMessage(), 'error');
+                    foreach ($content->getWpErrorMessages(true) as $errorMessage) {
+                        $this->adminNotice($errorMessage, 'error');
+                    }
+                } else {
+                    $this->adminNotice($content->getMessage(), 'error');
+                }
             } else {
-                $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}";
+                if($content instanceof MbException){
+                    $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}<br>";
+                    foreach ($content->getWpErrorMessages(true) as $errorMessage) {
+                        $this->original .= "{$errorMessage}<br>";
+                    }
+                } else {
+                    $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}";
+                }
             }
         } elseif (!is_string($content) && !$content instanceof Renderable) {
             ob_start();
