@@ -313,7 +313,7 @@ class MbValidation implements Arrayable
         $this->setErro(!empty($this->errorMessages) ? true : false);
 
         if ($exceptionOnError && $this->isError()) {
-            throw new MbException("Seus dados não passaram na validação!", 400, $this, $this->toWpError());
+            throw new MbException("Seus não são válidos!", 400, $this, $this->toWpError());
         }
 
         return $this->isError();
@@ -340,12 +340,11 @@ class MbValidation implements Arrayable
      */
     public function toWpError(){
         if ($this->isError()){
-            $wpError = new \WP_Error('denied', "ERRO: Seus dados não passaram na validação!");
+            $wpError = new \WP_Error('denied', "Seus não são válidos!");
 
             foreach ($this->getErrorMessages() as $type => $message){
-
                 foreach ($message as $error){
-                    $wpError->add('denied', "{$type}: {$error}.");
+                    $wpError->add('denied', $error);
                 }
             }
             return $wpError;

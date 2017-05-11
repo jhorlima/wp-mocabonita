@@ -166,12 +166,11 @@ class MbResponse extends Response
                 $this->adminNotice($content->getMessage(), 'error');
                 if($content instanceof MbException){
                     foreach ($content->getWpErrorMessages(true) as $errorMessage) {
-                        $this->adminNotice($errorMessage, 'error');
+                        $this->adminNotice($errorMessage, 'warning');
                     }
                 }
             } else {
-                $this->original = "Algo não correu bem nessa página. <strong>Erro:</strong> {$content->getMessage()}<br>";
-
+                $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
                 if($content instanceof MbException){
                     foreach ($content->getWpErrorMessages(true) as $errorMessage) {
                         $this->original .= "{$errorMessage}<br>";
