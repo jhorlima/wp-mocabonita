@@ -21,6 +21,7 @@ use Illuminate\Support\Arr;
  * List of possible arguments for this class:
  *
  * @uses $arguments['instanceof'] (string | object) : Class instance
+ * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
  */
 class MbObjectValidation extends MbValidationBase
 {
@@ -39,6 +40,7 @@ class MbObjectValidation extends MbValidationBase
     {
         $isObject = is_object($value);
         $instanceOf = Arr::get($arguments, 'instanceof', false);
+        $filter = Arr::get($arguments, 'filter', false);
 
         if (!$isObject) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um objeto!");
@@ -56,6 +58,12 @@ class MbObjectValidation extends MbValidationBase
             if (!$value instanceof $instanceOf) {
                 throw new Exception("O atributo '{$this->getAttribute()}' não é uma instância de '{$instanceOf}'!");
             }
+        }
+
+        if($filter && $filter instanceof \Closure){
+            $value = $filter($value);
+        } elseif ($filter){
+            $value = call_user_func($filter, $value);
         }
 
         return $value;
