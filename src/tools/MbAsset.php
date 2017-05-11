@@ -97,10 +97,11 @@ class MbAsset
      * Send assets to wordpress
      *
      * @param string $pageSlug
+     * @param bool $isShortcode
      *
      * @return void
      */
-    public function runAssets($pageSlug)
+    public function runAssets($pageSlug, $isShortcode = false)
     {
         $cssList = $this->css;
         $jsList  = $this->js;
@@ -112,8 +113,12 @@ class MbAsset
 
             foreach ($jsList as $i => $js) {
                 wp_enqueue_script("script_mb_{$pageSlug}_{$i}", $js['path'], [], $js['version'], $js['footer']);
-           }
+            }
         });
+
+        if($isShortcode){
+            MbWPActionHook::doAction($this->getActionEnqueue());
+        }
     }
 
     /**

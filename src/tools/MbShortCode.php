@@ -145,10 +145,10 @@ class MbShortCode
             $mbRequest->setShortcode(true);
 
             //Add plugin assets
-            $mbAsset->setActionEnqueue('front')->runAssets('plugin');
+            $mbAsset->setActionEnqueue('front')->runAssets('plugin', true);
 
             //Add shortcode assets
-            $shortCode->getMbAsset()->setActionEnqueue('front')->runAssets($shortCode->getName());
+            $shortCode->getMbAsset()->setActionEnqueue('front')->runAssets($shortCode->getName(), true);
 
             //Check if function exist
             if ($shortCode->getMbAction()->functionExist()) {

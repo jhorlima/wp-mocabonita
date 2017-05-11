@@ -170,7 +170,7 @@ class MbStringValidation extends MbValidationBase
         }
 
         if($filter && $filter instanceof \Closure){
-            $value = $filter($filter);
+            $value = $filter($value);
         } elseif ($filter){
             $value = call_user_func($filter, $value);
         }
