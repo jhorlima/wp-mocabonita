@@ -24,6 +24,7 @@ use Illuminate\Support\Arr;
  * @uses $arguments['min'] (float) : Lower numbers of array elements
  * @uses $arguments['max'] (float) : Larger numbers of array elements (it requires the $arguments['min'])
  * @uses $arguments['callable'] (string | callable($value)) : Function to validate array elements
+ * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
  */
 class MbArrayValidation extends MbValidationBase
 {
@@ -44,6 +45,7 @@ class MbArrayValidation extends MbValidationBase
         $max = Arr::get($arguments, 'max', false);
         $callable = Arr::get($arguments, 'callable', false);
         $json = Arr::get($arguments, 'json', false);
+        $filter = Arr::get($arguments, 'filter', false);
 
         if ($json && $this->isJson($value)) {
             $value = json_decode($value);
@@ -100,6 +102,12 @@ class MbArrayValidation extends MbValidationBase
             if ($false > 0) {
                 throw new Exception("{$false} elemento(s) do atributo'{$this->getAttribute()}' não passou(passaram) na validação!");
             }
+        }
+
+        if($filter && $filter instanceof \Closure){
+            $value = $filter($value);
+        } elseif ($filter){
+            $value = call_user_func($filter, $value);
         }
 
         return $value;

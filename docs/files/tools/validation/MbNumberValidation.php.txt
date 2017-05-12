@@ -23,6 +23,8 @@ use Illuminate\Support\Arr;
  * @uses $arguments['float'] (bool) : Use value as float
  * @uses $arguments['min'] (float) : Lowest value possible
  * @uses $arguments['max'] (float) : Highest possible value (it requires the $arguments['min'])
+ * @uses $arguments['in_array'] (string[]) : Check if the value is in array
+ * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
  */
 class MbNumberValidation extends MbValidationBase
 {
@@ -43,6 +45,8 @@ class MbNumberValidation extends MbValidationBase
         $min = Arr::get($arguments, 'min', false);
         $max = Arr::get($arguments, 'max', false);
         $float = Arr::get($arguments, 'float', false);
+        $inArray = Arr::get($arguments, 'in_array', false);
+        $filter = Arr::get($arguments, 'filter', false);
 
         if (!$isNumeric) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um número!");
@@ -55,13 +59,13 @@ class MbNumberValidation extends MbValidationBase
             $value = (int)$value;
         }
 
-        if ($min && is_numeric($min)) {
+        if ($min) {
             $min = $min + 0;
         } else {
             $min = false;
         }
 
-        if ($max && is_numeric($max)) {
+        if ($max) {
             $max = $max + 0;
         } else {
             $max = false;
@@ -74,6 +78,16 @@ class MbNumberValidation extends MbValidationBase
             } elseif ($max && $value > $max) {
                 throw new Exception("O atributo '{$this->getAttribute()}' deve ser menor ou igual a '{$max}'!");
             }
+        }
+        
+        if($inArray && !in_array($value, $inArray)){
+            throw new Exception("O atributo '{$this->getAttribute()}' não pertence ao conjunto de dados!");
+        }
+
+        if($filter && $filter instanceof \Closure){
+            $value = $filter($value);
+        } elseif ($filter){
+            $value = call_user_func($filter, $value);
         }
 
         return $value;

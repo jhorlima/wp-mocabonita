@@ -124,7 +124,7 @@ class MbValidation implements Arrayable
      */
     public function getNullable()
     {
-        return $this->nullable;
+        return !is_null($this->nullable) ? $this->nullable : [];
     }
 
     /**
@@ -278,7 +278,7 @@ class MbValidation implements Arrayable
 
             $attributeExists = array_key_exists($attribute, $this->data);
             $attributeNull   = $attributeExists ? is_null($this->data[$attribute]) : true;
-            $isNullable      = in_array($attribute, $this->nullable);
+            $isNullable      = in_array($attribute, $this->getNullable());
             $attirbuteRoles  = $this->getValidations($attribute);
 
             if (!$attributeNull && !empty($attirbuteRoles)) {
