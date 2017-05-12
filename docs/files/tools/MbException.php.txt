@@ -3,6 +3,8 @@
 namespace MocaBonita\tools;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Contracts\Support\Renderable;
+use Illuminate\Contracts\View\View;
 use Katzgrau\KLogger\Logger;
 use MocaBonita\MocaBonita;
 use MocaBonita\view\MbView;
@@ -23,18 +25,11 @@ class MbException extends \Exception
 {
 
     /**
-     * Stored if exception log is required
+     * Stored wperror
      *
-     * @var bool
+     * @var \WP_Error
      */
-    protected static $registerExceptionLog;
-
-    /**
-     * Stored log path
-     *
-     * @var string
-     */
-    protected static $exceptionLogPath;
+    protected $wpError;
 
     /**
      * Stored exception data
@@ -72,6 +67,25 @@ class MbException extends \Exception
     }
 
     /**
+     * Get exception data view
+     *
+     * @return string|null
+     */
+    public function getExcepitonDataView()
+    {
+        if ($this->exceptionData instanceof View) {
+            $this->exceptionData->with('wpError', $this->getWpError());
+            $this->exceptionData = $this->exceptionData->render();
+        }
+
+        if (!is_string($this->exceptionData)) {
+            $this->exceptionData = null;
+        }
+
+        return $this->exceptionData;
+    }
+
+    /**
      * Set exception data
      *
      * @param array|Arrayable $exceptionData
@@ -80,6 +94,33 @@ class MbException extends \Exception
     public function setExceptionData($exceptionData)
     {
         $this->exceptionData = $exceptionData;
+        return $this;
+    }
+
+    /**
+     * @return \WP_Error | string
+     */
+    public function getWpError()
+    {
+        return $this->wpError;
+    }
+
+    /**
+     * @param bool $stringInArray
+     * @return string[] | string
+     */
+    public function getWpErrorMessages($stringInArray = false)
+    {
+        return is_null($this->wpError) ? ($stringInArray ? [$this->getMessage()] : $this->getMessage()) : $this->wpError->get_error_messages();
+    }
+
+    /**
+     * @param \WP_Error $wpError
+     * @return MbException
+     */
+    public function setWpError($wpError)
+    {
+        $this->wpError = $wpError;
         return $this;
     }
 
@@ -94,76 +135,16 @@ class MbException extends \Exception
      * @param string $msg
      * @param int $code
      * @param null|array|MbView|Arrayable $dados
+     * @param \WP_Error $wpError
      *
      * @link http://php.net/manual/en/language.oop5.decon.php
      */
-    public function __construct($msg, $code = 400, $dados = null)
+    public function __construct($msg, $code = 400, $dados = null, \WP_Error $wpError = null)
     {
         parent::__construct($msg, $code);
 
         $this->setExceptionData($dados);
-    }
-
-    /**
-     * Get exception log path
-     *
-     * @return string
-     */
-    public static function getExceptionLogPath()
-    {
-        if(is_null(self::$registerExceptionLog)){
-            self::setExceptionLogPath(MbPath::pDir('/logs'));
-        }
-
-        return self::$registerExceptionLog;
-    }
-
-    /**
-     * Set exception log path
-     *
-     * @param string $exceptionLogPath
-     */
-    public static function setExceptionLogPath($exceptionLogPath)
-    {
-        self::$registerExceptionLog = $exceptionLogPath;
-    }
-
-    /**
-     * Is register exception log
-     *
-     * @return boolean
-     */
-    public static function isRegisterExceptionLog()
-    {
-        return (bool) self::$registerExceptionLog;
-    }
-
-    /**
-     * Set register exception log
-     *
-     * @param boolean $registerExceptionLog
-     */
-    public static function setRegisterExceptionLog($registerExceptionLog = true)
-    {
-        self::$registerExceptionLog = (bool) $registerExceptionLog;
-    }
-
-    /**
-     * Register exception log
-     *
-     * @param \Exception $e
-     *
-     * @return bool
-     */
-    protected static function registerExceptionLog(\Exception $e){
-        if(!self::isRegisterExceptionLog()){
-            return false;
-        }
-
-        $logger = new Logger(self::getExceptionLogPath());
-        $logger->debug($e->getMessage());
-
-        return true;
+        $this->setWpError($wpError);
     }
 
     /**
@@ -171,8 +152,8 @@ class MbException extends \Exception
      *
      * @param \Exception $e
      */
-    public static function registerError(\Exception $e){
+    public static function registerError(\Exception $e)
+    {
         MocaBonita::getInstance()->getMbResponse()->adminNotice($e->getMessage(), 'error');
-        self::registerExceptionLog($e);
     }
 }

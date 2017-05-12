@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use MocaBonita\tools\MbMigration;
 use MocaBonita\tools\validation\MbValidation;
+use Illuminate\Support\Arr;
 
 /**
  * Main class of the MocaBonita Model
@@ -134,17 +135,21 @@ class MbModel extends Model
      */
     public function save(array $options = [])
     {
-        $attributes = $this->getAttributes();
-        $validation = count($attributes) ? $this->validation($attributes) : null;
+        if(Arr::get($options, 'validation', true)){
 
-        if ($validation instanceof MbValidation) {
-            $validation->check(true);
-            $attributes = $validation->getData();
-        } elseif (is_array($validation)) {
-            $attributes = $validation;
+            $attributes = $this->getAttributes();
+
+            $validation = count($attributes) ? $this->validation($attributes) : null;
+
+            if ($validation instanceof MbValidation) {
+                $validation->check(true);
+                $attributes = $validation->getData();
+            } elseif (is_array($validation)) {
+                $attributes = $validation;
+            }
+
+            $this->fill($attributes);
         }
-
-        $this->fill($attributes);
 
         return parent::save($options);
     }

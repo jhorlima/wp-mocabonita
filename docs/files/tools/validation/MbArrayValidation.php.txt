@@ -85,7 +85,7 @@ class MbArrayValidation extends MbValidationBase
 
             if (is_string($callable) && function_exists($callable)) {
                 foreach ($value as $item) {
-                    if (!call_user_func_array($callable, $item)) {
+                    if (!call_user_func($callable, $item)) {
                         $false++;
                     }
                 }
