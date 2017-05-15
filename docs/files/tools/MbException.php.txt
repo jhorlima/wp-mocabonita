@@ -88,7 +88,7 @@ class MbException extends \Exception
     /**
      * Set exception data
      *
-     * @param array|Arrayable $exceptionData
+     * @param array|Arrayable|View $exceptionData
      * @return MbException
      */
     public function setExceptionData($exceptionData)
