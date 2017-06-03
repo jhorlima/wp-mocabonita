@@ -1,0 +1,175 @@
+<?php
+
+namespace MocaBonita\model;
+
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\UploadedFile;
+use MocaBonita\tools\eloquent\MbDatabase;
+use MocaBonita\tools\eloquent\MbModel;
+use MocaBonita\tools\MbException;
+use MocaBonita\tools\MbPath;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+
+/**
+ * Main class of the MocaBonita Post
+ *
+ * @author Jhordan Lima <jhorlima@icloud.com>
+ * @category WordPress
+ * @package \MocaBonita\model
+ * @copyright Jhordan Lima 2017
+ * @copyright Divisão de Projetos e Desenvolvimento - DPD
+ * @copyright Núcleo de Tecnologia da Informação - NTI
+ * @copyright Universidade Estadual do Maranhão - UEMA
+ * @version 3.1.0
+ */
+class MbPost extends MbModel {
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'wp_posts';
+    /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'ID';
+    /**
+     * The name of the "created at" column.
+     *
+     * @var string
+     */
+    const CREATED_AT = 'post_date';
+    /**
+     * The name of the "updated at" column.
+     *
+     * @var string
+     */
+    const UPDATED_AT = 'post_modified';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'post_date',
+        'post_date_gmt',
+        'post_content',
+        'post_title',
+        'post_excerpt',
+        'post_status',
+        'comment_status',
+        'ping_status',
+        'post_password',
+        'post_name',
+        'to_ping',
+        'pinged',
+        'post_modified',
+        'post_modified_gmt',
+        'post_content_filtered',
+        'guid',
+        'menu_order',
+        'post_type',
+        'post_mime_type',
+        'comment_count',
+    ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'post_date',
+        'post_date_gmt',
+        'post_modified',
+        'post_modified_gmt'
+    ];
+
+    /**
+     * PostMeta relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function meta()
+    {
+        return $this->hasMany(MbPostMeta::class, 'post_id');
+    }
+    /**
+     * Get a specific type of post.
+     *
+     * @param $type
+     *
+     * @return Collection
+     */
+    public static function type($type)
+    {
+        return static::query()
+            ->where('post_type', $type)
+            ->get();
+    }
+
+    /**
+     * Attach file in WordPress media
+     *
+     * @param UploadedFile $file
+     * @param int $parent
+     *
+     * @return MbPost
+     *
+     * @throws MbException
+     */
+    public static function attachFile(UploadedFile $file, $parent = 0){
+        if (!in_array($file->getMimeType(), get_allowed_mime_types())){
+            throw new FileException("O MimeType do arquivo enviado é inválido!");
+        }
+
+        $wpUploadDirs = wp_upload_dir();
+
+        $hashName = $file->hashName();
+        $pathUrl  = $wpUploadDirs['baseurl'] . "/" . MbPath::pName();
+        $pathDir  = $wpUploadDirs['basedir'] . "/" . MbPath::pName();
+
+        $attachment = [
+            'guid'           => $pathUrl . '/' . $hashName,
+            'post_mime_type' => $file->getMimeType(),
+            'post_title'     => preg_replace('/\.[^.]+$/', '', $file->getClientOriginalName()),
+            'post_content'   => '',
+            'post_status'    => 'inherit'
+        ];
+
+        $file->move($pathDir, $hashName);
+
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+        try{
+
+            MbDatabase::beginTransaction();
+
+            $attachId = wp_insert_attachment($attachment, MbPath::pName() . '/' . $hashName, $parent);
+
+            $attachData = wp_generate_attachment_metadata($attachId, $pathDir . '/' . $hashName);
+
+            wp_update_attachment_metadata($attachId, $attachData);
+
+            set_post_thumbnail($parent, $attachId);
+
+            MbDatabase::commit();
+
+            return self::findOrFail($attachId);
+
+        } catch (\Exception $e){
+
+            MbDatabase::rollBack();
+
+            throw new MbException(
+                "Não foi possível anexar o arquivo nas mídias do WordPress.",
+                400,
+                null, new \WP_Error($e->getCode(), $e->getMessage())
+            );
+        }
+    }
+}
