@@ -60,13 +60,28 @@ crie o arquivo `index.php` na pasta do plugin e adicione o seguinte conteudo nel
 namespace ExemploPlugin;
 
 use MocaBonita\MocaBonita;
+use MocaBonita\tools\MbPage;
+use MocaBonita\tools\MbPath;
+
+if (!defined('ABSPATH')) {
+    die('Acesso negado!' . PHP_EOL);
+}
 
 //Carregar o autoload do composer
+
 $pluginPath = plugin_dir_path(__FILE__);
 $loader = require $pluginPath . "vendor/autoload.php";
 $loader->addPsr4(__NAMESPACE__ . '\\', $pluginPath);
 
-MocaBonita::loader(function (MocaBonita $mocabonita){
+MocaBonita::active(function (){
+    //
+});
+
+MocaBonita::deactive(function (){
+    //
+});
+
+MocaBonita::plugin(function (MocaBonita $mocabonita){
     
     /**
     * Aqui será adicionado as configurações do MocaBonita 
@@ -74,6 +89,54 @@ MocaBonita::loader(function (MocaBonita $mocabonita){
     * abaixo vamos preencher esta área com as configurações   
     * 
     */
+    
+    	$agenda = MbPage::create('Agenda');
+     
+    	$agenda->setMenuPosition(1)
+            ->setDashicon('dashicons-admin-site')
+            ->setRemovePageSubmenu();
+     
+    	$agendaContato = MbPage::create('Contatos');
+     
+    	$agendaContato->getMbAction('index')->setRequiresLogin(false);
+     
+    	$agendaContato->setSlug('agenda-contatos');
+     
+    	$agendaContato->setController(AgendaController::class);
+     
+    	$agendaContato->addMbAction('cadastrar');
+     
+    	$agendaContato->addMbAction('buscar')
+    	             ->setRequiresAjax(true)
+    	             ->setRequiresMethod('GET')
+    	             ->setRequiresLogin(false);
+     
+    	$agendaContato->addMbAction('apagar');
+     
+    	$agendaContato->addMbAction('atualizar');
+     
+    	$agendaContato->addMbAction('buscarPorId')
+    	             ->setRequiresAjax(true)
+    	             ->setRequiresMethod('GET')
+    	             ->setRequiresLogin(false);
+     
+    	$agendaContato->setCapability('read');
+     
+    	$mocaBonita->addMbShortcode('contact', $agendaContato, 'contact');
+     
+    	$agendaEmail = MbPage::create('Emails');
+     
+    	$agendaEmail->setSlug('agenda-emails');
+     
+    	$agenda->setSubPage($agendaContato);
+     
+    	$agenda->setSubPage($agendaEmail);
+     
+    	$mocaBonita->addMbPage($agenda);
+     
+    	$mocaBonita->getAssetsPlugin()
+    	           ->setCss(MbPath::pBwDir('bootstrap/dist/css/bootstrap.min.css'))
+    	           ->setCss(MbPath::pCssDir('app.css'));
     
 }, true);
 //O ultimo parâmetro de MocaBonita::loader é opcional e define se o plugin está em desenvolvimento.
