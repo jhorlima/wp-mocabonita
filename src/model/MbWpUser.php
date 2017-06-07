@@ -39,6 +39,14 @@ class MbWpUser extends MbModel
      */
     public $timestamps = false;
 
+    /**
+     * Date elements
+     *
+     * @var array
+     */
+    protected $dates = [
+        'user_registered',
+    ];
 
     /**
      * Fillable elements
