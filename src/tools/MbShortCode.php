@@ -142,10 +142,16 @@ class MbShortCode
 
             MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_SHORTCODE, $shortCode);
 
+            $mbRequest->setMbPage($shortCode->getMbAction()->getMbPage());
+            $mbRequest->setMbAction($shortCode->getMbAction());
+
             $mbRequest->setShortcode(true);
 
             //Add plugin assets
             $mbAsset->setActionEnqueue('front')->runAssets('plugin', true);
+
+            //Add page assets
+            $mbRequest->getMbPage()->getMbAsset()->setActionEnqueue('front')->runAssets($shortCode->getName(), true);
 
             //Add shortcode assets
             $shortCode->getMbAsset()->setActionEnqueue('front')->runAssets($shortCode->getName(), true);
