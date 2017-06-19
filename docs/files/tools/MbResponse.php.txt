@@ -172,10 +172,10 @@ class MbResponse extends Response
                     $this->adminNotice($content->getMessage(), 'error');
                 }
             } else {
+                $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
+
                 if($content instanceof MbException){
-                    $this->original = $content->getExcepitonDataView();
-                } else {
-                    $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
+                    $this->original .= $content->getExcepitonDataView();
                 }
             }
         } elseif (!is_string($content) && !$content instanceof Renderable) {

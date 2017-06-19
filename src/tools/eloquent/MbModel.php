@@ -159,11 +159,20 @@ class MbModel extends Model
      *
      * @param array $attributes
      *
-     * @return array|MbValidation
+     * @return array|MbValidation|null
      */
     protected function validation(array $attributes)
     {
-        //
+        return null;
+    }
+
+    /**
+     * Get TableSchema Builder
+     *
+     * @return \Illuminate\Database\Schema\Builder
+     */
+    public final function getSchema(){
+        return MbMigration::schema();
     }
 
 }

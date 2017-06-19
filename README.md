@@ -3,17 +3,20 @@ O MocaBonita é um framework desenvolvido para auxiliar na criação de plugins 
 
 Vantagens:
 - Padrão MVC
-- Rest API
 - Composer
-- Classes de apoio a validação e banco de dados
-- POST, PUT e DELETE request com JSON no Raw
+- Validações
+- ORM
 - Orientação a Objeto
 - Templates e Views
-- Serviços (Eventos que ocorrem antes de executar a controller)
+- Eventos
 - Seus recusos são carregados por completo apenas quando necessário
-- Não interfere o ciclo de vida do wordpress, desde que não exista um serviço para isto
-- Fácil curva de aprendizado
-- Outros..
+- Não interfere o ciclo de vida do wordpress, desde que não exista um evento para isto
+- Fácilidade aprendizado
+
+```
+Antes de começar, é recomendado que você faça uma leitura desse artigo:
+https://codex.wordpress.org/pt-br:Escrevendo_um_Plugin#Nomes.2C_arquivos_e_Locais
+```
 
 [Documentação PHP](https://jhorlima.github.io/wp-mocabonita/)
 
@@ -27,124 +30,190 @@ Vantagens:
 
 
 ####1º Criando o plugin ####
-Acesse a pasta `wp-content/plugins` dentro da pasta onde o **wordpress** está instalado, depois crie uma nova pasta com o nome do seu plugin, Ex: `plugin-teste`.
+Acesse a pasta `wp-content/plugins` dentro da pasta onde o **wordpress** está instalado, depois crie uma nova pasta com o nome do seu plugin, Ex: `exemplo-plugin`.
 
 ####2º Importar o MocaBonita ####
 Em primeiro lugar é necessário ter o composer instalado no computador. 
 
-Depois de instalado, execute 
+Depois de instalado, execute o código abaixo pelo terminal na pasta do seu plugin.
 
 ```sh
 $ composer require jhorlima/wp-mocabonita:dev-master --update-no-dev
 ``` 
 
-pelo terminal na pasta do seu plugin do wordpress.
-
 ####3º Configurar o plugin ####
-Depois de instalado as dependencias do composer corretamente, 
-crie o arquivo `index.php` na pasta do plugin e adicione o seguinte conteudo nele:
+Depois da instalação do MocaBonita e suas dependencias do composer, crie um arquivo chamado `index.php` dentro da pasta do plugin e depois adicione o seguinte código nele:
 
 ```php
 <?php
-/*
-    Plugin Name: Nome do Plugin
-    Plugin URI: Link do Plugin
-    Description: Descrição do Plugin
-    Version: Versão do Plugin
-    Author: Autor do Plugin
-    Author URI: Link do Autor do Plugin
-    License: Licença do Plugin
+/**
+ * Plugin Name: Exemplo de Plugin
+ * Plugin URI: http://exemplo.plugin.com
+ * Description: Um exemplo de Plugin WordPress com MocaBonita
+ * Version: 1.0.0
+ * Author: Fulando
+ * Author URI: http://www.github.com/fulando
+ * License: GLPU
+ * 
+ * @doc: https://developer.wordpress.org/plugins/the-basics/header-requirements/
 */
 
-//Use das classes usadas
+/**
+ * Namespace base do Plugin
+ * @doc: http://php.net/manual/pt_BR/language.namespaces.php
+*/
 namespace ExemploPlugin;
 
 use MocaBonita\MocaBonita;
 use MocaBonita\tools\MbPage;
 use MocaBonita\tools\MbPath;
+use ExemploPlugin\controller\ExemploController;
 
+/**
+ * Impedir que o plugin seja carregado fora do Wordpress
+ * @doc: https://codex.wordpress.org/pt-br:Escrevendo_um_Plugin#Arquivos_de_Plugin
+*/
 if (!defined('ABSPATH')) {
     die('Acesso negado!' . PHP_EOL);
 }
 
-//Carregar o autoload do composer
-
+/**
+ * Carregar o autoload do composer
+ * Adicionar o namespace atual para ser interpretado pelo autoload do composer
+*/
 $pluginPath = plugin_dir_path(__FILE__);
 $loader = require $pluginPath . "vendor/autoload.php";
 $loader->addPsr4(__NAMESPACE__ . '\\', $pluginPath);
 
-MocaBonita::active(function (){
+/**
+ * Callback que será chamado ao ativar o plugin (Opicional)
+ * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html#method_active
+*/
+MocaBonita::active(function (MocaBonita $mocabonita){
     //
 });
 
-MocaBonita::deactive(function (){
+/**
+ * Callback que será chamado ao desativar o plugin (Opicional)
+ * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html#method_deactive
+*/
+MocaBonita::deactive(function (MocaBonita $mocabonita){
     //
 });
 
+/**
+ * Callback que terão as configurações do plugin
+ * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html#method_plugin
+*/
 MocaBonita::plugin(function (MocaBonita $mocabonita){
     
     /**
-    * Aqui será adicionado as configurações do MocaBonita 
-    * 
-    * abaixo vamos preencher esta área com as configurações   
-    * 
-    */
+    * Criando uma página para o Plugin
+    */    
+    $paginaExemplo = MbPage::create('Exemplo');
     
-    	$agenda = MbPage::create('Agenda');
-     
-    	$agenda->setMenuPosition(1)
-            ->setDashicon('dashicons-admin-site')
-            ->setRemovePageSubmenu();
-     
-    	$agendaContato = MbPage::create('Contatos');
-     
-    	$agendaContato->getMbAction('index')->setRequiresLogin(false);
-     
-    	$agendaContato->setSlug('agenda-contatos');
-     
-    	$agendaContato->setController(AgendaController::class);
-     
-    	$agendaContato->addMbAction('cadastrar');
-     
-    	$agendaContato->addMbAction('buscar')
-    	             ->setRequiresAjax(true)
-    	             ->setRequiresMethod('GET')
-    	             ->setRequiresLogin(false);
-     
-    	$agendaContato->addMbAction('apagar');
-     
-    	$agendaContato->addMbAction('atualizar');
-     
-    	$agendaContato->addMbAction('buscarPorId')
-    	             ->setRequiresAjax(true)
-    	             ->setRequiresMethod('GET')
-    	             ->setRequiresLogin(false);
-     
-    	$agendaContato->setCapability('read');
-     
-    	$mocaBonita->addMbShortcode('contact', $agendaContato, 'contact');
-     
-    	$agendaEmail = MbPage::create('Emails');
-     
-    	$agendaEmail->setSlug('agenda-emails');
-     
-    	$agenda->setSubPage($agendaContato);
-     
-    	$agenda->setSubPage($agendaEmail);
-     
-    	$mocaBonita->addMbPage($agenda);
-     
-    	$mocaBonita->getAssetsPlugin()
-    	           ->setCss(MbPath::pBwDir('bootstrap/dist/css/bootstrap.min.css'))
-    	           ->setCss(MbPath::pCssDir('app.css'));
+     /**
+     * Aqui podemos configurar alguns ajustes da página
+     * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbPage.html
+     */  
+    $paginaExemplo->setMenuPosition(1)
+        ->setDashicon('dashicons-admin-site')
+        ->setRemovePageSubmenu();
+ 
+    /**
+    * Criando outra página para o Plugin
+    * É possível inúmeras páginas ao plugin
+    */ 
+    $paginaOutra = MbPage::create('Outra');
+ 
+    /**
+    * Para que cada página funcione corretamente, é necessário criar uma Class que extenda de MbController 
+    * e depois adiciona-la à página, através de seu nome.
+    * @doc: http://php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class.class 
+    */ 
+    $paginaOutra->setController(ExemploController::class);
+ 
+    /**
+    * Cada método da controller pode ser representado por uma action na página, 
+    * entretanto o método na Controller deve ter o sufixo "Action", Ex: cadastrarAction(MbRequest $mbRequest, MbResponse $mbResponse).
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbAction.html 
+    */ 
+    $paginaOutra->addMbAction('cadastrar');
+ 
+    /**
+    * Por padrão, ao ser criado uma página, uma action chamada index é criada, contudo é possível ajustar 
+    * suas configurações, assim como de qualquer outra action. 
+    * Assim como as páginas, as actions tem suas próprias configurações. 
+    */
+    $paginaOutra->getMbAction('index')
+                 ->setRequiresAjax(true)
+                 ->setRequiresMethod('GET')
+                 ->setRequiresLogin(false);
+ 
+    $paginaOutra->addMbAction('apagar')
+                 ->setRequiresMethod('DELETE');
+ 
+    $paginaOutra->addMbAction('atualizar')
+                 ->setRequiresMethod('PUT');
+ 
+    /**
+    * Cada página pode ter suas capacidades alteradas, contudo elas só terão efeitos se for necessário o login do Wordpress
+    * @doc: https://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table
+    */
+    $paginaOutra->setCapability('read');
+ 
+    /**
+    * Caso seu plugin precise de um shortcode, você pdoe adiciona-lo associando à página.
+    * Seu comportamento é semelhante a de uma action, contudo seu sufixo deve ser "Shortcode", Ex: exemploShortcode(array $attributes, $content, $tags).
+    * @doc: https://codex.wordpress.org/Shortcode_API
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html#method_addMbShortcode
+    */
+    $mocabonita->addMbShortcode('exemplo_shortcode', $paginaOutra, 'exemplo');
+ 
+    /**
+    * Vamos criar uma terceira página que será uma subpágina da página Outra 
+    */
+    $paginaTeste = MbPage::create('Teste');
+  
+    /**
+    * É possível tornar uma página como subpágina de outra. 
+    * A única diferença entre uma página e uma subpágina é que no menu administrativo, a subpágina passa a ser um submenu
+    * da página principal. Além disso, ao adicionar uma subpágina, você não precisa adiciona-la ao MocaBonita, 
+    * como vamos fazer nas próximas linhas com as outras duas páginas.
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbPage.html#method_setSubPage
+    */
+    $paginaOutra->setSubPage($paginaTeste);
+    
+    /**
+     * Após finalizar todas as configurações da página, podemos adiciona-las ao MocaBonita para que elas possam ser 
+     * usadas pelo Wordpress. Caso uma página não seja adicionada, apenas os shortcodes relacionados a ela serão 
+     * executados.
+     */
+    $mocabonita->addMbPage($paginaExemplo);
+    $mocabonita->addMbPage($paginaOutra);
+ 
+    /**
+    * É possível também definir assets ao plugin, wordpress ou página, basta obter seu MbAsset.
+    * Nos assets é possível adicionar css e javascript ao Wordpress.
+    * A class MbPath também pode ser utilizada para auxiliar nos diretórios do wordpress.
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbAsset.html
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbPath.html
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html#method_getAssetsPlugin
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html#method_getAssetsWordpress
+    * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbPage.html#method_getMbAsset
+    */
+    $mocabonita->getAssetsPlugin()
+               ->setCss(MbPath::pBwDir('bootstrap/dist/css/bootstrap.min.css'))
+               ->setCss(MbPath::pCssDir('app.css'));
     
 }, true);
-//O ultimo parâmetro de MocaBonita::loader é opcional e define se o plugin está em desenvolvimento.
+//O ultimo parâmetro de MocaBonita::plugin é opcional e define se o plugin está em desenvolvimento.
 ```
 
-Lembre-se de editar as anotações para o reconhecimento do plugin por conta do wordpres. Recomendamos que o namespace do plugin seja semelhante ao nome da pasta, mas em **`UpperCamelCase`**.
+Lembre-se de editar as anotações do começo da página para o reconhecimento do plugin. 
+Recomendamos que o namespace do plugin seja semelhante ao nome da pasta em **`UpperCamelCase`**.
 
-Antes de começar a configurar o MocaBonita, vamos criar as pastas do MVC e outras. Dentro da pasta do plugin, crie as seguintes páginas
+Recomendamos que sua estrutura interna das páginas sejam assim:
 
 `controller` : Nesta pasta ficarão as controllers do plugin.
 
@@ -152,126 +221,16 @@ Antes de começar a configurar o MocaBonita, vamos criar as pastas do MVC e outr
 
 `view` : Nesta pasta ficarão as views e templates do plugin. 
 
-`service` : Nesta pasta ficarão os services do plugin (Falaremos dele abaixo).
+`event` : Nesta pasta ficarão os eventos do plugin.
 
 `public` : Nesta pasta ficarão os arquivos de images, css e javascript do plugin. 
 
-Crie também as pastas `images`, `css` e `js` dentro da pasta `public`
+Crie também as pastas `images`, `css` e `js` dentro da pasta `public`, elas poderão ser obtidas através do MbPath
 
 
 *Lembre-se que nas pastas `controller`, `model` e `service` você precisará definir os namespaces nas classes php.
 
 
-####4º Configuração das Páginas ####
+####4º Páginas ####
 
-As páginas do MoçaBonita é uma espécie de container cheio de ações que serão executadas pelo wordpress. 
-Cada página precisa ter um `nome`, `capacity` do wordpress, `slug` (link da página no wordpress), `icone do menu`, 
-`posição no menu`, sua `controller` (Instancia de MocaBonita\controller\Controller), `assets` e suas `ações`, 
-por padrão já vem a indexAction.
-
-O MocaBonita precisa de no mínimo uma página para funcionar corretamente. 
-
-Para criar uma página no MocaBonita, crie uma instância de `MocaBonita\tools\Paginas` e depois adicione ao MocaBonita.
-Veja o exemplo abaixo:
-
-```php
-use MocaBonita\tools\Paginas;
-
-MocaBonita::loader(function (MocaBonita $mocabonita){
-    
-    $exemploPagina = new Paginas();
-    
-    $mocabonita->adicionarPagina($exemploPagina);
-    
-}, true);
-```
-
-Com isso, você já vera o resultado ao acessar o painel adminstrativo do wordpress `wp-admin/admin.php` 
-e clicar no menu `Moça Bonita`.
-
-Por padrão, a página já vem com essas definições mas podem ser editáveis:
-
-```php
-$exemploPagina
-    ->setNome("Moça Bonita")            //Nome da Página
-    ->setCapacidade("manage_options")   //Capacity do WP quando acessar pelo painel administrativo (https://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table)
-    ->setSlug("moca_bonita")            //Slug da Página (wp-admin/admin.php?page=moca_bonita)
-    ->setIcone("dashicons-editor-code") //Icone do Menu (https://developer.wordpress.org/resource/dashicons/)
-    ->setEsconderMenu(false)            //Esconder menu no WordPress
-    ->setAssets(new Assets())           //Assets que aparecerão quando acessar a página de alguma forma (CSS e JS)
-    ->setPaginaParente(null)            //Página pai, caso esta seja uma subpágina
-    ->setMenuPrincipal(true)            //Definir página como menu principal no wordpress 
-    ->setSubmenu(false)                 //Definir página como submenu no wordpress, necessário uma página parente
-    ->setPosicao(100)                   //Posição da página no menu do wordpress
-    ->adicionarAcao('index');           //Adicionar a indexAction para a página
-```
-
-Por padrão, a Ação index já vem com essas definições mas podem ser editáveis:
-
-```php
-$acaoIndex = $exemploPagina->getAcao('index'); //Obter MocaBonita\tools\Acoes('index') da página
-
-$acaoIndex
-    ->setNome('index')         //Nome da ação que é enviado pela rota (wp-admin/admin.php?page=moca_bonita&action=index)
-    ->isLogin(true)            //Definir se a Ação precisa acessar com usuário conectado ao wordpress
-    ->setAjax(false)           //Definir se a Ação precisa acessar pelo admin-ajax.php 
-    ->setRequisicao(null)      //Definir um método de requisição exclusivo para a ação, ex: POST, DELETE, PUT, GET. Caso for null, aceitará todos
-    ->setMetodo('index')       //Nome do método do Controller da página sem o complemento Action
-    ->setShortcode(false)      //Definir se a Ação é um shortcode do wordpress
-    ->setComplemento('Action') //Complemento do método, por padrão esta "Action" para diferenciar os métodos que são ações nas controllers 
-    ->setCapacidade(null);     //Caso o islogin seja true, a capacidade do usuário logado é precisa atender a capacidade definida, caso a capacidade seja null, a capacidade da página é comparada.
-```
-
-A página pode ter diversas ações, cada ação com seu próprio link exclusivo, além de definir método de requisição, 
-capacidade exclusiva e validação de login se necessário.
-
-Para que a página funcione corretamente, é necessário ter um Controller, então crie uma Classe para Controller na pasta controller e 
-extenda a Controller do MocaBonita. Veja abaixo:
-
-
-```php
-<?php
-
-namespace ExemploPlugin\controller;
-
-use MocaBonita\controller\Controller;
-
-use MocaBonita\tools\Requisicoes;
-use MocaBonita\tools\Respostas;
-
-class Exemplo extends Controller {
-    
-    /**
-     * Ação da controller
-     *
-     * Se a requisição for para admin.php ou admin-post.php 
-     * Se o retorno for null, ele irá chamar a view desta controller e redenrizar
-     * Se o retorno for string, ele irá imprimir a string na tela
-     * Se o retorno for View, ele irá redenrizar a view desta controller
-     * Se o retorno for qualquer outro tipo, ele irá fazer um var_dump do retorno
-     * Se existir uma exception, retonará a mensagem de erro do exception 
-     * 
-     * Se a requisição for para admin-ajax.php 
-     * Se o retorno for string, ele retornará um JSON com chave "content" contendo a string
-     * Se o retorno for Array, ele retornará um JSON desse array
-     * Se o retorno for qualquer outro tipo, ele retornará uma requisição de erro, informando "Nenhum dado foi retornado!"
-     * Se existir uma exception, ele retornará uma requisição de erro, informando o erro do exception 
-     * 
-     * @param Requisicoes $request
-     * @param Respostas $response
-     *
-     * @return null|string|View|void
-     */
-    public function indexAction(Requisicoes $request, Respostas $response)
-    {
-        return $this->view;
-    }
-
-}
-```
-
-Por padrão, a Controller já vem com alguns métodos definidos para obter o slug da página atual, o nome da ação, o 
-tipo de requisição, se a requisição é ajax, se for shortcode, a query http get e os dados enviados pela requisição 
-como `$_POST` ou `JSON`. O nome da ação definida na página é o mesmo nome do método, contudo pode ser alterado pelo método 
-`setMetodo($metodo)`, além do complemento Action que pode ser substituido por `setComplemento()`.
-
+Em construção

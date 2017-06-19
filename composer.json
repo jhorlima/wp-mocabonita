@@ -11,11 +11,10 @@
   "homepage": "https://github.com/jhorlima/wp-mocabonita",
   "type": "wordpress-framework-plugin",
   "license": "MIT",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "authors": [
     {
       "name": "Jhordan Lima",
-      "email": "jhordanlima.uema.dpd@gmail.com",
       "role": "Developer"
     }
   ],
@@ -31,7 +30,6 @@
     "illuminate/pagination": "~5",
     "symfony/http-foundation": "3.0.*",
     "nesbot/carbon": "~1.20",
-    "katzgrau/klogger": "1.2.1",
     "symfony/var-dumper" : "*"
   },
   "require-dev": {
