@@ -38,7 +38,7 @@ Em primeiro lugar é necessário ter o composer instalado no computador.
 Depois de instalado, execute o código abaixo pelo terminal na pasta do seu plugin.
 
 ```sh
-$ composer require jhorlima/wp-mocabonita:dev-master --update-no-dev
+$ composer require jhorlima/wp-mocabonita --update-no-dev
 ``` 
 
 ####3º Configurar o plugin ####
