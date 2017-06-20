@@ -230,7 +230,89 @@ Crie também as pastas `images`, `css` e `js` dentro da pasta `public`, elas pod
 
 *Lembre-se que nas pastas `controller`, `model` e `service` você precisará definir os namespaces nas classes php.
 
+Documentação de configuração: 
+https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html
 
 ####4º Páginas ####
+
+As páginas do framework MocaBonita são responsáveis por transmitir informações do plugin. Elas podem ser acessadas pelo
+menu administrativo do Wordpress, por padrão, ou pelo parametro "**page**" da URL informando seu _slug_ como valor. Ex: ?page=exemplo.
+
+Para que uma página funcione corretamente, ela precisa de uma controller para realizar suas ações. 
+
+Por padrão, uma página vem configurada como:
+
+```php
+<?php
+
+use MocaBonita\tools\MbPage;
+use MocaBonita\tools\MbAsset;
+
+/**
+* Criando uma página para o Plugin
+*/    
+$paginaExemplo = MbPage::create('Exemplo');
+
+/**
+* Configuração Padrão ao criar uma página do MocaBonita
+*/
+$paginaExemplo->setName("Exemplo");
+$paginaExemplo->setCapability("manage_options");
+$paginaExemplo->setDashicon("dashicons-editor-code");
+$paginaExemplo->setHideMenu(false);
+$paginaExemplo->setMbAsset(new MbAsset());
+$paginaExemplo->setMainMenu(true);
+$paginaExemplo->setSubMenu(false);
+$paginaExemplo->setMenuPosition(1);
+$paginaExemplo->addMbAction('index');
+
+```
+
+É possivel adicionar inúmeras páginas em um plugin, contudo elas precisam ser criadas dentro das configurações de um
+plugin ou dentro de um evento do MocaBonita que inicializa após o Wordpress, chamado START_WORDPRESS.
+
+*Lembre-se: Todas as páginas precisam ser adicionadas ao MocaBonita após sua configuração.
+
+```php
+<?php
+
+/**
+ * Após finalizar todas as configurações da página, podemos adiciona-las ao MocaBonita para que elas possam ser 
+ * usadas pelo Wordpress. Caso uma página não seja adicionada, apenas os shortcodes relacionados a ela serão 
+ * executados.
+ */
+$mocabonita->addMbPage($paginaExemplo);
+    
+```
+
+É possível também que uma página tenha outras subpáginas. A única diferença entre uma página e uma subpágina é que no 
+menu administrativo, pois subpágina passa a ser um submenu da página principal. Além disso, ao adicionar uma subpágina, 
+você não precisa adiciona-la ao MocaBonita, pois passa ser responsabilidade da página este processo.
+ 
+Uma subpágina pode ser criada igual uma página principal e depois ser adicionada como uma subpágina, ex:
+```php
+<?php
+
+use MocaBonita\tools\MbPage;
+
+$paginaTeste = MbPage::create('Teste');
+$paginaExemplo->setSubPage($paginaTeste);
+```
+
+Ou diretamente na página existente.
+
+```php
+<?php
+
+$paginaExempo->addSubPage('Teste', 'teste');
+
+```
+
+Veja a documentação completa da classe de Páginas do MocaBonita para saber o que mais você pode fazer:
+
+https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbPage.html
+
+
+####5º Ações ####
 
 Em construção
