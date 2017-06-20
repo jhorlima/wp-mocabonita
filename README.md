@@ -255,8 +255,12 @@ $paginaExemplo = MbPage::create('Exemplo');
 
 /**
 * Configuração Padrão ao criar uma página do MocaBonita
+* O Slug da página, por padrão, é criado ao definir o nome. Ele utiliza a função do 
+* Wordpress sanitize_title no nome para gerar o slug.
+* @doc: https://codex.wordpress.org/Function_Reference/sanitize_title
 */
 $paginaExemplo->setName("Exemplo");
+$paginaExemplo->setSlug("exemplo");
 $paginaExemplo->setCapability("manage_options");
 $paginaExemplo->setDashicon("dashicons-editor-code");
 $paginaExemplo->setHideMenu(false);
@@ -299,7 +303,7 @@ $paginaTeste = MbPage::create('Teste');
 $paginaExemplo->setSubPage($paginaTeste);
 ```
 
-Ou diretamente na página existente.
+Ou diretamente na página existente, informando apenas o nome e o slug da nova subpágina.
 
 ```php
 <?php
