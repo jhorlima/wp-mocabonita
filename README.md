@@ -319,4 +319,48 @@ https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbPage.html
 
 ####5º Ações ####
 
+As ações do MocaBonita são os compotarmentos das páginas. Cada atividade que o sistema precisa realizar será
+feita através de uma ação. Uma página pode ter inúmeras ações, e por padrão, ela já vem com a ação "index".
+
+Exemplo de como adicionar uma ação:
+
+```php
+<?php
+
+use MocaBonita\tools\MbPage;
+
+$paginaTeste = MbPage::create('Teste');
+$paginaTeste->addMbAction("index");
+```
+Por padrão, uma ação já vem configurada com:
+
+```php
+<?php
+
+use MocaBonita\tools\MbPage;
+
+$paginaTeste = MbPage::create('Teste');
+$indexAction = $paginaTeste->addMbAction("index");
+
+/**
+ * Configuração padrão ao criar uma action
+*/
+$indexAction->setMbPage($paginaTeste);
+$indexAction->setName("index");
+$indexAction->setFunctionName("index");
+$indexAction->setRequiresLogin(true);
+$indexAction->setRequiresAjax(false);
+$indexAction->setRequiresMethod(null);
+$indexAction->setFunctionComplement('Action');
+$indexAction->setShortcode(false);
+$indexAction->setCapability(null);
+            
+```
+
+Mais informações em : https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbAction.html
+
+As ações são chamadas através do parametro **actions** da URL. Ex: ?page=teste&action=index
+
+####6º Controller ####
+
 Em construção
