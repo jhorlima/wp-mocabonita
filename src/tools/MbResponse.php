@@ -6,6 +6,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Response;
 use Illuminate\Support\Debug\Dumper;
+use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 /**
  * Main class of the MocaBonita Response
@@ -62,17 +63,21 @@ class MbResponse extends Response
     {
         if (is_null($this->mbRequest)) {
             return $this;
-        } elseif ($this->mbRequest->isMethod("GET") || $this->mbRequest->isMethod("DELETE")) {
-            $this->statusCode = 200;
+        }
+
+        $this->prepare($this->mbRequest);
+
+        if ($this->mbRequest->isMethod("GET") || $this->mbRequest->isMethod("DELETE")) {
+            $this->statusCode = BaseResponse::HTTP_OK;
         } elseif ($this->mbRequest->isMethod("POST") || $this->mbRequest->isMethod("PUT")) {
-            $this->statusCode = 201;
+            $this->statusCode = BaseResponse::HTTP_CREATED;
         } else {
-            $this->statusCode = 204;
+            $this->statusCode = BaseResponse::HTTP_RESET_CONTENT;
         }
 
         if ($content instanceof \Exception) {
             $this->statusCode = $content->getCode();
-            $this->statusCode = $this->statusCode < 300 && $this->statusCode != 204 ? 400 : $this->statusCode;
+            $this->statusCode = $this->isSuccessful() ? $this->statusCode : BaseResponse::HTTP_BAD_REQUEST;
         }
 
         if ($this->mbRequest->isAjax()) {
@@ -133,19 +138,25 @@ class MbResponse extends Response
         } elseif (is_string($content)) {
             $content = ['content' => $content];
         } elseif (!is_array($content) && !$content instanceof \Exception) {
-            return $this->ajaxContent(new \Exception("No valid content has been submitted!", 204));
+            return $this->ajaxContent(new \Exception("No valid content has been submitted!", 400));
         } elseif ($content instanceof \Exception) {
-            $this->setStatusCode($content->getCode() < 300 && $content->getCode() != 204 ? 400 : $content->getCode());
-            $message = $content instanceof MbException ? $content->getWpErrorMessages() : $content->getMessage();
-            $content = $content instanceof MbException ? $content->getExcepitonDataArray() : null;
+            $this->setStatusCode($content->getCode() < 300 ? BaseResponse::HTTP_BAD_REQUEST : $content->getCode());
+
+            if($content instanceof MbException){
+                $message = $content->getWpErrorMessages();
+                $content = $content->getExcepitonDataArray();
+            } else {
+                $message = $content->getMessage();
+                $content = null;
+            }
         }
 
         $this->original = [
             'meta' => [
-                'code' => $this->getStatusCode(),
+                'code'    => $this->getStatusCode(),
                 'message' => $message
             ],
-            'data' => $content,
+            'data'        => $content,
         ];
 
         return $this->original;
@@ -173,14 +184,15 @@ class MbResponse extends Response
                 }
             } else {
                 $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
-
                 if($content instanceof MbException){
-                    $this->original .= $content->getExcepitonDataView();
+                    $this->original = $this->original . $content->getExcepitonDataView();
                 }
             }
+        } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()){
+            $this->downloadFile($content);
         } elseif (!is_string($content) && !$content instanceof Renderable) {
             ob_start();
-            (new Dumper())->dump($content);
+            (new Dumper)->dump($content);
             $this->original = ob_get_contents();
             ob_end_clean();
         } else {
@@ -188,6 +200,30 @@ class MbResponse extends Response
         }
 
         parent::setContent($this->original);
+    }
+
+    /**
+     * Download file
+     *
+     * @param \SplFileInfo $content
+     *
+     * @throws MbException
+     */
+    public function downloadFile(\SplFileInfo $content)
+    {
+        if ($content->isFile()) {
+            if (!$content->isReadable()){
+                throw new MbException("The download file can not be read!");
+            }
+            $finfo = new \finfo;
+            header("Content-Type: {$finfo->file( $content->getRealPath(), FILEINFO_MIME)}");
+            header("Content-Length: {$content->getSize()}");
+            header("Content-Disposition: attachment; filename={$content->getBasename()}");
+            readfile($content->getRealPath());
+            exit();
+        } else {
+            throw new MbException("The requested file for download is invalid!");
+        }
     }
 
     /**

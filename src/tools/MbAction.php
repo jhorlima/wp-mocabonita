@@ -80,6 +80,27 @@ class MbAction
     private $capability;
 
     /**
+     * Page rules
+     *
+     * @var string[]
+     */
+    private $rules;
+
+    /**
+     * Stores data to return
+     *
+     * @var mixed
+     */
+    private $data;
+
+    /**
+     * Stores the callback to return
+     *
+     * @var \Closure
+     */
+    private $callback;
+
+    /**
      * Get MbPage
      *
      * @return MbPage
@@ -295,6 +316,74 @@ class MbAction
     public function setCapability($capability = "read")
     {
         $this->capability = $capability;
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRules()
+    {
+        return $this->rules;
+    }
+
+    /**
+     * @param string[] $rules
+     * @return MbAction
+     */
+    public function setRules(array $rules)
+    {
+        $this->rules = $rules;
+        return $this;
+    }
+
+    /**
+     * @param string $rule
+     *
+     * @return MbAction
+     */
+    public function setRule($rule)
+    {
+        if(!is_array($this->rules)){
+            $this->rules = [];
+        }
+        $this->rules[] = $rule;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param mixed $data
+     * @return MbAction
+     */
+    public function setData($data)
+    {
+        $this->data = $data;
+        return $this;
+    }
+
+    /**
+     * @return \Closure
+     */
+    public function getCallback()
+    {
+        return $this->callback;
+    }
+
+    /**
+     * @param \Closure $callback
+     * @return MbAction
+     */
+    public function setCallback(\Closure $callback)
+    {
+        $this->callback = $callback;
         return $this;
     }
 
