@@ -102,10 +102,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MocaBonita $mocaBonita
+     *
+     * @throws MbException
      */
     public function startWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MocaBonita $mocaBonita)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -114,10 +118,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MocaBonita $mocaBonita
+     *
+     * @throws MbException
      */
     public function finishWpDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MocaBonita $mocaBonita)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -126,10 +134,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbPage $mbPage
+     *
+     * @throws MbException
      */
     public function beforePageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbPage $mbPage)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -138,10 +150,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbPage $mbPage
+     *
+     * @throws MbException
      */
     public function afterPageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbPage $mbPage)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -150,10 +166,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbPage $mbPage
+     *
+     * @throws MbException
      */
     public function finishPageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbPage $mbPage)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -162,10 +182,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param \Exception $exception
+     *
+     * @throws MbException
      */
     public function exceptionPageDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, \Exception $exception)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -174,10 +198,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbShortCode $mbShortCode
+     *
+     * @throws MbException
      */
     public function beforeShortcodeDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbShortCode $mbShortCode)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -186,10 +214,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbShortCode $mbShortCode
+     *
+     * @throws MbException
      */
     public function afterShortcodeDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbShortCode $mbShortCode)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -198,10 +230,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbAction $mbAction
+     *
+     * @throws MbException
      */
     public function beforeActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbAction $mbAction)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -210,10 +246,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbAction $acaombAction
+     *
+     * @throws MbException
      */
     public function afterActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbAction $acaombAction)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -222,10 +262,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param MbAction $mbAction
+     *
+     * @throws MbException
      */
     public function finishActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, MbAction $mbAction)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 
     /**
@@ -235,10 +279,14 @@ abstract class MbEvent extends MbSingleton
      * @param MbRequest $mbRequest
      * @param MbResponse $mbResponse
      * @param \Exception $exception
+     *
+     * @throws MbException
      */
     public function exceptionActionDispatcher(MbRequest $mbRequest, MbResponse $mbResponse, \Exception $exception)
     {
-        //
+        $className = static::class;
+        $methodName = __METHOD__;
+        throw new MbException("{$methodName} not allowed in! {$className}.");
     }
 }
 

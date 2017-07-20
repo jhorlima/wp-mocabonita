@@ -59,23 +59,25 @@ abstract class MbSingleton
     }
 
     /**
-     * The __clone () magic method is declared private to prevent cloning of an instance of the class through
-     * the clone operator.
+     * Clone Not allowed
      *
+     * @throws MbException
      */
-    final private function __clone()
+    public final function __clone()
     {
-        //
+        $className = static::class;
+        throw new MbException("Clone not allowed in {$className}!");
     }
 
     /**
-     * The magic method __wakeup () is declared as private to avoid unserializing an instance of the class via the
-     * global unserialize () function.
+     * WakeUp Not allowed.
      *
+     * @throws MbException
      */
-    final private function __wakeup()
+    public final function __wakeup()
     {
-        //
+        $className = static::class;
+        throw new MbException("WakeUp not allowed in {$className}!");
     }
 
     /**
