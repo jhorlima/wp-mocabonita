@@ -331,7 +331,7 @@ class MbAction
      * @param string[] $rules
      * @return MbAction
      */
-    public function setRules(array $rules)
+    public function setRules($rules)
     {
         $this->rules = $rules;
         return $this;

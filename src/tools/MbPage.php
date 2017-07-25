@@ -554,7 +554,7 @@ class MbPage
      * @param string[] $rules
      * @return MbPage
      */
-    public function setRules(array $rules)
+    public function setRules($rules)
     {
         $this->rules = $rules;
         return $this;

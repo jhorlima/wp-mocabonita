@@ -36,24 +36,10 @@ class MbSession extends Base
     public static function getInstance()
     {
         if (is_null(static::$instance)) {
-            $model   = new MbSessionModel();
+            $model   = new MbSessionModel;
             $storage = new NativeSessionStorage();
 
-            MbMigration::enablePdoConnection();
-
-            $pdoHandle = new PdoSessionHandler(
-                MbMigration::connection()->getPdo(),
-                [
-                    'db_table'  => $model->getTable(),
-                    'db_id_col' => $model->getKeyName(),
-                ]
-            );
-
-            if(!MbMigration::schema()->hasTable($model->getTable())){
-                $pdoHandle->createTable();
-            }
-
-            $storage->setSaveHandler($pdoHandle);
+            $storage->setSaveHandler($model->getHandle());
 
             static::$instance = new static($storage);
         }
