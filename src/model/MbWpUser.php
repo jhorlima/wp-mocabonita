@@ -2,6 +2,8 @@
 
 namespace MocaBonita\model;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Arr;
 use MocaBonita\tools\eloquent\MbModel;
 
 /**
@@ -18,6 +20,28 @@ use MocaBonita\tools\eloquent\MbModel;
  */
 class MbWpUser extends MbModel
 {
+
+    /**
+     * Stores the rule attribute name
+     *
+     * @var string
+    */
+    const RULE_ATTR_DEFAULT = "rule_user";
+
+    /**
+     * Stores the current User
+     *
+     * @var MbWpUser
+     */
+    protected static $currentUser = null;
+
+    /**
+     * Stores the custom rule attribute name
+     *
+     * @var string
+     */
+    protected static $ruleAttr = null;
+
     /**
      * Stored table name
      *
@@ -31,6 +55,13 @@ class MbWpUser extends MbModel
      * @var string
      */
     protected $primaryKey = 'ID';
+
+    /**
+     * Stored metas of the User
+     *
+     * @var Collection
+     */
+    protected $metas = null;
 
     /**
      * Stored if table has timestamps
@@ -65,13 +96,38 @@ class MbWpUser extends MbModel
     ];
 
     /**
+     * Get rule attr
+     *
+     * @return string
+     */
+    public static function getRuleAttr()
+    {
+        return is_null(self::$ruleAttr) ? self::RULE_ATTR_DEFAULT : self::$ruleAttr;
+    }
+
+    /**
+     * Set rule attr
+     *
+     * @param string $ruleAttr
+     */
+    public static function setRuleAttr($ruleAttr)
+    {
+        self::$ruleAttr = $ruleAttr;
+    }
+
+    /**
      * Get user meta
      *
-     * @return MbWpUserMeta[]
+     * @return Collection
      */
-    public function meta()
+    public function getMetas()
     {
-        return $this->hasMany(MbWpUserMeta::class, 'user_id');
+        if(is_null($this->metas)){
+            $this->metas = $this->hasMany(MbWpUserMeta::class, 'user_id')->getResults();
+            $this->metas->keyBy("meta_key");
+        }
+
+        return $this->metas;
     }
 
     /**
@@ -79,8 +135,39 @@ class MbWpUser extends MbModel
      *
      * @return MbWpUser
      */
-    public function getCurrentUser()
+    public static function getCurrentUser()
     {
-        return self::findOrFail(get_current_user_id());
+        if (is_null(self::$currentUser)){
+            self::$currentUser = self::findOrFail(get_current_user_id());
+        }
+
+        return self::$currentUser;
+    }
+
+    /**
+     * Add user rule
+     *
+     * @param string $rule
+     *
+     * @return MbWpUser
+     */
+    public function addRule($rule){
+        update_user_meta($this->getKey(), self::getRuleAttr(), $rule);
+        return $this;
+    }
+
+    /**
+     * Check user rule
+     *
+     * @param string[]|null $rules
+     *
+     * @return bool
+     */
+    public function checkRules($rules){
+        if(is_array($rules)){
+            return in_array(get_user_meta($this->getKey(), self::getRuleAttr(), true), $rules);
+        } else {
+            return true;
+        }
     }
 }

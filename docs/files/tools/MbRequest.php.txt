@@ -93,7 +93,7 @@ class MbRequest extends Request
         if (is_null($this->admin)) {
             $this->admin = (bool)is_admin();
         }
-        return (bool)$this->admin;
+        return $this->admin;
     }
 
     /**

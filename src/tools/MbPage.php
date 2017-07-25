@@ -118,6 +118,13 @@ class MbPage
     private $mbAsset;
 
     /**
+     * Page rules
+     *
+     * @var string[]
+     */
+    private $rules;
+
+    /**
      * MbPage construct
      *
      * @param MbPage $parentPage
@@ -363,10 +370,10 @@ class MbPage
      *
      * @return MbPage subpage
      */
-    public function addSubPage($name, $slug)
+    public function addSubPage($name, $slug = null)
     {
         $subpage = self::create($name)
-            ->setSlug($slug)
+            ->setSlug(is_null($slug) ? $name : $slug)
             ->setParentPage($this);
 
         $this->subPages[$subpage->getSlug()] = $subpage;
@@ -532,6 +539,38 @@ class MbPage
     public function setMbAsset(MbAsset $mbAsset)
     {
         $this->mbAsset = $mbAsset;
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRules()
+    {
+        return $this->rules;
+    }
+
+    /**
+     * @param string[] $rules
+     * @return MbPage
+     */
+    public function setRules(array $rules)
+    {
+        $this->rules = $rules;
+        return $this;
+    }
+
+    /**
+     * @param string $rule
+     *
+     * @return MbPage
+     */
+    public function setRule($rule)
+    {
+        if(!is_array($this->rules)){
+            $this->rules = [];
+        }
+        $this->rules[] = $rule;
         return $this;
     }
 

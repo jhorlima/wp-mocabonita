@@ -158,22 +158,39 @@ abstract class MbController
     }
 
     /**
-     * Private type __clone method prevents cloning of this class instance
+     * Clone Not allowed
      *
-     * @return void
+     * @throws MbException
      */
-    private function __clone()
+    public function __clone()
     {
-        //
+        $className = static::class;
+        throw new MbException("Clone not allowed in {$className}!");
     }
 
     /**
-     * Unserialize method of the private type to prevent the deserialization of the instance of this class.
+     * WakeUp Not allowed.
      *
-     * @return void
+     * @throws MbException
      */
-    private function __wakeup()
+    public function __wakeup()
     {
-        //
+        $className = static::class;
+        throw new MbException("WakeUp not allowed in {$className}!");
+    }
+
+    /**
+     * Handle calls to missing methods on the controller.
+     *
+     * @param  string  $method
+     * @param  array   $parameters
+     * @return mixed
+     *
+     * @throws MbException
+     */
+    public function __call($method, $parameters)
+    {
+        $className = static::class;
+        throw new MbException("Method [{$method}] does not exist in {$className}.");
     }
 }

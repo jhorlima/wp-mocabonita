@@ -2,6 +2,7 @@
 
 namespace MocaBonita;
 
+use MocaBonita\model\MbWpUser;
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
 use MocaBonita\tools\MbPath;
 use MocaBonita\tools\MbMigration;
@@ -28,7 +29,7 @@ use Illuminate\Pagination\Paginator;
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ * @version 3.2.0
  */
 final class MocaBonita extends MbSingleton
 {
@@ -36,7 +37,7 @@ final class MocaBonita extends MbSingleton
      * Current version of MocaBonita.
      *
      */
-    const VERSION = "3.1.0";
+    const VERSION = "3.2.0";
 
     /**
      * List of MocaBonita Pages
@@ -305,6 +306,14 @@ final class MocaBonita extends MbSingleton
         $this->mbEvents = [];
 
         MbMigration::enableWpdbConnection();
+
+        $this->mbRequest->setUserResolver(function (){
+            try{
+                return MbWpUser::getCurrentUser();
+            } catch (\Exception $e) {
+                return false;
+            }
+        });
     }
 
     /**
@@ -547,6 +556,11 @@ final class MocaBonita extends MbSingleton
             $mbAction->setCapability($mbPage->getCapability());
         }
 
+        //Set rule of page if the capability of MbAction is not defined
+        if (is_null($mbAction->getRules())) {
+            $mbAction->setRules($mbPage->getRules());
+        }
+
         //Check if MbAction requires login and if there is any user logged in
         if ($mbAction->isRequiresLogin() && !$this->mbRequest->isLogged()) {
             throw new MbException(
@@ -557,6 +571,12 @@ final class MocaBonita extends MbSingleton
         elseif ($mbAction->isRequiresLogin() && !current_user_can($mbAction->getCapability())) {
             throw new MbException(
                 "The action {$this->action} of the page {$this->page} requires a user with more access permissions!"
+            );
+        }
+        //Check if MbAction rule is allowed
+        elseif ($mbAction->isRequiresLogin() && !MbWpUser::getCurrentUser()->checkRules($mbAction->getRules())) {
+            throw new MbException(
+                "The action {$this->action} of the page {$this->page} requires a user with other profile rule!"
             );
         }
         //Check if MbAction requires a MbRequest ajax
@@ -571,28 +591,9 @@ final class MocaBonita extends MbSingleton
                 "The action {$this->action} of the page {$this->page} must be called by request method {$mbAction->getRequiresMethod()}!"
             );
         }
-        //Check if the method the MbAction exist in Controller
-        elseif (!$mbAction->functionExist()) {
-            throw new MbException(
-                "The action {$this->action} of the page {$this->page} does not have a public method in the controller {$controllerName}. " .
-                "Please create or make public the method {$mbAction->getFunction()}!"
-            );
-        }
 
         //Set current MbAction to MbRequest
         $this->getMbRequest()->setMbAction($mbAction);
-
-        //Set page parameter to View
-        $mbView = new MbView();
-
-        $mbView->setMbRequest($this->mbRequest)
-            ->setMbResponse($this->mbResponse)
-            ->setView('index', $this->page, $this->action);
-
-        //Set the MbView to Controller
-        $mbAction->getMbPage()
-            ->getController()
-            ->setMbView($mbView);
 
         //Set MbRequest and MbResponse to current controller of MbAction
         $mbAction->getMbPage()
@@ -603,12 +604,47 @@ final class MocaBonita extends MbSingleton
         ob_start();
 
         try {
+
             MbEvent::callEvents($this, MbEvent::BEFORE_ACTION, $mbAction);
 
-            //Execute method of controller
-            $actionResponse = $mbAction->getMbPage()
-                ->getController()
-                ->{$mbAction->getFunction()}($this->mbRequest, $this->mbResponse);
+            //Check if has data to return
+            if(!is_null($mbAction->getData())){
+                $actionResponse = $mbAction->getData();
+            } else {
+
+                //Set page parameter to View
+                $mbView = new MbView();
+
+                $mbView->setMbRequest($this->mbRequest)
+                    ->setMbResponse($this->mbResponse)
+                    ->setView('index', $this->page, $this->action);
+
+                //Set the MbView to Controller
+                $mbAction->getMbPage()
+                    ->getController()
+                    ->setMbView($mbView);
+
+                //Check if has callback to return
+                if ($mbAction->getCallback() instanceof \Closure){
+
+                    $actionResponse =  $mbAction->getCallback()
+                        ->call($mbAction->getMbPage()->getController(), $this->mbRequest, $this->mbResponse);
+
+                //Check if has function to return
+                } elseif ($mbAction->functionExist()){
+
+                    $actionResponse = $mbAction->getMbPage()
+                        ->getController()
+                        ->{$mbAction->getFunction()}($this->mbRequest, $this->mbResponse);
+
+                } else {
+                    throw new MbException(
+                        "The action {$this->action} of the page {$this->page} does not have a public method in the controller {$controllerName}. " .
+                        "Please create or make public the method {$mbAction->getFunction()}!"
+                    );
+                }
+            }
+
             MbEvent::callEvents($this, MbEvent::AFTER_ACTION, $mbAction);
 
         } catch (\Exception $e) {
@@ -618,8 +654,6 @@ final class MocaBonita extends MbSingleton
             MbEvent::callEvents($this, MbEvent::FINISH_ACTION, $mbAction);
             $controllerPrint = ob_get_contents();
         }
-
-        ob_end_clean();
 
         if ($controllerPrint != "") {
             error_log($controllerPrint);
@@ -711,12 +745,11 @@ final class MocaBonita extends MbSingleton
         }
 
         if ($this->mocabonitaPage && is_null($this->action)) {
-            $query = http_build_query([
+            $url = admin_url($this->mbRequest->getPageNow());
+            $this->mbResponse->redirect($url, [
                 'page'   => $this->page,
                 'action' => 'index',
             ]);
-            $url = admin_url($this->mbRequest->getPageNow()) . "?" . $query;
-            $this->mbResponse->redirect($url);
         }
 
         return $this->mocabonitaPage;
@@ -827,8 +860,8 @@ final class MocaBonita extends MbSingleton
      */
     public function addAdminMenuToWordpress()
     {
-        foreach ($this->mbPages as $pagina) {
-            $pagina->addMenuWordpress();
+        foreach ($this->mbPages as $page) {
+            $page->addMenuWordpress();
         }
     }
 
