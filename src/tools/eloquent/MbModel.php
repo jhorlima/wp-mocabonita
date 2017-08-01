@@ -18,7 +18,7 @@ use Illuminate\Support\Arr;
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ * @version 3.2.1
  */
 class MbModel extends Model
 {
@@ -74,11 +74,13 @@ class MbModel extends Model
 
         if (!MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
+                $table->engine = 'InnoDB';
                 $model->createSchema($table);
             });
         } elseif ($deleteIfExists) {
             self::dropSchemaModel();
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
+                $table->engine = 'InnoDB';
                 $model->createSchema($table);
             });
         }
@@ -110,6 +112,7 @@ class MbModel extends Model
 
         if (MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->table($model->getTable(), function (Blueprint $table) use ($model) {
+                $table->engine = 'InnoDB';
                 $model->updateSchema($table);
             });
         } else {
