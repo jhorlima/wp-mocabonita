@@ -94,7 +94,7 @@ class MbWpUser extends MbModel
      * @return string
      */
     public function getTable() {
-        return $this->getConnection()->wpdb->prefix . "users";
+        return $this->getWpdb()->prefix . "users";
     }
 
     /**

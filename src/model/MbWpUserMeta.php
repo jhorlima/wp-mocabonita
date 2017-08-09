@@ -38,6 +38,6 @@ class MbWpUserMeta extends MbModel
      * @return string
      */
     public function getTable() {
-        return $this->getConnection()->wpdb->prefix . "usermeta";
+        return $this->getWpdb()->prefix . "usermeta";
     }
 }

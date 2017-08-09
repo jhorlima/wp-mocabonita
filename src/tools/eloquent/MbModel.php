@@ -32,6 +32,16 @@ class MbModel extends Model
     protected $wordpressPrefix = false;
 
     /**
+     * Wordpress DB Manager
+     *
+     * @var \wpdb
+     */
+    protected function getWpdb(){
+        global $wpdb;
+        return $wpdb;
+    }
+
+    /**
      * Get the table associated with the model.
      *
      * @return string
@@ -41,7 +51,7 @@ class MbModel extends Model
             return $this->table;
         }
 
-        $wpPrefix = $this->getConnection()->wpdb->prefix;
+        $wpPrefix = $this->getWpdb()->prefix;
 
         $table = str_replace('\\', '', Str::snake(Str::plural(class_basename($this))));
 

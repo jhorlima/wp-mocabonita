@@ -89,7 +89,7 @@ class MbPost extends MbModel {
      * @return string
      */
     public function getTable() {
-        return $this->getConnection()->wpdb->prefix . "posts";
+        return $this->getWpdb()->prefix . "posts";
     }
 
     /**

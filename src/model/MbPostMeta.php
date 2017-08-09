@@ -2,7 +2,7 @@
 
 namespace MocaBonita\model;
 
-use Illuminate\Database\Eloquent\Model;
+use MocaBonita\tools\eloquent\MbModel;
 
 /**
  * Main class of the MocaBonita Post Meta
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @copyright Universidade Estadual do Maranhão - UEMA
  * @version 3.1.0
  */
-class MbPostMeta extends Model
+class MbPostMeta extends MbModel
 {
     /**
      * Disable timestamps.
@@ -48,7 +48,7 @@ class MbPostMeta extends Model
      * @return string
      */
     public function getTable() {
-        return $this->getConnection()->wpdb->prefix . "postmeta";
+        return $this->getWpdb()->prefix . "postmeta";
     }
 
     /**
