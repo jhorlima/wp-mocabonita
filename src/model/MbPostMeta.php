@@ -24,12 +24,6 @@ class MbPostMeta extends Model
      * @var boolean
      */
     public $timestamps = false;
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'wp_postmeta';
 
     /**
      * The primary key for the model.
@@ -47,6 +41,15 @@ class MbPostMeta extends Model
         'meta_key',
         'meta_value'
     ];
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable() {
+        return $this->getConnection()->wpdb->prefix . "postmeta";
+    }
 
     /**
      * Post relationship.

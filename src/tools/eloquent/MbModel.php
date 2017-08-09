@@ -4,6 +4,7 @@ namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Str;
 use MocaBonita\tools\MbMigration;
 use MocaBonita\tools\validation\MbValidation;
 use Illuminate\Support\Arr;
@@ -18,10 +19,34 @@ use Illuminate\Support\Arr;
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.2.1
+ * @version 3.2.2
  */
 class MbModel extends Model
 {
+
+    /**
+     * Add wordpressPrefix table name
+     *
+     * @var bool
+     */
+    protected $wordpressPrefix = false;
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable() {
+        if (isset($this->table)) {
+            return $this->table;
+        }
+
+        $wpPrefix = $this->getConnection()->wpdb->prefix;
+
+        $table = str_replace('\\', '', Str::snake(Str::plural(class_basename($this))));
+
+        return $this->wordpressPrefix ? $wpPrefix . $table : $this->table;
+    }
 
     /**
      * New base query builder

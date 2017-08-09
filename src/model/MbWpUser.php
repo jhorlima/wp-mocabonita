@@ -43,13 +43,6 @@ class MbWpUser extends MbModel
     protected static $ruleAttr = null;
 
     /**
-     * Stored table name
-     *
-     * @var string
-     */
-    protected $table = 'wp_users';
-
-    /**
      * Stored table primarykey
      *
      * @var string
@@ -94,6 +87,15 @@ class MbWpUser extends MbModel
         'user_status',
         'display_name',
     ];
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable() {
+        return $this->getConnection()->wpdb->prefix . "users";
+    }
 
     /**
      * Get rule attr
