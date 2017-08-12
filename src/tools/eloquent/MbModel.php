@@ -55,7 +55,7 @@ class MbModel extends Model
 
         $table = str_replace('\\', '', Str::snake(Str::plural(class_basename($this))));
 
-        return $this->wordpressPrefix ? $wpPrefix . $table : $this->table;
+        return $this->wordpressPrefix ? $wpPrefix . $table : $table;
     }
 
     /**
