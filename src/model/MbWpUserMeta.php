@@ -26,11 +26,11 @@ class MbWpUserMeta extends MbModel
     protected $primaryKey = 'umeta_id';
 
     /**
-     * Stored if table has timestamps
+     * Disable timestamps.
      *
-     * @var bool
+     * @var boolean
      */
-    protected $timestamps = false;
+    public $timestamps = false;
 
     /**
      * Get the table associated with the model.
