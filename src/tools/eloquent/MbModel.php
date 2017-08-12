@@ -34,7 +34,7 @@ class MbModel extends Model
     /**
      * Wordpress DB Manager
      *
-     * @var \wpdb
+     * @return \wpdb
      */
     protected function getWpdb(){
         global $wpdb;

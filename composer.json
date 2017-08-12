@@ -11,7 +11,7 @@
   "homepage": "https://github.com/jhorlima/wp-mocabonita",
   "type": "wordpress-framework-plugin",
   "license": "MIT",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "authors": [
     {
       "name": "Jhordan Lima",
@@ -30,7 +30,7 @@
     "illuminate/pagination": "~5",
     "symfony/http-foundation": "3.0.*",
     "nesbot/carbon": "~1.20",
-    "symfony/var-dumper" : "*"
+    "symfony/var-dumper" : "~3"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.0",
