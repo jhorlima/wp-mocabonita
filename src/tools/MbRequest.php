@@ -221,6 +221,19 @@ class MbRequest extends Request
     }
 
     /**
+     * Get the full URL admin with new query for the requests.
+     *
+     * @param array $query
+     * @param string $adminPage
+     *
+     * @return string
+     */
+    public function adminUrlQuery(array $query, $adminPage = "admin.php")
+    {
+        return admin_url($adminPage . '?' . http_build_query($query));
+    }
+
+    /**
      * Is current action
      *
      * @param string $action
