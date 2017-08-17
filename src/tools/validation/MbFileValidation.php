@@ -68,7 +68,7 @@ class MbFileValidation extends MbValidationBase
             $mimetype = [$mimetype];
         }
 
-        if(is_array($mimetype) && in_array((new \finfo)->file($value->getRealPath(), FILEINFO_MIME), $mimetype)){
+        if(is_array($mimetype) && !in_array((new \finfo)->file($value->getRealPath(), FILEINFO_MIME), $mimetype)){
             throw new MbException("O arquivo '{$this->getAttribute()}' tem um formato inválido!");
         }
 
@@ -76,8 +76,10 @@ class MbFileValidation extends MbValidationBase
             $extension = [$extension];
         }
 
-        if(is_array($extension) && in_array($value->getExtension(), $extension)){
-            throw new MbException("O arquivo '{$this->getAttribute()}' tem uma extensão inválida!");
+        if(is_array($extension) && !in_array($value->getExtension(), $extension)){
+            throw new MbException(
+                "A extensão {$value->getExtension()} do arquivo '{$this->getAttribute()}' é inválida! Por favor utilizar uma das extensöes (" . implode(", ", $extension) . ")."
+            );
         }
 
         if(is_numeric($minSize) && $minSize > $tamanho){

@@ -268,6 +268,16 @@ class MbRequest extends Request
     }
 
     /**
+     * Get all of the input and files for the request.
+     *
+     * @return array
+     */
+    public function allSource()
+    {
+        return array_replace_recursive($this->inputSource(), $this->allFiles());
+    }
+
+    /**
      * Get MbPage
      *
      * @return MbPage
