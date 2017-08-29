@@ -2,6 +2,8 @@
 
 namespace MocaBonita\tools;
 
+use Illuminate\Support\Str;
+
 /**
  * Main class of the MocaBonita ActionPage
  *
@@ -331,7 +333,7 @@ class MbAction
      * @param string[] $rules
      * @return MbAction
      */
-    public function setRules(array $rules)
+    public function setRules($rules)
     {
         $this->rules = $rules;
         return $this;
@@ -400,7 +402,7 @@ class MbAction
     {
         $this->setMbPage($mbPage)
             ->setName($actionName)
-            ->setFunctionName($actionName)
+            ->setFunctionName(Str::camel($actionName))
             ->setRequiresLogin($requiresLogin)
             ->setRequiresAjax($requiresAjax)
             ->setRequiresMethod($requiresMethod)

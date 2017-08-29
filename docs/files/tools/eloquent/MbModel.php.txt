@@ -4,6 +4,7 @@ namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Str;
 use MocaBonita\tools\MbMigration;
 use MocaBonita\tools\validation\MbValidation;
 use Illuminate\Support\Arr;
@@ -18,10 +19,44 @@ use Illuminate\Support\Arr;
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ * @version 3.2.2
  */
 class MbModel extends Model
 {
+
+    /**
+     * Add wordpressPrefix table name
+     *
+     * @var bool
+     */
+    protected $wordpressPrefix = false;
+
+    /**
+     * Wordpress DB Manager
+     *
+     * @return \wpdb
+     */
+    protected function getWpdb(){
+        global $wpdb;
+        return $wpdb;
+    }
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable() {
+        if (isset($this->table)) {
+            return $this->table;
+        }
+
+        $wpPrefix = $this->getWpdb()->prefix;
+
+        $table = str_replace('\\', '', Str::snake(Str::plural(class_basename($this))));
+
+        return $this->wordpressPrefix ? $wpPrefix . $table : $table;
+    }
 
     /**
      * New base query builder
@@ -74,11 +109,13 @@ class MbModel extends Model
 
         if (!MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
+                $table->engine = 'InnoDB';
                 $model->createSchema($table);
             });
         } elseif ($deleteIfExists) {
             self::dropSchemaModel();
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
+                $table->engine = 'InnoDB';
                 $model->createSchema($table);
             });
         }
@@ -110,6 +147,7 @@ class MbModel extends Model
 
         if (MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->table($model->getTable(), function (Blueprint $table) use ($model) {
+                $table->engine = 'InnoDB';
                 $model->updateSchema($table);
             });
         } else {

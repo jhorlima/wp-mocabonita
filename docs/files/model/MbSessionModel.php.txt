@@ -2,7 +2,10 @@
 
 namespace MocaBonita\model;
 
+use Illuminate\Database\Schema\Blueprint;
 use MocaBonita\tools\eloquent\MbModel;
+use MocaBonita\tools\MbMigration;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
 /**
  * MocaBonita session class
@@ -33,13 +36,34 @@ class MbSessionModel extends MbModel
     protected $guarded = ["sess_id"];
 
     /**
-     * Get the primary key of this model.
+     * Create scheme of model
      *
-     * @return string
      */
-    public function getPrimaryKey()
+    public static function enableSchema()
     {
-        return $this->primaryKey;
+        $model = new MbSessionModel;
+
+        if(!MbMigration::schema()->hasTable($model->getTable())){
+            $model->getHandle()->createTable();
+        }
+    }
+
+    /**
+     * Get Handle to save
+     *
+     * @return PdoSessionHandler
+     */
+    public function getHandle()
+    {
+        MbMigration::enablePdoConnection();
+
+        return new PdoSessionHandler(
+            MbMigration::connection()->getPdo(),
+            [
+                'db_table'  => $this->getTable(),
+                'db_id_col' => $this->getKeyName(),
+            ]
+        );
     }
 
 }

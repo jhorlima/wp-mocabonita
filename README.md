@@ -18,6 +18,8 @@ Antes de começar, é recomendado que você faça uma leitura desse artigo:
 https://codex.wordpress.org/pt-br:Escrevendo_um_Plugin#Nomes.2C_arquivos_e_Locais
 ```
 
+[Aplicação de Exemplo](https://github.com/jhorlima/agenda-contatos)
+
 [Documentação PHP](https://jhorlima.github.io/wp-mocabonita/)
 
 [1º Criando o plugin](#1º-criando-o-plugin)
@@ -338,23 +340,36 @@ Por padrão, uma ação já vem configurada com:
 <?php
 
 use MocaBonita\tools\MbPage;
+use MocaBonita\tools\MbRequest;
+use ExemploPlugin\model\Exemplo;
 
 $paginaTeste = MbPage::create('Teste');
-$indexAction = $paginaTeste->addMbAction("index");
+$indexAction = $paginaTeste->addMbAction("buscar-todos");
 
 /**
  * Configuração padrão ao criar uma action
 */
 $indexAction->setMbPage($paginaTeste);
-$indexAction->setName("index");
-$indexAction->setFunctionName("index");
+$indexAction->setName("buscar-todos");
+$indexAction->setFunctionName("buscarTodos");
 $indexAction->setRequiresLogin(true);
 $indexAction->setRequiresAjax(false);
 $indexAction->setRequiresMethod(null);
 $indexAction->setFunctionComplement('Action');
 $indexAction->setShortcode(false);
 $indexAction->setCapability(null);
-            
+
+/**
+ * Outros Exemplos
+*/
+
+$paginaTeste->addMbAction("create")
+            ->setCallback(function (MbRequest $mbRequest){
+                return Exemplo::create($mbRequest->inputSource());
+            });
+
+$paginaTeste->addMbAction("all")->setData(Exemplo::all());
+
 ```
 
 Mais informações em : https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbAction.html

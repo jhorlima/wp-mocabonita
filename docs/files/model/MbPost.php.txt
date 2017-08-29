@@ -25,12 +25,6 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 class MbPost extends MbModel {
 
     /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'wp_posts';
-    /**
      * The primary key for the model.
      *
      * @var string
@@ -88,6 +82,15 @@ class MbPost extends MbModel {
         'post_modified',
         'post_modified_gmt'
     ];
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable() {
+        return $this->getWpdb()->prefix . "posts";
+    }
 
     /**
      * PostMeta relationship.

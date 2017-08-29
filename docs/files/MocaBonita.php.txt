@@ -37,7 +37,7 @@ final class MocaBonita extends MbSingleton
      * Current version of MocaBonita.
      *
      */
-    const VERSION = "3.2.0";
+    const VERSION = "3.2.7";
 
     /**
      * List of MocaBonita Pages

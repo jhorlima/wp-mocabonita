@@ -221,6 +221,19 @@ class MbRequest extends Request
     }
 
     /**
+     * Get the full URL admin with new query for the requests.
+     *
+     * @param array $query
+     * @param string $adminPage
+     *
+     * @return string
+     */
+    public function adminUrlQuery(array $query, $adminPage = "admin.php")
+    {
+        return admin_url($adminPage . '?' . http_build_query($query));
+    }
+
+    /**
      * Is current action
      *
      * @param string $action
@@ -252,6 +265,16 @@ class MbRequest extends Request
     public function inputSource($key = null, $default = null)
     {
         return data_get($this->getInputSource()->all(), $key, $default);
+    }
+
+    /**
+     * Get all of the input and files for the request.
+     *
+     * @return array
+     */
+    public function allSource()
+    {
+        return array_replace_recursive($this->inputSource(), $this->allFiles());
     }
 
     /**

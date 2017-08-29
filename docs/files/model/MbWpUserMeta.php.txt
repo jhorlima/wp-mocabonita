@@ -19,13 +19,6 @@ use MocaBonita\tools\eloquent\MbModel;
 class MbWpUserMeta extends MbModel
 {
     /**
-     * Stored table name
-     *
-     * @var string
-     */
-    protected $table = 'wp_usermeta';
-
-    /**
      * Stored table primarykey
      *
      * @var string
@@ -33,9 +26,18 @@ class MbWpUserMeta extends MbModel
     protected $primaryKey = 'umeta_id';
 
     /**
-     * Stored if table has timestamps
+     * Disable timestamps.
      *
-     * @var bool
+     * @var boolean
      */
-    protected $timestamps = false;
+    public $timestamps = false;
+
+    /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable() {
+        return $this->getWpdb()->prefix . "usermeta";
+    }
 }
