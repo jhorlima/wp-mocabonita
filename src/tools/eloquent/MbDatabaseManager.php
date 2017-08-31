@@ -392,7 +392,7 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      *
      * @param  \Closure $callback
      *
-     * @return array
+     * @return array|void
      */
     public function pretend(\Closure $callback)
     {

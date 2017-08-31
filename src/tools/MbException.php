@@ -3,9 +3,7 @@
 namespace MocaBonita\tools;
 
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\View;
-use Katzgrau\KLogger\Logger;
 use MocaBonita\MocaBonita;
 use MocaBonita\view\MbView;
 

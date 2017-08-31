@@ -385,7 +385,6 @@ final class MocaBonita extends MbSingleton
                 MbMigration::enablePdoConnection();
                 $deactive($mocaBonita);
             } catch (\Exception $e) {
-                MbException::setRegisterExceptionLog(true);
                 MbException::registerError($e);
                 wp_die($e->getMessage());
             }

@@ -76,7 +76,7 @@ class MbModel extends Model
      * Create a new Eloquent query builder for the model.
      *
      * @param  \Illuminate\Database\Query\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder|MbD
+     * @return \Illuminate\Database\Eloquent\Builder|MbDatabaseEloquentBuilder
      */
     public function newEloquentBuilder($query)
     {

@@ -96,7 +96,7 @@ class MbResponse extends Response
     public function sendContent()
     {
         if ($this->mbRequest->isAjax()) {
-            wp_send_json($this->original, $this->statusCode);
+            wp_send_json($this->original);
         } else {
             parent::sendContent();
         }
