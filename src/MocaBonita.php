@@ -37,7 +37,7 @@ final class MocaBonita extends MbSingleton
      * Current version of MocaBonita.
      *
      */
-    const VERSION = "3.2.7";
+    const VERSION = "3.2.8";
 
     /**
      * List of MocaBonita Pages
@@ -627,8 +627,20 @@ final class MocaBonita extends MbSingleton
                 //Check if has callback to return
                 if ($mbAction->getCallback() instanceof \Closure){
 
-                    $actionResponse =  $mbAction->getCallback()
-                        ->call($mbAction->getMbPage()->getController(), $this->mbRequest, $this->mbResponse);
+                    //Check if has method call in Closure
+                    if(method_exists($mbAction->getCallback(), 'call')){
+                        $actionResponse = $mbAction->getCallback()->call(
+                            $mbAction->getMbPage()->getController(),
+                            $this->mbRequest,
+                            $this->mbResponse
+                        );
+                    } else {
+                        $actionResponse = call_user_func_array($mbAction->getCallback(), [
+                            $this->mbRequest,
+                            $this->mbResponse,
+                            $mbAction->getMbPage()->getController(),
+                        ]);
+                    }
 
                 //Check if has function to return
                 } elseif ($mbAction->functionExist()){
