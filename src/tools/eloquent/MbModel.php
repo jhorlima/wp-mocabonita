@@ -177,7 +177,7 @@ class MbModel extends Model
 
             $attributes = $this->getAttributes();
 
-            $validation = count($attributes) ? $this->validation($attributes) : null;
+            $validation = $this->validation($attributes);
 
             if ($validation instanceof MbValidation) {
                 $validation->check(true);
