@@ -89,6 +89,17 @@ class MbWpUser extends MbModel
     ];
 
     /**
+     * Hidden elementes
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'user_pass',
+        'user_activation_key',
+        'user_status',
+    ];
+
+    /**
      * Get the table associated with the model.
      *
      * @return string
