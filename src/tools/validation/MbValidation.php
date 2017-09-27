@@ -318,7 +318,9 @@ class MbValidation implements Arrayable
         $this->setErro(!empty($this->errorMessages) ? true : false);
 
         if ($exceptionOnError && $this->isError()) {
-            throw new MbException("Seus não são válidos!", 400, $this, $this->toWpError());
+            throw new MbException(
+                "Seus não são válidos!", 400, $this, array_merge(["Seus não são válidos!"], $this->errorMessages)
+            );
         }
 
         return $this->isError();
@@ -336,27 +338,5 @@ class MbValidation implements Arrayable
             'messages' => $this->getErrorMessages(),
             'data'     => $this->getData(),
         ];
-    }
-
-    /**
-     * Get WpError.
-     *
-     * @return null|\WP_Error
-     */
-    public function toWpError()
-    {
-        if ($this->isError()) {
-            $wpError = new \WP_Error('denied', "Seus não são válidos!");
-
-            foreach ($this->getErrorMessages() as $type => $message) {
-                foreach ($message as $error) {
-                    $wpError->add('denied', $error);
-                }
-            }
-
-            return $wpError;
-        } else {
-            return null;
-        }
     }
 }

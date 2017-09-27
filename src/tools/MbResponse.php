@@ -140,13 +140,14 @@ class MbResponse extends Response
         } elseif (is_string($content)) {
             $content = ['content' => $content];
         } elseif (!is_array($content) && !$content instanceof \Exception) {
-            return $this->ajaxContent(new \Exception("No valid content has been submitted!", 400));
+            return $this->ajaxContent(new \Exception("No valid content has been submitted!",  BaseResponse::HTTP_BAD_REQUEST));
         } elseif ($content instanceof \Exception) {
+
             $this->setStatusCode($content->getCode() < 300 ? BaseResponse::HTTP_BAD_REQUEST : $content->getCode());
 
             if ($content instanceof MbException) {
-                $message = $content->getWpErrorMessages();
-                $content = $content->getExcepitonDataArray();
+                $message = $content->getMessages();
+                $content = $content->getData();
             } else {
                 $message = $content->getMessage();
                 $content = null;
@@ -176,19 +177,9 @@ class MbResponse extends Response
     {
         if ($content instanceof \Exception) {
             if ($this->getMbRequest()->isBlogAdmin()) {
-                if ($content instanceof MbException) {
-                    foreach ($content->getWpErrorMessages(true) as $errorMessage) {
-                        $this->adminNotice($errorMessage, 'warning');
-                    }
-                    $this->original = $content->getExcepitonDataView();
-                } else {
-                    $this->adminNotice($content->getMessage(), 'error');
-                }
+                $this->adminNotice($content->getMessage(), 'error');
             } else {
                 $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
-                if ($content instanceof MbException) {
-                    $this->original = $this->original . $content->getExcepitonDataView();
-                }
             }
         } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()) {
             $this->downloadFile($content);

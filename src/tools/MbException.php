@@ -26,104 +26,65 @@ class MbException extends \Exception
     /**
      * Stored wperror
      *
-     * @var \WP_Error
+     * @var string[]
      */
-    protected $wpError;
+    protected $messages;
 
     /**
      * Stored exception data
      *
      * @var null|array|Arrayable
      */
-    protected $exceptionData;
+    protected $data;
 
     /**
      * Get exception data
      *
      * @return array|string
      */
-    public function getExceptionData()
+    public function getData()
     {
-        return $this->exceptionData;
-    }
-
-    /**
-     * Get exception data in array
-     *
-     * @return array|null
-     */
-    public function getExcepitonDataArray()
-    {
-        if ($this->exceptionData instanceof Arrayable) {
-            $this->exceptionData = $this->exceptionData->toArray();
+        if ($this->data instanceof Arrayable) {
+            $this->data = $this->data->toArray();
         }
 
-        if (!is_array($this->exceptionData)) {
-            $this->exceptionData = null;
+        if (!is_array($this->data)) {
+            $this->data = null;
         }
 
-        return $this->exceptionData;
-    }
-
-    /**
-     * Get exception data view
-     *
-     * @return string|null
-     */
-    public function getExcepitonDataView()
-    {
-        if ($this->exceptionData instanceof View) {
-            $this->exceptionData->with('wpError', $this->getWpError());
-            $this->exceptionData = $this->exceptionData->render();
-        }
-
-        if (!is_string($this->exceptionData)) {
-            $this->exceptionData = null;
-        }
-
-        return $this->exceptionData;
+        return $this->data;
     }
 
     /**
      * Set exception data
      *
-     * @param array|Arrayable|View $exceptionData
+     * @param array|Arrayable|View $data
      *
      * @return MbException
      */
-    public function setExceptionData($exceptionData)
+    public function setData($data)
     {
-        $this->exceptionData = $exceptionData;
+        $this->data = $data;
 
         return $this;
     }
 
     /**
-     * @return \WP_Error | string
+     * @return string[]
      */
-    public function getWpError()
+    public function getMessages()
     {
-        return $this->wpError;
+        return is_null($this->messages) ? [$this->getMessage()] : $this->messages;
     }
 
     /**
-     * @param bool $stringInArray
-     *
-     * @return string[] | string
-     */
-    public function getWpErrorMessages($stringInArray = false)
-    {
-        return is_null($this->wpError) ? ($stringInArray ? [$this->getMessage()] : $this->getMessage()) : $this->wpError->get_error_messages();
-    }
-
-    /**
-     * @param \WP_Error $wpError
+     * @param $messages[]
      *
      * @return MbException
      */
-    public function setWpError($wpError)
+    public function setMessages($messages)
     {
-        $this->wpError = $wpError;
+        $this->messages = $messages;
 
         return $this;
     }
@@ -139,16 +100,16 @@ class MbException extends \Exception
      * @param string                      $msg
      * @param int                         $code
      * @param null|array|MbView|Arrayable $dados
-     * @param \WP_Error                   $wpError
+     * @param \WP_Error                   $messages
      *
      * @link http://php.net/manual/en/language.oop5.decon.php
      */
-    public function __construct($msg, $code = 400, $dados = null, \WP_Error $wpError = null)
+    public function __construct($msg, $code = 400, $dados = null, $messages = null)
     {
         parent::__construct($msg, $code);
 
-        $this->setExceptionData($dados);
-        $this->setWpError($wpError);
+        $this->setData($dados);
+        $this->setMessages($messages);
     }
 
     /**
