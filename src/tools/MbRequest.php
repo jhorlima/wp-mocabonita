@@ -361,12 +361,11 @@ class MbRequest extends Request
      */
     public function hasQuery($key)
     {
-        $query = $this->query();
-        $arrayKeys = array_keys($query);
+        $arrayKeys = array_keys($_GET);
         $keys = is_array($key) ? $key : func_get_args();
 
         foreach ($keys as $value) {
-            if (!in_array($value, $arrayKeys) || trim((string)$query[$value]) === '') {
+            if (!in_array($value, $arrayKeys) || trim((string)$_GET[$value]) === '') {
                 return false;
             }
         }
