@@ -328,7 +328,7 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      *
      * @throws \Exception
      */
-    public function transaction(\Closure $callback)
+    public function transaction(\Closure $callback, $attempts = 1)
     {
         $this->beginTransaction();
         try {
@@ -475,5 +475,15 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
     public function getSchemaBuilder()
     {
         throw new \Exception("You can not use wpdb to create tables!");
+    }
+
+    /**
+     * WpDb Name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return "wpdb";
     }
 }
