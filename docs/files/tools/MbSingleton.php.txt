@@ -79,14 +79,4 @@ abstract class MbSingleton
         $className = static::class;
         throw new MbException("WakeUp not allowed in {$className}!");
     }
-
-    /**
-     * var_dump debug
-     *
-     */
-    public static function var_dump(){
-        var_dump(self::$instances);
-        exit();
-    }
-
 }

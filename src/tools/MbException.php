@@ -10,14 +10,15 @@ use MocaBonita\view\MbView;
 /**
  * Main class of the MocaBonita Exception
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
  * @copyright Jhordan Lima 2017
+ *
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbException extends \Exception
 {
@@ -87,11 +88,13 @@ class MbException extends \Exception
      * Set exception data
      *
      * @param array|Arrayable|View $exceptionData
+     *
      * @return MbException
      */
     public function setExceptionData($exceptionData)
     {
         $this->exceptionData = $exceptionData;
+
         return $this;
     }
 
@@ -105,6 +108,7 @@ class MbException extends \Exception
 
     /**
      * @param bool $stringInArray
+     *
      * @return string[] | string
      */
     public function getWpErrorMessages($stringInArray = false)
@@ -114,11 +118,13 @@ class MbException extends \Exception
 
     /**
      * @param \WP_Error $wpError
+     *
      * @return MbException
      */
     public function setWpError($wpError)
     {
         $this->wpError = $wpError;
+
         return $this;
     }
 
@@ -130,10 +136,10 @@ class MbException extends \Exception
      * Note: Parent constructors are not called implicitly if the child class defines a constructor.
      * In order to run a parent constructor, a call to parent::__construct() within the child constructor is required.
      *
-     * @param string $msg
-     * @param int $code
+     * @param string                      $msg
+     * @param int                         $code
      * @param null|array|MbView|Arrayable $dados
-     * @param \WP_Error $wpError
+     * @param \WP_Error                   $wpError
      *
      * @link http://php.net/manual/en/language.oop5.decon.php
      */

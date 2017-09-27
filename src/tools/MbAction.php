@@ -7,14 +7,15 @@ use Illuminate\Support\Str;
 /**
  * Main class of the MocaBonita ActionPage
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbAction
 {
@@ -23,84 +24,91 @@ class MbAction
      *
      * @var MbPage
      */
-    private $mbPage;
+    protected $mbPage;
 
     /**
      * Action name
      *
      * @var string
      */
-    private $name;
+    protected $name;
 
     /**
      * Check if action needs login
      *
      * @var bool
      */
-    private $requiresLogin;
+    protected $requiresLogin;
 
     /**
      * Check if action needs ajax
      *
      * @var bool
      */
-    private $requiresAjax;
+    protected $requiresAjax;
 
     /**
      * Requisition method required
      *
      * @var string
      */
-    private $requiresMethod;
+    protected $requiresMethod;
 
     /**
      * Controller function name
      *
      * @var string
      */
-    private $functionName;
+    protected $functionName;
 
     /**
      * Function complement name
      *
      * @var string
      */
-    private $functionComplement;
+    protected $functionComplement;
 
     /**
      * Check if action is a shortcode
      *
      * @var bool
      */
-    private $shortcode;
+    protected $shortcode;
 
     /**
      * Stores the capability of the action
      *
      * @var string
      */
-    private $capability;
+    protected $capability;
 
     /**
      * Page rules
      *
      * @var string[]
      */
-    private $rules;
+    protected $rules;
 
     /**
      * Stores data to return
      *
      * @var mixed
      */
-    private $data;
+    protected $data;
 
     /**
      * Stores the callback to return
      *
      * @var \Closure
      */
-    private $callback;
+    protected $callback;
+
+    /**
+     * Required parameters
+     *
+     * @var string[]
+     */
+    protected $requiredParams;
 
     /**
      * Get MbPage
@@ -111,7 +119,7 @@ class MbAction
      */
     public function getMbPage()
     {
-        if (is_null($this->mbPage)){
+        if (is_null($this->mbPage)) {
             throw new MbException("Nenhuma página foi definida para essa ação!");
         }
 
@@ -128,6 +136,7 @@ class MbAction
     public function setMbPage(MbPage $mbPage)
     {
         $this->mbPage = $mbPage;
+
         return $this;
     }
 
@@ -145,11 +154,13 @@ class MbAction
      * Set action name
      *
      * @param string $name
+     *
      * @return MbAction
      */
     public function setName($name)
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -173,6 +184,7 @@ class MbAction
     public function setRequiresLogin($requiresLogin = true)
     {
         $this->requiresLogin = $requiresLogin;
+
         return $this;
     }
 
@@ -190,11 +202,13 @@ class MbAction
      * Set requires ajax
      *
      * @param boolean $requiresAjax
+     *
      * @return MbAction
      */
     public function setRequiresAjax($requiresAjax = true)
     {
         $this->requiresAjax = $requiresAjax;
+
         return $this;
     }
 
@@ -218,6 +232,7 @@ class MbAction
     public function setRequiresMethod($requiresMethod = "GET")
     {
         $this->requiresMethod = $requiresMethod;
+
         return $this;
     }
 
@@ -235,11 +250,13 @@ class MbAction
      * Set function name
      *
      * @param string $functionName
+     *
      * @return MbAction
      */
     public function setFunctionName($functionName)
     {
         $this->functionName = $functionName;
+
         return $this;
     }
 
@@ -263,6 +280,7 @@ class MbAction
     public function setFunctionComplement($functionComplement = null)
     {
         $this->functionComplement = $functionComplement;
+
         return $this;
     }
 
@@ -290,11 +308,13 @@ class MbAction
      * Set shortcode
      *
      * @param boolean $shortcode
+     *
      * @return MbAction
      */
     public function setShortcode($shortcode = true)
     {
         $this->shortcode = $shortcode;
+
         return $this;
     }
 
@@ -318,6 +338,7 @@ class MbAction
     public function setCapability($capability = "read")
     {
         $this->capability = $capability;
+
         return $this;
     }
 
@@ -331,11 +352,13 @@ class MbAction
 
     /**
      * @param string[] $rules
+     *
      * @return MbAction
      */
     public function setRules($rules)
     {
         $this->rules = $rules;
+
         return $this;
     }
 
@@ -346,10 +369,11 @@ class MbAction
      */
     public function setRule($rule)
     {
-        if(!is_array($this->rules)){
+        if (!is_array($this->rules)) {
             $this->rules = [];
         }
         $this->rules[] = $rule;
+
         return $this;
     }
 
@@ -363,11 +387,13 @@ class MbAction
 
     /**
      * @param mixed $data
+     *
      * @return MbAction
      */
     public function setData($data)
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -381,11 +407,45 @@ class MbAction
 
     /**
      * @param \Closure $callback
+     *
      * @return MbAction
      */
     public function setCallback(\Closure $callback)
     {
         $this->callback = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getRequiredParams()
+    {
+        return $this->requiredParams;
+    }
+
+    /**
+     * @param string[] $requiredParams
+     *
+     * @return MbAction
+     */
+    public function setRequiredParams(array $requiredParams)
+    {
+        $this->requiredParams = $requiredParams;
+
+        return $this;
+    }
+
+    /**
+     * @param string $require
+     *
+     * @return MbAction
+     */
+    public function setRequiredParam($require)
+    {
+        $this->requiredParams[] = $require;
+
         return $this;
     }
 
@@ -394,12 +454,17 @@ class MbAction
      *
      * @param MbPage $mbPage
      * @param string $actionName
-     * @param bool $requiresLogin
-     * @param bool $requiresAjax
+     * @param bool   $requiresLogin
+     * @param bool   $requiresAjax
      * @param string $requiresMethod
      */
-    public function __construct(MbPage $mbPage, $actionName, $requiresLogin = true, $requiresAjax = false, $requiresMethod = null)
-    {
+    public function __construct(
+        MbPage $mbPage,
+        $actionName,
+        $requiresLogin = true,
+        $requiresAjax = false,
+        $requiresMethod = null
+    ) {
         $this->setMbPage($mbPage)
             ->setName($actionName)
             ->setFunctionName(Str::camel($actionName))
@@ -408,6 +473,7 @@ class MbAction
             ->setRequiresMethod($requiresMethod)
             ->setFunctionComplement('Action')
             ->setShortcode(false)
+            ->setRequiredParams([])
             ->setCapability(null);
     }
 

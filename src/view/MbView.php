@@ -11,14 +11,15 @@ use MocaBonita\tools\MbResponse;
 /**
  * Main class of the MocaBonita View
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\view
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\view
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbView implements View
 {
@@ -115,6 +116,7 @@ class MbView implements View
     public function setTemplate($template)
     {
         $this->template = $template;
+
         return $this;
     }
 
@@ -138,6 +140,7 @@ class MbView implements View
     public function setPage($page)
     {
         $this->page = $page;
+
         return $this;
     }
 
@@ -161,6 +164,7 @@ class MbView implements View
     public function setAction($action)
     {
         $this->action = $action;
+
         return $this;
     }
 
@@ -184,6 +188,7 @@ class MbView implements View
     public function setVariablesForView(array $variablesForView)
     {
         $this->variablesForView = $variablesForView;
+
         return $this;
     }
 
@@ -191,13 +196,14 @@ class MbView implements View
      * Set variable for view
      *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return MbView
      */
     public function setVariableForView($name, $value)
     {
         $this->variablesForView[$name] = $value;
+
         return $this;
     }
 
@@ -221,6 +227,7 @@ class MbView implements View
     public function setContent($content)
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -244,6 +251,7 @@ class MbView implements View
     public function setExtension($extension)
     {
         $this->extension = $extension;
+
         return $this;
     }
 
@@ -267,6 +275,7 @@ class MbView implements View
     public function setViewPath($viewPath)
     {
         $this->viewPath = $viewPath;
+
         return $this;
     }
 
@@ -324,18 +333,24 @@ class MbView implements View
      * @param string $templateName
      * @param string $currentPage
      * @param string $currentAction
-     * @param array $variablesForView
+     * @param array  $variablesForView
      * @param string $extension
      *
      * @return MbView
      */
-    public function setView($templateName, $currentPage, $currentAction, array $variablesForView = [], $extension = "phtml")
-    {
+    public function setView(
+        $templateName,
+        $currentPage,
+        $currentAction,
+        array $variablesForView = [],
+        $extension = "phtml"
+    ) {
         $this->setTemplate($templateName);
         $this->setPage($currentPage);
         $this->setAction($currentAction);
         $this->setVariablesForView($variablesForView);
         $this->setExtension($extension);
+
         return $this;
     }
 
@@ -380,7 +395,7 @@ class MbView implements View
      */
     public function render()
     {
-        $viewPath     = $this->getFileFullPath();
+        $viewPath = $this->getFileFullPath();
         $templatePath = $this->getFileFullPath('template');
 
         //Assign defined variables to the view and template
@@ -423,7 +438,8 @@ class MbView implements View
      * Add a piece of data to the view.
      *
      * @param  string|array $key
-     * @param  mixed $value
+     * @param  mixed        $value
+     *
      * @return $this
      */
     public function with($key, $value = null)

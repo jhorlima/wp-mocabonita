@@ -11,14 +11,15 @@ use Symfony\Component\HttpFoundation\Response as BaseResponse;
 /**
  * Main class of the MocaBonita Response
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbResponse extends Response
 {
@@ -49,6 +50,7 @@ class MbResponse extends Response
     public function setMbRequest(MbRequest $mbRequest)
     {
         $this->mbRequest = $mbRequest;
+
         return $this;
     }
 
@@ -106,7 +108,7 @@ class MbResponse extends Response
      * Redirect a page
      *
      * @param string $url
-     * @param array $params
+     * @param array  $params
      *
      */
     public function redirect($url, array $params = [])
@@ -142,7 +144,7 @@ class MbResponse extends Response
         } elseif ($content instanceof \Exception) {
             $this->setStatusCode($content->getCode() < 300 ? BaseResponse::HTTP_BAD_REQUEST : $content->getCode());
 
-            if($content instanceof MbException){
+            if ($content instanceof MbException) {
                 $message = $content->getWpErrorMessages();
                 $content = $content->getExcepitonDataArray();
             } else {
@@ -154,9 +156,9 @@ class MbResponse extends Response
         $this->original = [
             'meta' => [
                 'code'    => $this->getStatusCode(),
-                'message' => $message
+                'message' => $message,
             ],
-            'data'        => $content,
+            'data' => $content,
         ];
 
         return $this->original;
@@ -173,8 +175,8 @@ class MbResponse extends Response
     protected function htmlContent($content)
     {
         if ($content instanceof \Exception) {
-            if($this->getMbRequest()->isBlogAdmin()){
-                if($content instanceof MbException){
+            if ($this->getMbRequest()->isBlogAdmin()) {
+                if ($content instanceof MbException) {
                     foreach ($content->getWpErrorMessages(true) as $errorMessage) {
                         $this->adminNotice($errorMessage, 'warning');
                     }
@@ -184,11 +186,11 @@ class MbResponse extends Response
                 }
             } else {
                 $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
-                if($content instanceof MbException){
+                if ($content instanceof MbException) {
                     $this->original = $this->original . $content->getExcepitonDataView();
                 }
             }
-        } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()){
+        } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()) {
             $this->downloadFile($content);
         } elseif (!is_string($content) && !$content instanceof Renderable) {
             ob_start();
@@ -212,7 +214,7 @@ class MbResponse extends Response
     public function downloadFile(\SplFileInfo $content)
     {
         if ($content->isFile()) {
-            if (!$content->isReadable()){
+            if (!$content->isReadable()) {
                 throw new MbException("The download file can not be read!");
             }
             $finfo = new \finfo;
@@ -235,12 +237,12 @@ class MbResponse extends Response
      *         ->setSharedMaxAge(300);
      *
      * @param mixed $content The response content, see setContent()
-     * @param int $status The response status code
+     * @param int   $status  The response status code
      * @param array $headers An array of response headers
      *
      * @return MbResponse
      */
-    public static function create($content = '', $status = 200, $headers = array())
+    public static function create($content = '', $status = 200, $headers = [])
     {
         return new static($content, $status, $headers);
     }

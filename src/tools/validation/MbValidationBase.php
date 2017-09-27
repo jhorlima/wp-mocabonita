@@ -7,14 +7,15 @@ use MocaBonita\tools\MbSingleton;
 /**
  * Main class of the MocaBonita ValidationBase
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\validation
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\validation
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 abstract class MbValidationBase extends MbSingleton
 {
@@ -45,6 +46,7 @@ abstract class MbValidationBase extends MbSingleton
     public function setAttribute($attribute)
     {
         $this->attribute = $attribute;
+
         return $this;
     }
 

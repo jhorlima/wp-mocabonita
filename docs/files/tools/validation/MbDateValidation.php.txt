@@ -10,22 +10,22 @@ use Illuminate\Support\Arr;
 /**
  * Date validation class
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\validation
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\validation
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
  *
  * List of possible arguments for this class:
  *
- * @uses $arguments['timezone'] (string) : Timezone default
- * @uses $arguments['input_format'] (string) : Date input format
- * @uses $arguments['output_format'] (string) : Date Return Format
- * @uses $arguments['output_timestamp'] (bool) : Return value in timestamp
- * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
+ * @uses      $arguments['timezone'] (string) : Timezone default
+ * @uses      $arguments['input_format'] (string) : Date input format
+ * @uses      $arguments['output_format'] (string) : Date Return Format
+ * @uses      $arguments['output_timestamp'] (bool) : Return value in timestamp
+ * @uses      $arguments['filter'] (string|Closure) : Filter value with function or callback
  */
 class MbDateValidation extends MbValidationBase
 {
@@ -48,12 +48,12 @@ class MbDateValidation extends MbValidationBase
         $outputTimezone = Arr::get($arguments, 'output_timestamp', false);
         $filter = Arr::get($arguments, 'filter', false);
 
-        if(is_string($inputFormat)){
+        if (is_string($inputFormat)) {
             $value = is_string($value) ? Carbon::createFromFormat($inputFormat, $value) : false;
         } else {
-            try{
+            try {
                 $value = is_string($value) ? Carbon::parse($value) : false;
-            } catch (\Exception $e){
+            } catch (\Exception $e) {
                 $value = false;
             }
         }
@@ -81,9 +81,9 @@ class MbDateValidation extends MbValidationBase
             $value = $value->getTimestamp();
         }
 
-        if($filter && $filter instanceof \Closure){
+        if ($filter && $filter instanceof \Closure) {
             $value = $filter($value);
-        } elseif ($filter){
+        } elseif ($filter) {
             $value = call_user_func($filter, $value);
         }
 

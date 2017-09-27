@@ -10,14 +10,15 @@ use MocaBonita\view\MbView;
 /**
  * Main class of the MocaBonita Controller
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\controller
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\controller
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  **/
 abstract class MbController
 {
@@ -53,12 +54,14 @@ abstract class MbController
      * If the return is string, then it will add the string in the key "content" on the data (Ajax Request)
      *
      * If the return is MbView, then it will render it (Common request)
-     * If the return is MbView, then it will print a message saying "No valid content has been submitted!" (Ajax Request)
+     * If the return is MbView, then it will print a message saying "No valid content has been submitted!" (Ajax
+     * Request)
      *
      * If the return is mixed, then it will call a var_dump of the returned value (Common request)
-     * If the return is mixed, then it will print a message saying "No valid content has been submitted!" (Ajax Request)
+     * If the return is mixed, then it will print a message saying "No valid content has been submitted!" (Ajax
+     * Request)
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
      *
      * @return null|string|MbView|mixed
@@ -88,6 +91,7 @@ abstract class MbController
     public function setMbRequest(MbRequest $mbRequest)
     {
         $this->mbRequest = $mbRequest;
+
         return $this;
     }
 
@@ -111,6 +115,7 @@ abstract class MbController
     public function setMbResponse(MbResponse $mbResponse)
     {
         $this->mbResponse = $mbResponse;
+
         return $this;
     }
 
@@ -134,6 +139,7 @@ abstract class MbController
     public final function setMbView(MbView $mbView)
     {
         $this->mbView = $mbView;
+
         return $this;
     }
 
@@ -182,8 +188,9 @@ abstract class MbController
     /**
      * Handle calls to missing methods on the controller.
      *
-     * @param  string  $method
-     * @param  array   $parameters
+     * @param  string $method
+     * @param  array  $parameters
+     *
      * @return mixed
      *
      * @throws MbException

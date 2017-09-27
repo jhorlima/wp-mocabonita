@@ -9,19 +9,19 @@ use Illuminate\Support\Arr;
 /**
  * Object validation class
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\validation
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\validation
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
  *
  * List of possible arguments for this class:
  *
- * @uses $arguments['instanceof'] (string | object) : Class instance
- * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
+ * @uses      $arguments['instanceof'] (string | object) : Class instance
+ * @uses      $arguments['filter'] (string|Closure) : Filter value with function or callback
  */
 class MbObjectValidation extends MbValidationBase
 {
@@ -60,9 +60,9 @@ class MbObjectValidation extends MbValidationBase
             }
         }
 
-        if($filter && $filter instanceof \Closure){
+        if ($filter && $filter instanceof \Closure) {
             $value = $filter($value);
-        } elseif ($filter){
+        } elseif ($filter) {
             $value = call_user_func($filter, $value);
         }
 

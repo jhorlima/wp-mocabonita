@@ -11,14 +11,15 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
  *
  * How to use: https://laravel.com/docs/5.0/migrations
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
  * @copyright Jhordan Lima 2017
+ *
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbMigration extends Manager
 {
@@ -29,22 +30,22 @@ class MbMigration extends Manager
      */
     public static function enablePdoConnection()
     {
-       if(is_null(self::$instance)){
-           global $wpdb;
+        if (is_null(self::$instance)) {
+            global $wpdb;
 
-           $capsule = new self();
-           $capsule->addConnection([
-               'driver'    => 'mysql',
-               'host'      => DB_HOST,
-               'database'  => DB_NAME,
-               'username'  => DB_USER,
-               'password'  => DB_PASSWORD,
-               'charset'   => DB_CHARSET,
-               'collation' => DB_COLLATE ?: $wpdb->collate,
-           ]);
-           $capsule->setAsGlobal();
-           $capsule->bootEloquent();
-       }
+            $capsule = new self();
+            $capsule->addConnection([
+                'driver'    => 'mysql',
+                'host'      => DB_HOST,
+                'database'  => DB_NAME,
+                'username'  => DB_USER,
+                'password'  => DB_PASSWORD,
+                'charset'   => DB_CHARSET,
+                'collation' => DB_COLLATE ?: $wpdb->collate,
+            ]);
+            $capsule->setAsGlobal();
+            $capsule->bootEloquent();
+        }
     }
 
     /**
@@ -52,7 +53,8 @@ class MbMigration extends Manager
      *
      * @return void
      */
-    public static function enableWpdbConnection(){
+    public static function enableWpdbConnection()
+    {
         Eloquent::setConnectionResolver(MbConnectionResolver::getInstance());
     }
 }

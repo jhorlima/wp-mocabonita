@@ -9,14 +9,15 @@ use MocaBonita\tools\MbException;
 /**
  * Main class of the MocaBonita Validation
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\validation
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\validation
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbValidation implements Arrayable
 {
@@ -114,6 +115,7 @@ class MbValidation implements Arrayable
     public function setData(array $data)
     {
         $this->data = $data;
+
         return $this;
     }
 
@@ -137,6 +139,7 @@ class MbValidation implements Arrayable
     public function setNullable(array $nullable)
     {
         $this->nullable = $nullable;
+
         return $this;
     }
 
@@ -160,6 +163,7 @@ class MbValidation implements Arrayable
     public function setRemoveUnused($removeUnused = true)
     {
         $this->removeUnused = (bool)$removeUnused;
+
         return $this;
     }
 
@@ -173,6 +177,7 @@ class MbValidation implements Arrayable
     public static function validate(array $data)
     {
         $validation = new self();
+
         return $validation->setData($data);
     }
 
@@ -197,11 +202,11 @@ class MbValidation implements Arrayable
     /**
      * Set Validations
      *
-     * @param string $attribute
+     * @param string           $attribute
      *
      * @param MbValidationBase $mbValidationBase
      *
-     * @param array $arguments
+     * @param array            $arguments
      *
      * @return $this
      */
@@ -277,9 +282,9 @@ class MbValidation implements Arrayable
         foreach ($attributes as $attribute) {
 
             $attributeExists = array_key_exists($attribute, $this->data);
-            $attributeNull   = $attributeExists ? is_null($this->data[$attribute]) : true;
-            $isNullable      = in_array($attribute, $this->getNullable());
-            $attirbuteRoles  = $this->getValidations($attribute);
+            $attributeNull = $attributeExists ? is_null($this->data[$attribute]) : true;
+            $isNullable = in_array($attribute, $this->getNullable());
+            $attirbuteRoles = $this->getValidations($attribute);
 
             if (!$attributeNull && !empty($attirbuteRoles)) {
                 foreach ($attirbuteRoles as $role) {
@@ -338,15 +343,17 @@ class MbValidation implements Arrayable
      *
      * @return null|\WP_Error
      */
-    public function toWpError(){
-        if ($this->isError()){
+    public function toWpError()
+    {
+        if ($this->isError()) {
             $wpError = new \WP_Error('denied', "Seus não são válidos!");
 
-            foreach ($this->getErrorMessages() as $type => $message){
-                foreach ($message as $error){
+            foreach ($this->getErrorMessages() as $type => $message) {
+                foreach ($message as $error) {
                     $wpError->add('denied', $error);
                 }
             }
+
             return $wpError;
         } else {
             return null;

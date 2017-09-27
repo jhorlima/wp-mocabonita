@@ -8,32 +8,32 @@ use Illuminate\Support\Arr;
 /**
  * String validation class
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\validation
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\validation
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
  *
  * List of possible arguments for this class:
  *
- * @uses $arguments['instanceof'] (string | object) : Class instance
+ * @uses      $arguments['instanceof'] (string | object) : Class instance
  *
- * @uses $arguments['min'] (int): Minimum number of characters
- * @uses $arguments['max'] (int): Maximum number of characters (it requires the $arguments['min'])
- * @uses $arguments['trim'] (bool): Trim the string
- * @uses $arguments['striptags'] (string | string[]): HTML TAGS Filter and Allowed Tags
- * @uses $arguments['regex'] (string): Validation regex
- * @uses $arguments['mask'] (string): String mask, ex: (##) ####-####
- * @uses $arguments['str_lower'] (bool) : Format string to lowercase.
- * @uses $arguments['str_upper'] (bool) : Format string for uppercase.
- * @uses $arguments['alpha_numeric'] (bool) : Format alphanumeric in string.
- * @uses $arguments['email'] (bool) : Validate if the string is a valid email.
- * @uses $arguments['html_escape'] (bool) : Converts special characters to HTML reality
- * @uses $arguments['in_array'] (string[]) : Check if the value is in array
- * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
+ * @uses      $arguments['min'] (int): Minimum number of characters
+ * @uses      $arguments['max'] (int): Maximum number of characters (it requires the $arguments['min'])
+ * @uses      $arguments['trim'] (bool): Trim the string
+ * @uses      $arguments['striptags'] (string | string[]): HTML TAGS Filter and Allowed Tags
+ * @uses      $arguments['regex'] (string): Validation regex
+ * @uses      $arguments['mask'] (string): String mask, ex: (##) ####-####
+ * @uses      $arguments['str_lower'] (bool) : Format string to lowercase.
+ * @uses      $arguments['str_upper'] (bool) : Format string for uppercase.
+ * @uses      $arguments['alpha_numeric'] (bool) : Format alphanumeric in string.
+ * @uses      $arguments['email'] (bool) : Validate if the string is a valid email.
+ * @uses      $arguments['html_escape'] (bool) : Converts special characters to HTML reality
+ * @uses      $arguments['in_array'] (string[]) : Check if the value is in array
+ * @uses      $arguments['filter'] (string|Closure) : Filter value with function or callback
  *
  */
 class MbStringValidation extends MbValidationBase
@@ -75,7 +75,7 @@ class MbStringValidation extends MbValidationBase
             $value = preg_replace('/\s+/', ' ', $value);
         }
 
-        if($striptags){
+        if ($striptags) {
             if (is_bool($striptags) && $striptags) {
                 $value = strip_tags($value);
             } elseif (is_string($striptags)) {
@@ -85,23 +85,23 @@ class MbStringValidation extends MbValidationBase
             }
         }
 
-        if($strLower){
+        if ($strLower) {
             $value = strtolower($value);
         }
 
-        if($strUpper){
+        if ($strUpper) {
             $value = strtoupper($value);
         }
 
-        if($htmlEscape){
+        if ($htmlEscape) {
             $value = htmlspecialchars($value);
         }
 
-        if ($alphaNumeric){
+        if ($alphaNumeric) {
             $value = preg_replace("/[^a-zA-Z0-9]+/", "", $value);
         }
 
-        if ($alphaNumeric){
+        if ($alphaNumeric) {
             $value = preg_replace("/[^a-zA-Z0-9]+/", "", $value);
         }
 
@@ -143,20 +143,16 @@ class MbStringValidation extends MbValidationBase
             );
         }
 
-        if($mask){
+        if ($mask) {
             $valorNovo = '';
             $k = 0;
-            for($i = 0; $i<=strlen($mask)-1; $i++)
-            {
-                if($mask[$i] == '#')
-                {
-                    if(isset($value[$k])){
+            for ($i = 0; $i <= strlen($mask) - 1; $i++) {
+                if ($mask[$i] == '#') {
+                    if (isset($value[$k])) {
                         $valorNovo .= $value[$k++];
                     }
-                }
-                else
-                {
-                    if(isset($mask[$i])){
+                } else {
+                    if (isset($mask[$i])) {
                         $valorNovo .= $mask[$i];
                     }
                 }
@@ -165,13 +161,13 @@ class MbStringValidation extends MbValidationBase
 
         }
 
-        if($inArray && !in_array($value, $inArray)){
+        if ($inArray && !in_array($value, $inArray)) {
             throw new Exception("O atributo '{$this->getAttribute()}' não pertence ao conjunto de dados!");
         }
 
-        if($filter && $filter instanceof \Closure){
+        if ($filter && $filter instanceof \Closure) {
             $value = $filter($value);
-        } elseif ($filter){
+        } elseif ($filter) {
             $value = call_user_func($filter, $value);
         }
 

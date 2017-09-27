@@ -1,20 +1,26 @@
 <?php
+
 namespace MocaBonita\tools\validation;
 
 use Exception;
+use Illuminate\Support\Arr;
 
 
 /**
  * Boolean validation class
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\validation
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\validation
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
+ * List of possible arguments for this class:
+ *
+ * @uses      $arguments['int'] (boolean) : Validate if value is boolean by integer
  */
 class MbBooleanValidation extends MbValidationBase
 {
@@ -27,16 +33,20 @@ class MbBooleanValidation extends MbValidationBase
      *
      * @throws \Exception
      *
-     * @return object $value
+     * @return boolean $value
      */
     public function validate($value, array $arguments = [])
     {
+        $int = Arr::get($arguments, 'int', false);
         $isBool = is_bool($value);
 
-        if (!$isBool) {
+        if (!$isBool && !$int) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um booleano!");
+
+        } elseif(!$isBool && $int){
+            $value = is_numeric($value) && $value > 0;
         }
 
-        return $value;
+        return (bool) $value;
     }
 }

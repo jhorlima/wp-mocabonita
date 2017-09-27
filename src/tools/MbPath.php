@@ -6,16 +6,18 @@ namespace MocaBonita\tools;
  *
  * Main class of the MocaBonita Path
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
-class MbPath {
+class MbPath
+{
 
     /**
      * Stored the plugin name
@@ -52,9 +54,10 @@ class MbPath {
      */
     public static function pName()
     {
-        if(is_null(self::$pluginName)){
-            self::$pluginName = explode('/',  plugin_basename(__FILE__))[0];
+        if (is_null(self::$pluginName)) {
+            self::$pluginName = explode('/', plugin_basename(__FILE__))[0];
         }
+
         return self::$pluginName;
     }
 
@@ -65,9 +68,10 @@ class MbPath {
      */
     public static function pBaseN()
     {
-        if(is_null(self::$pluginBaseName)){
+        if (is_null(self::$pluginBaseName)) {
             self::$pluginBaseName = self::pName() . "/index.php";
         }
+
         return self::$pluginBaseName;
     }
 
@@ -80,10 +84,11 @@ class MbPath {
      */
     public static function pDir($complement = "")
     {
-        if(is_null(self::$pluginDirectory)){
+        if (is_null(self::$pluginDirectory)) {
             self::$pluginDirectory = WP_PLUGIN_DIR . "/" . self::pName();
         }
-        return self::$pluginDirectory  . $complement;
+
+        return self::$pluginDirectory . $complement;
     }
 
     /**
@@ -95,10 +100,11 @@ class MbPath {
      */
     public static function pUrl($complement = "")
     {
-        if(is_null(self::$pluginUrl)){
+        if (is_null(self::$pluginUrl)) {
             self::$pluginUrl = WP_PLUGIN_URL . "/" . self::pName();
         }
-        return self::$pluginUrl  . $complement;
+
+        return self::$pluginUrl . $complement;
     }
 
     /**

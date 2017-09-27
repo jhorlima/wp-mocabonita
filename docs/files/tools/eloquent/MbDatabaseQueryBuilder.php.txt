@@ -9,14 +9,15 @@ use Illuminate\Pagination\Paginator;
 /**
  * Main class of the MocaBonita DatabaseQueryBuilder
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\eloquent
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\eloquent
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbDatabaseQueryBuilder extends Builder
 {
@@ -51,15 +52,16 @@ class MbDatabaseQueryBuilder extends Builder
     /**
      * Paginate the given query into a simple paginator.
      *
-     * @param  int  $perPage
-     * @param  array  $columns
-     * @param  string  $pageName
-     * @param  int|null  $page
+     * @param  int      $perPage
+     * @param  array    $columns
+     * @param  string   $pageName
+     * @param  int|null $page
+     *
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage = 15, $columns = ['*'], $pageName = null, $page = null)
     {
-        $pageName = is_string($pageName)?:self::$pagination;
+        $pageName = is_string($pageName) ?: self::$pagination;
 
         $page = $page ?: Paginator::resolveCurrentPage($pageName);
 

@@ -12,14 +12,15 @@ use Illuminate\Support\Arr;
 /**
  * Main class of the MocaBonita Model
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\eloquent
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\eloquent
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.2.2
+ *
  */
 class MbModel extends Model
 {
@@ -32,12 +33,21 @@ class MbModel extends Model
     protected $wordpressPrefix = false;
 
     /**
+     * Define whether you need to validate the data
+     *
+     * @var bool
+     */
+    protected $validation = true;
+
+    /**
      * Wordpress DB Manager
      *
      * @return \wpdb
      */
-    protected function getWpdb(){
+    protected function getWpdb()
+    {
         global $wpdb;
+
         return $wpdb;
     }
 
@@ -46,7 +56,8 @@ class MbModel extends Model
      *
      * @return string
      */
-    public function getTable() {
+    public function getTable()
+    {
         if (isset($this->table)) {
             return $this->table;
         }
@@ -76,7 +87,8 @@ class MbModel extends Model
      * Create a new Eloquent query builder for the model.
      *
      * @param  \Illuminate\Database\Query\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder|MbD
+     *
+     * @return \Illuminate\Database\Eloquent\Builder|MbDatabaseEloquentBuilder
      */
     public function newEloquentBuilder($query)
     {
@@ -168,16 +180,19 @@ class MbModel extends Model
     /**
      * Save the model to the database.
      *
-     * @param  array  $options
+     * @param  array $options
+     *
      * @return bool
      */
     public function save(array $options = [])
     {
-        if(Arr::get($options, 'validation', true)){
+        $this->validation = Arr::get($options, 'validation', $this->validation);
+
+        if ($this->validation) {
 
             $attributes = $this->getAttributes();
 
-            $validation = count($attributes) ? $this->validation($attributes) : null;
+            $validation = $this->validation($attributes);
 
             if ($validation instanceof MbValidation) {
                 $validation->check(true);
@@ -209,7 +224,8 @@ class MbModel extends Model
      *
      * @return \Illuminate\Database\Schema\Builder
      */
-    public final function getSchema(){
+    public final function getSchema()
+    {
         return MbMigration::schema();
     }
 

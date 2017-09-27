@@ -8,14 +8,15 @@ use MocaBonita\MocaBonita;
  *
  * Main class of the MocaBonita Asset
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbAsset
 {
@@ -60,6 +61,7 @@ class MbAsset
     public function setCss($cssPath)
     {
         $this->css[] = $cssPath;
+
         return $this;
     }
 
@@ -76,8 +78,8 @@ class MbAsset
     /**
      * Set Javascript
      *
-     * @param string $jsPath
-     * @param bool $inTheFooter
+     * @param string      $jsPath
+     * @param bool        $inTheFooter
      * @param double|bool $version
      *
      * @return MbAsset
@@ -86,7 +88,7 @@ class MbAsset
     {
         $this->js[] = [
             'path'    => $jsPath,
-            'footer'  => (bool) $inTheFooter,
+            'footer'  => (bool)$inTheFooter,
             'version' => $version,
         ];
 
@@ -97,16 +99,16 @@ class MbAsset
      * Send assets to wordpress
      *
      * @param string $pageSlug
-     * @param bool $isShortcode
+     * @param bool   $isShortcode
      *
      * @return void
      */
     public function runAssets($pageSlug, $isShortcode = false)
     {
         $cssList = $this->css;
-        $jsList  = $this->js;
+        $jsList = $this->js;
 
-        MbWPActionHook::addActionCallback($this->getActionEnqueue(), function () use ($pageSlug, $cssList, $jsList){
+        MbWPActionHook::addActionCallback($this->getActionEnqueue(), function () use ($pageSlug, $cssList, $jsList) {
             foreach ($cssList as $i => $css) {
                 wp_enqueue_style("style_mb_{$pageSlug}_{$i}", $css);
             }
@@ -116,7 +118,7 @@ class MbAsset
             }
         });
 
-        if($isShortcode){
+        if ($isShortcode) {
             MbWPActionHook::doAction($this->getActionEnqueue());
         }
     }
@@ -126,8 +128,9 @@ class MbAsset
      *
      * @return string
      */
-    public function getActionEnqueue(){
-        if(is_null($this->actionEnqueue)){
+    public function getActionEnqueue()
+    {
+        if (is_null($this->actionEnqueue)) {
             $this->autoEnqueue();
         }
 
@@ -139,12 +142,13 @@ class MbAsset
      *
      * @return void
      */
-    protected function autoEnqueue(){
+    protected function autoEnqueue()
+    {
         $request = MocaBonita::getInstance()->getMbRequest();
 
-        if($request->isLoginPage()){
+        if ($request->isLoginPage()) {
             $this->actionEnqueue = "login_enqueue_scripts";
-        } elseif ($request->isAdmin()){
+        } elseif ($request->isAdmin()) {
             $this->actionEnqueue = "admin_enqueue_scripts";
         } else {
             $this->actionEnqueue = "wp_enqueue_scripts";
@@ -158,7 +162,8 @@ class MbAsset
      *
      * @return $this
      */
-    public function setActionEnqueue($typePage){
+    public function setActionEnqueue($typePage)
+    {
         switch ($typePage) {
             case 'admin' :
                 $this->actionEnqueue = "admin_enqueue_scripts";
@@ -170,6 +175,7 @@ class MbAsset
                 $this->actionEnqueue = "wp_enqueue_scripts";
                 break;
         }
+
         return $this;
     }
 }

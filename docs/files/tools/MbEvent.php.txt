@@ -7,14 +7,14 @@ use MocaBonita\MocaBonita;
 /**
  * Main class of the MocaBonita Event
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ * @version   3.1.0
  */
 abstract class MbEvent extends MbSingleton
 {
@@ -82,8 +82,8 @@ abstract class MbEvent extends MbSingleton
      * Call page events
      *
      * @param MocaBonita $mocaBonita
-     * @param string $dispatch
-     * @param object $complement
+     * @param string     $dispatch
+     * @param object     $complement
      *
      * @throws MbException
      *
@@ -91,15 +91,18 @@ abstract class MbEvent extends MbSingleton
      */
     public static function callEvents(MocaBonita $mocaBonita, $dispatch, $complement = null)
     {
-        foreach ($mocaBonita->getMbEvents($dispatch) as &$evento) {
-            $evento->{$dispatch}($mocaBonita->getMbRequest(), $mocaBonita->getMbResponse(), $complement);
+        foreach ($mocaBonita->getMbEvents($dispatch) as $event) {
+            call_user_func_array(
+                [$event, $dispatch],
+                [$mocaBonita->getMbRequest(), $mocaBonita->getMbResponse(), $complement]
+            );
         }
     }
 
     /**
      * Event that will start after wordpress initialize
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
      * @param MocaBonita $mocaBonita
      *
@@ -115,7 +118,7 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start before WordPress finishes
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
      * @param MocaBonita $mocaBonita
      *
@@ -131,9 +134,9 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start before running the page
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
-     * @param MbPage $mbPage
+     * @param MbPage     $mbPage
      *
      * @throws MbException
      */
@@ -147,9 +150,9 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start after running the page
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
-     * @param MbPage $mbPage
+     * @param MbPage     $mbPage
      *
      * @throws MbException
      */
@@ -163,9 +166,9 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start before finishes the page, even with the exception
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
-     * @param MbPage $mbPage
+     * @param MbPage     $mbPage
      *
      * @throws MbException
      */
@@ -179,7 +182,7 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start after the page launches an exception
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
      * @param \Exception $exception
      *
@@ -195,8 +198,8 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start before running the shortcode
      *
-     * @param MbRequest $mbRequest
-     * @param MbResponse $mbResponse
+     * @param MbRequest   $mbRequest
+     * @param MbResponse  $mbResponse
      * @param MbShortCode $mbShortCode
      *
      * @throws MbException
@@ -211,8 +214,8 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start after running the shortcode
      *
-     * @param MbRequest $mbRequest
-     * @param MbResponse $mbResponse
+     * @param MbRequest   $mbRequest
+     * @param MbResponse  $mbResponse
      * @param MbShortCode $mbShortCode
      *
      * @throws MbException
@@ -227,9 +230,9 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start before running the action
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
-     * @param MbAction $mbAction
+     * @param MbAction   $mbAction
      *
      * @throws MbException
      */
@@ -243,9 +246,9 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start after running the action
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
-     * @param MbAction $acaombAction
+     * @param MbAction   $acaombAction
      *
      * @throws MbException
      */
@@ -259,9 +262,9 @@ abstract class MbEvent extends MbSingleton
     /**
      * Event that will start before finishes the action, even with the exception
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
-     * @param MbAction $mbAction
+     * @param MbAction   $mbAction
      *
      * @throws MbException
      */
@@ -276,7 +279,7 @@ abstract class MbEvent extends MbSingleton
      * Event that will start after the action launches an exception
      *
      *
-     * @param MbRequest $mbRequest
+     * @param MbRequest  $mbRequest
      * @param MbResponse $mbResponse
      * @param \Exception $exception
      *

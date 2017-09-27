@@ -13,17 +13,18 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 /**
  * Main class of the MocaBonita Post
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\model
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\model
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
-class MbPost extends MbModel {
-
+class MbPost extends MbModel
+{
     /**
      * The primary key for the model.
      *
@@ -80,7 +81,7 @@ class MbPost extends MbModel {
         'post_date',
         'post_date_gmt',
         'post_modified',
-        'post_modified_gmt'
+        'post_modified_gmt',
     ];
 
     /**
@@ -88,7 +89,8 @@ class MbPost extends MbModel {
      *
      * @return string
      */
-    public function getTable() {
+    public function getTable()
+    {
         return $this->getWpdb()->prefix . "posts";
     }
 
@@ -101,6 +103,7 @@ class MbPost extends MbModel {
     {
         return $this->hasMany(MbPostMeta::class, 'post_id');
     }
+
     /**
      * Get a specific type of post.
      *
@@ -119,36 +122,37 @@ class MbPost extends MbModel {
      * Attach file in WordPress media
      *
      * @param UploadedFile $file
-     * @param int $parent
+     * @param int          $parent
      *
      * @return MbPost
      *
      * @throws MbException
      */
-    public static function attachFile(UploadedFile $file, $parent = 0){
-        if (!in_array($file->getMimeType(), get_allowed_mime_types())){
+    public static function attachFile(UploadedFile $file, $parent = 0)
+    {
+        if (!in_array($file->getMimeType(), get_allowed_mime_types())) {
             throw new FileException("O MimeType do arquivo enviado é inválido!");
         }
 
         $wpUploadDirs = wp_upload_dir();
 
         $hashName = $file->hashName();
-        $pathUrl  = $wpUploadDirs['baseurl'] . "/" . MbPath::pName();
-        $pathDir  = $wpUploadDirs['basedir'] . "/" . MbPath::pName();
+        $pathUrl = $wpUploadDirs['baseurl'] . "/" . MbPath::pName();
+        $pathDir = $wpUploadDirs['basedir'] . "/" . MbPath::pName();
 
         $attachment = [
             'guid'           => $pathUrl . '/' . $hashName,
             'post_mime_type' => $file->getMimeType(),
             'post_title'     => preg_replace('/\.[^.]+$/', '', $file->getClientOriginalName()),
             'post_content'   => '',
-            'post_status'    => 'inherit'
+            'post_status'    => 'inherit',
         ];
 
         $file->move($pathDir, $hashName);
 
         require_once(ABSPATH . 'wp-admin/includes/image.php');
 
-        try{
+        try {
 
             MbDatabase::beginTransaction();
 
@@ -164,7 +168,7 @@ class MbPost extends MbModel {
 
             return self::findOrFail($attachId);
 
-        } catch (\Exception $e){
+        } catch (\Exception $e) {
 
             MbDatabase::rollBack();
 

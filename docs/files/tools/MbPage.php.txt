@@ -2,20 +2,22 @@
 
 namespace MocaBonita\tools;
 
+use Illuminate\Support\Arr;
 use MocaBonita\controller\MbController;
 use MocaBonita\MocaBonita;
 
 /**
  * Main class of the MocaBonita Page
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbPage
 {
@@ -128,8 +130,8 @@ class MbPage
      * MbPage construct
      *
      * @param MbPage $parentPage
-     * @param bool $mainMenu
-     * @param int $position
+     * @param bool   $mainMenu
+     * @param int    $position
      */
     public function __construct(MbPage $parentPage = null, $mainMenu = true, $position = 1)
     {
@@ -152,8 +154,10 @@ class MbPage
      *
      * @return MbPage
      */
-    public static function create($name){
+    public static function create($name)
+    {
         $mbPage = new self();
+
         return $mbPage->setName($name);
     }
 
@@ -171,12 +175,14 @@ class MbPage
      * Set name
      *
      * @param string $name
+     *
      * @return MbPage
      */
     public function setName($name)
     {
         $this->name = $name;
         $this->setSlug($name);
+
         return $this;
     }
 
@@ -194,11 +200,13 @@ class MbPage
      * Set capability
      *
      * @param string $capability
+     *
      * @return MbPage
      */
     public function setCapability($capability)
     {
         $this->capability = $capability;
+
         return $this;
     }
 
@@ -216,11 +224,14 @@ class MbPage
      * Set slug
      *
      * @param string $slug
+     * @param bool   $sanitize
+     *
      * @return MbPage
      */
-    public function setSlug($slug)
+    public function setSlug($slug, $sanitize = true)
     {
-        $this->slug = sanitize_title($slug);
+        $this->slug = $sanitize ? sanitize_title($slug) : $slug;
+
         return $this;
     }
 
@@ -238,11 +249,13 @@ class MbPage
      * Set dashicon
      *
      * @param string $dashicon
+     *
      * @return MbPage
      */
     public function setDashicon($dashicon)
     {
         $this->dashicon = $dashicon;
+
         return $this;
     }
 
@@ -260,11 +273,13 @@ class MbPage
      * Set menu position
      *
      * @param int $menuPosition
+     *
      * @return MbPage
      */
     public function setMenuPosition($menuPosition)
     {
         $this->menuPosition = $menuPosition;
+
         return $this;
     }
 
@@ -277,7 +292,7 @@ class MbPage
      */
     public function getParentPage()
     {
-        if (is_null($this->parentPage)){
+        if (is_null($this->parentPage)) {
             throw new MbException("No parent pages found in {$this->getName()}");
         }
 
@@ -296,6 +311,7 @@ class MbPage
     public function setParentPage(MbPage $parentPage = null)
     {
         $this->parentPage = $parentPage;
+
         return $this;
     }
 
@@ -319,6 +335,7 @@ class MbPage
     public function setRemovePageSubmenu($removePageSubmenu = true)
     {
         $this->removePageSubmenu = $removePageSubmenu;
+
         return $this;
     }
 
@@ -341,11 +358,7 @@ class MbPage
      */
     public function getSubPage($pageSlug)
     {
-        if (!isset($this->subPages[$pageSlug])){
-            return null;
-        }
-
-        return $this->subPages[$pageSlug];
+        return Arr::get($this->subPages, $pageSlug, null);
     }
 
     /**
@@ -357,8 +370,10 @@ class MbPage
      */
     public function setSubPage(MbPage $mbPage)
     {
-        $this->subPages[$mbPage->getSlug()] = $mbPage;
+        Arr::set($this->subPages, $mbPage->getSlug(), $mbPage);
+
         $mbPage->setParentPage($this);
+
         return $mbPage;
     }
 
@@ -376,7 +391,8 @@ class MbPage
             ->setSlug(is_null($slug) ? $name : $slug)
             ->setParentPage($this);
 
-        $this->subPages[$subpage->getSlug()] = $subpage;
+        Arr::set($this->subPages, $subpage->getSlug(), $subpage);
+
         return $subpage;
     }
 
@@ -394,11 +410,13 @@ class MbPage
      * Set main menu
      *
      * @param boolean $mainMenu
+     *
      * @return MbPage
      */
     public function setMainMenu($mainMenu = true)
     {
         $this->mainMenu = $mainMenu;
+
         return $this;
     }
 
@@ -416,11 +434,13 @@ class MbPage
      * Set submenu
      *
      * @param boolean $subMenu
+     *
      * @return MbPage
      */
     public function setSubMenu($subMenu = true)
     {
         $this->subMenu = $subMenu;
+
         return $this;
     }
 
@@ -452,6 +472,7 @@ class MbPage
     public function setController($controller)
     {
         $this->controller = $controller;
+
         return $this;
     }
 
@@ -475,6 +496,7 @@ class MbPage
     public function setHideMenu($hideMenu = true)
     {
         $this->hideMenu = $hideMenu;
+
         return $this;
     }
 
@@ -487,36 +509,41 @@ class MbPage
      */
     public function getMbAction($actionName)
     {
-        if (!isset($this->mbActions[$actionName])){
-            return null;
-        }
-
-        return $this->mbActions[$actionName];
+        return Arr::get($this->mbActions, $actionName, null);
     }
 
     /**
      * Set MbAction
      *
      * @param MbAction $mbAction
+     *
      * @return MbAction
      */
     public function setMbAction(MbAction $mbAction)
     {
-        $this->mbActions[$mbAction->getName()] = $mbAction;
+        Arr::set($this->mbActions, $mbAction->getName(), $mbAction);
+
         return $mbAction;
     }
 
     /**
      * add new MbAction
      *
-     * @param string $actionName
+     * @param string        $actionName
+     * @param \Closure|null $callback
      *
      * @return MbAction
+     *
      */
-    public function addMbAction($actionName)
+    public function addMbAction($actionName, \Closure $callback = null)
     {
-        $this->mbActions[$actionName] = new MbAction($this, $actionName);
-        return $this->mbActions[$actionName];
+        $action = new MbAction($this, $actionName);
+
+        if($callback instanceof \Closure){
+            $action->setCallback($callback);
+        }
+
+        return $this->setMbAction($action);
     }
 
     /**
@@ -539,6 +566,7 @@ class MbPage
     public function setMbAsset(MbAsset $mbAsset)
     {
         $this->mbAsset = $mbAsset;
+
         return $this;
     }
 
@@ -552,11 +580,13 @@ class MbPage
 
     /**
      * @param string[] $rules
+     *
      * @return MbPage
      */
     public function setRules($rules)
     {
         $this->rules = $rules;
+
         return $this;
     }
 
@@ -567,10 +597,12 @@ class MbPage
      */
     public function setRule($rule)
     {
-        if(!is_array($this->rules)){
+        if (!is_array($this->rules)) {
             $this->rules = [];
         }
+
         $this->rules[] = $rule;
+
         return $this;
     }
 

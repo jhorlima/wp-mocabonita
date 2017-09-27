@@ -69,6 +69,7 @@ namespace ExemploPlugin;
 use MocaBonita\MocaBonita;
 use MocaBonita\tools\MbPage;
 use MocaBonita\tools\MbPath;
+use MocaBonita\tools\MbRequest;
 use ExemploPlugin\controller\ExemploController;
 
 /**
@@ -140,7 +141,13 @@ MocaBonita::plugin(function (MocaBonita $mocabonita){
     * entretanto o método na Controller deve ter o sufixo "Action", Ex: cadastrarAction(MbRequest $mbRequest, MbResponse $mbResponse).
     * @doc: https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbAction.html 
     */ 
-    $paginaOutra->addMbAction('cadastrar');
+    $paginaOutra->addMbAction('cadastrar', function (MbRequest $mbRequest){
+        try{            
+            return ModelExemplo::create($mbRequest->inputSource());
+        } catch (\Exception $e){
+            throw new \Exception("Não foi possível realizar o cadastro", 400, $e);
+        }
+    });
  
     /**
     * Por padrão, ao ser criado uma página, uma action chamada index é criada, contudo é possível ajustar 
@@ -153,10 +160,12 @@ MocaBonita::plugin(function (MocaBonita $mocabonita){
                  ->setRequiresLogin(false);
  
     $paginaOutra->addMbAction('apagar')
-                 ->setRequiresMethod('DELETE');
+                 ->setRequiresMethod('DELETE')
+                 ->setRequiredParam('id');
  
     $paginaOutra->addMbAction('atualizar')
-                 ->setRequiresMethod('PUT');
+                 ->setRequiresMethod('PUT')
+                 ->setRequiredParams(['id', 'usuario_id']);
  
     /**
     * Cada página pode ter suas capacidades alteradas, contudo elas só terão efeitos se for necessário o login do Wordpress
@@ -239,8 +248,6 @@ https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.MocaBonita.html
 
 As páginas do framework MocaBonita são responsáveis por transmitir informações do plugin. Elas podem ser acessadas pelo
 menu administrativo do Wordpress, por padrão, ou pelo parametro "**page**" da URL informando seu _slug_ como valor. Ex: ?page=exemplo.
-
-Para que uma página funcione corretamente, ela precisa de uma controller para realizar suas ações. 
 
 Por padrão, uma página vem configurada como:
 
@@ -368,13 +375,21 @@ $paginaTeste->addMbAction("create")
                 return Exemplo::create($mbRequest->inputSource());
             });
 
+
+$paginaTeste->addMbAction("update", function (MbRequest $mbRequest){
+                return Exemplo::updateOrCreate(['id' => $mbRequest->query('id')], $mbRequest->inputSource());
+            })->setRequiredParam('id');
+
+
 $paginaTeste->addMbAction("all")->setData(Exemplo::all());
 
 ```
 
 Mais informações em : https://jhorlima.github.io/wp-mocabonita/classes/MocaBonita.tools.MbAction.html
 
-As ações são chamadas através do parametro **actions** da URL. Ex: ?page=teste&action=index
+As ações são chamadas através do parametro **actions** da URL. Ex: wp-admin/admin.php?page=teste&action=index, wp-admin/admin-post.php?page=teste&action=index e wp-admin/admin-ajax.php?page=teste&action=index
+
+Quando uma ação não estiver setCallback() ou setData(), é necessário adicionar uma controller na página dela para chamar um método com respectivo nome da ação em camelCase complementado com Action. Ex: action buscar-todos => buscarTodosAction(). 
 
 ####6º Controller ####
 

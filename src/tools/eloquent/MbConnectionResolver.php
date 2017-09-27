@@ -8,14 +8,15 @@ use MocaBonita\tools\MbSingleton;
 /**
  * Main class of the MocaBonita WpdbConnectionResolver
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\eloquent
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\eloquent
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbConnectionResolver extends MbSingleton implements ConnectionResolverInterface
 {

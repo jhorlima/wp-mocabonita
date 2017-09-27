@@ -7,14 +7,14 @@ use MocaBonita\tools\eloquent\MbModel;
 /**
  * Main class of the MocaBonita UserMeta
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\model
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\model
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
  */
 class MbWpUserMeta extends MbModel
 {
@@ -37,7 +37,8 @@ class MbWpUserMeta extends MbModel
      *
      * @return string
      */
-    public function getTable() {
+    public function getTable()
+    {
         return $this->getWpdb()->prefix . "usermeta";
     }
 }

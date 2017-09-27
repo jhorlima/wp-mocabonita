@@ -9,22 +9,22 @@ use Illuminate\Support\Arr;
 /**
  * Number validation class
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\validation
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\validation
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
  *
  * List of possible arguments for this class:
  *
- * @uses $arguments['float'] (bool) : Use value as float
- * @uses $arguments['min'] (float) : Lowest value possible
- * @uses $arguments['max'] (float) : Highest possible value (it requires the $arguments['min'])
- * @uses $arguments['in_array'] (string[]) : Check if the value is in array
- * @uses $arguments['filter'] (string|Closure) : Filter value with function or callback
+ * @uses      $arguments['float'] (bool) : Use value as float
+ * @uses      $arguments['min'] (float) : Lowest value possible
+ * @uses      $arguments['max'] (float) : Highest possible value (it requires the $arguments['min'])
+ * @uses      $arguments['in_array'] (string[]) : Check if the value is in array
+ * @uses      $arguments['filter'] (string|Closure) : Filter value with function or callback
  */
 class MbNumberValidation extends MbValidationBase
 {
@@ -79,14 +79,14 @@ class MbNumberValidation extends MbValidationBase
                 throw new Exception("O atributo '{$this->getAttribute()}' deve ser menor ou igual a '{$max}'!");
             }
         }
-        
-        if($inArray && !in_array($value, $inArray)){
+
+        if ($inArray && !in_array($value, $inArray)) {
             throw new Exception("O atributo '{$this->getAttribute()}' não pertence ao conjunto de dados!");
         }
 
-        if($filter && $filter instanceof \Closure){
+        if ($filter && $filter instanceof \Closure) {
             $value = $filter($value);
-        } elseif ($filter){
+        } elseif ($filter) {
             $value = call_user_func($filter, $value);
         }
 

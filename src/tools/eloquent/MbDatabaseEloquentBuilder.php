@@ -10,29 +10,31 @@ use Illuminate\Pagination\Paginator;
 /**
  * Main class of the MocaBonita DatabaseEloquentBuilder
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools\eloquent
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools\eloquent
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbDatabaseEloquentBuilder extends Builder
 {
     /**
      * Paginate the given query.
      *
-     * @param null $perPage
+     * @param null  $perPage
      * @param array $columns
-     * @param null $pageName
-     * @param null $page
+     * @param null  $pageName
+     * @param null  $page
+     *
      * @return LengthAwarePaginator
      */
     public function paginate($perPage = null, $columns = ['*'], $pageName = null, $page = null)
     {
-        $pageName = is_string($pageName)?:MbDatabaseQueryBuilder::getPagination();
+        $pageName = is_string($pageName) ?: MbDatabaseQueryBuilder::getPagination();
 
         $page = $page ?: Paginator::resolveCurrentPage($pageName);
 

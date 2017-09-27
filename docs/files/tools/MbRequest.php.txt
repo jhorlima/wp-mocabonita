@@ -8,14 +8,15 @@ use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
 /**
  * Main class of the MocaBonita Request
  *
- * @author Jhordan Lima <jhorlima@icloud.com>
- * @category WordPress
- * @package \MocaBonita\tools
+ * @author    Jhordan Lima <jhorlima@icloud.com>
+ * @category  WordPress
+ * @package   \MocaBonita\tools
+ *
  * @copyright Jhordan Lima 2017
  * @copyright Divisão de Projetos e Desenvolvimento - DPD
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
- * @version 3.1.0
+ *
  */
 class MbRequest extends Request
 {
@@ -93,6 +94,7 @@ class MbRequest extends Request
         if (is_null($this->admin)) {
             $this->admin = (bool)is_admin();
         }
+
         return $this->admin;
     }
 
@@ -116,6 +118,7 @@ class MbRequest extends Request
         if (is_null($this->logged)) {
             $this->logged = (bool)is_user_logged_in();
         }
+
         return $this->logged;
     }
 
@@ -149,6 +152,7 @@ class MbRequest extends Request
         if (is_null($this->loginPage)) {
             $this->loginPage = (bool)in_array($this->getPageNow(), ['wp-login.php', 'wp-register.php']);
         }
+
         return $this->loginPage;
     }
 
@@ -162,6 +166,7 @@ class MbRequest extends Request
         if (is_null($this->pageNow)) {
             $this->pageNow = $GLOBALS['pagenow'];
         }
+
         return $this->pageNow;
     }
 
@@ -175,6 +180,7 @@ class MbRequest extends Request
         if (is_null($this->ajax)) {
             $this->ajax = (bool)(defined('DOING_AJAX') && DOING_AJAX);
         }
+
         return (bool)($this->ajax || parent::ajax());
     }
 
@@ -194,7 +200,7 @@ class MbRequest extends Request
      * Get the full URL with new action for the requests.
      *
      * @param string $action
-     * @param array $query
+     * @param array  $query
      *
      * @return string
      */
@@ -202,6 +208,7 @@ class MbRequest extends Request
     {
         $query['action'] = $action;
         $query = array_replace($this->query(), $query);
+
         return $this->url() . '?' . http_build_query($query);
     }
 
@@ -209,7 +216,7 @@ class MbRequest extends Request
      * Get the full URL with new pagination for the requests.
      *
      * @param string $pagination
-     * @param array $query
+     * @param array  $query
      *
      * @return string
      */
@@ -217,13 +224,14 @@ class MbRequest extends Request
     {
         $query[MbDatabaseQueryBuilder::getPagination()] = $pagination;
         $query = array_replace($this->query(), $query);
+
         return $this->url() . '?' . http_build_query($query);
     }
 
     /**
      * Get the full URL admin with new query for the requests.
      *
-     * @param array $query
+     * @param array  $query
      * @param string $adminPage
      *
      * @return string
@@ -237,6 +245,7 @@ class MbRequest extends Request
      * Is current action
      *
      * @param string $action
+     *
      * @return bool
      */
     public function isCurrentAction($action)
@@ -248,6 +257,7 @@ class MbRequest extends Request
      * Is current page
      *
      * @param string $page
+     *
      * @return bool
      */
     public function isCurrentPage($page)
@@ -258,8 +268,9 @@ class MbRequest extends Request
     /**
      * Retrieve an inputSource item from the request.
      *
-     * @param  string $key
+     * @param  string            $key
      * @param  string|array|null $default
+     *
      * @return string|array
      */
     public function inputSource($key = null, $default = null)
@@ -337,6 +348,29 @@ class MbRequest extends Request
     public function setBlogAdmin($blogAdmin)
     {
         $this->blogAdmin = $blogAdmin;
+
         return $this;
+    }
+
+    /**
+     * Determine if the request params contains a non-empty value for an input item.
+     *
+     * @param  string|array $key
+     *
+     * @return bool
+     */
+    public function hasQuery($key)
+    {
+        $query = $this->query();
+        $arrayKeys = array_keys($query);
+        $keys = is_array($key) ? $key : func_get_args();
+
+        foreach ($keys as $value) {
+            if (!in_array($value, $arrayKeys) || trim((string)$query[$value]) === '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
