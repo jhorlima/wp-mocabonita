@@ -324,22 +324,32 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      *
      * @param  \Closure $callback
      *
+     * @param int       $attempts
+     *
      * @return mixed
      *
      * @throws \Exception
      */
     public function transaction(\Closure $callback, $attempts = 1)
     {
-        $this->beginTransaction();
-        try {
-            $data = $callback();
-            $this->commit();
+        do {
+            $this->beginTransaction();
 
-            return $data;
-        } catch (\Exception $e) {
-            $this->rollBack();
-            throw $e;
+            try {
+                $data = $callback();
+                $this->commit();
+                break;
+            } catch (\Exception $e) {
+                $this->rollBack();
+                $data = $e;
+            }
+        } while (--$attempts > 0);
+
+        if($data instanceof \Exception){
+            throw $data;
         }
+
+        return $data;
     }
 
     /**
