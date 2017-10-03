@@ -2,6 +2,7 @@
 
 namespace MocaBonita\tools\eloquent;
 
+use InvalidArgumentException;
 use Carbon\Carbon;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -270,14 +271,13 @@ class MbModel extends Model
             return Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
         }
 
-        // If the value is a date from javascript.
-        if (preg_match('/(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})[+-](\d{2})\:(\d{2})/', $value)) {
-            return Carbon::parse($value);
-        }
-
         // Finally, we will just assume this date is in the format used by default on
         // the database connection and use that format to create the Carbon object
         // that is returned back out to the developers after we convert it here.
-        return Carbon::createFromFormat($this->getDateFormat(), $value);
+        try {
+            return Carbon::createFromFormat($this->getDateFormat(), $value);
+        } catch (InvalidArgumentException $e) {
+            return Carbon::parse($value);
+        }
     }
 }
