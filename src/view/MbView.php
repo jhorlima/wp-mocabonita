@@ -2,7 +2,9 @@
 
 namespace MocaBonita\view;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Arr;
 use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbPath;
 use MocaBonita\tools\MbRequest;
@@ -21,7 +23,7 @@ use MocaBonita\tools\MbResponse;
  * @copyright Universidade Estadual do Maranhão - UEMA
  *
  */
-class MbView implements View
+class MbView implements View, Arrayable
 {
     /**
      * Template name
@@ -49,7 +51,7 @@ class MbView implements View
      *
      * @var mixed[]
      */
-    protected $variablesForView;
+    protected $attributes;
 
     /**
      * View content
@@ -91,7 +93,7 @@ class MbView implements View
      */
     public function __construct()
     {
-        $this->setVariablesForView([]);
+        $this->setAttributes([]);
         $this->setExtension("phtml");
         $this->setViewPath(MbPath::pViewDir());
     }
@@ -171,23 +173,25 @@ class MbView implements View
     /**
      * Get variables for view
      *
+     * @param null $name
+     *
      * @return mixed[]
      */
-    public function getVariablesForView()
+    public function getAttribute($name = null)
     {
-        return $this->variablesForView;
+        return is_null($name) ? $this->attributes : Arr::get($this->attributes, $name);
     }
 
     /**
      * Set variables for view
      *
-     * @param string[] $variablesForView
+     * @param string[] $attributes
      *
      * @return MbView
      */
-    public function setVariablesForView(array $variablesForView)
+    public function setAttributes(array $attributes)
     {
-        $this->variablesForView = $variablesForView;
+        $this->attributes = $attributes;
 
         return $this;
     }
@@ -200,9 +204,9 @@ class MbView implements View
      *
      * @return MbView
      */
-    public function setVariableForView($name, $value)
+    public function setAttribute($name, $value)
     {
-        $this->variablesForView[$name] = $value;
+        $this->attributes[$name] = $value;
 
         return $this;
     }
@@ -331,24 +335,19 @@ class MbView implements View
      * Set parameters for view
      *
      * @param string $templateName
-     * @param string $currentPage
-     * @param string $currentAction
-     * @param array  $variablesForView
+     * @param string $page
+     * @param string $action
+     * @param array  $attributes
      * @param string $extension
      *
      * @return MbView
      */
-    public function setView(
-        $templateName,
-        $currentPage,
-        $currentAction,
-        array $variablesForView = [],
-        $extension = "phtml"
-    ) {
+    public function setView($templateName, $page, $action, array $attributes = [], $extension = "phtml")
+    {
         $this->setTemplate($templateName);
-        $this->setPage($currentPage);
-        $this->setAction($currentAction);
-        $this->setVariablesForView($variablesForView);
+        $this->setPage($page);
+        $this->setAction($action);
+        $this->setAttributes($attributes);
         $this->setExtension($extension);
 
         return $this;
@@ -357,13 +356,13 @@ class MbView implements View
     /**
      * Get File Full Path with extension
      *
-     * @param string $typeFile If the file either is a view or is a template
+     * @param string $type If the file either is a view or is a template
      *
      * @return string
      */
-    protected function getFileFullPath($typeFile = 'action')
+    protected function getFileFullPath($type = 'action')
     {
-        if ($typeFile == 'action') {
+        if ($type == 'action') {
             return $this->viewPath . "{$this->page}/{$this->action}.{$this->extension}";
         } else {
             return $this->viewPath . "{$this->template}.{$this->extension}";
@@ -384,7 +383,7 @@ class MbView implements View
         if (file_exists($filePiece)) {
             include $filePiece;
         } else {
-            echo $this->getMbResponse()->adminNoticeTemplate("The file {$filePiece} not found!");
+            MbException::registerError(new \Exception("The file {$filePiece} not found!"));
         }
     }
 
@@ -397,11 +396,6 @@ class MbView implements View
     {
         $viewPath = $this->getFileFullPath();
         $templatePath = $this->getFileFullPath('template');
-
-        //Assign defined variables to the view and template
-        foreach ($this->variablesForView as $attr => $value) {
-            $$attr = $value;
-        }
 
         if (file_exists($viewPath)) {
             ob_start();
@@ -444,7 +438,53 @@ class MbView implements View
      */
     public function with($key, $value = null)
     {
-        return $this->variablesForView[$key] = $value;
+        $this->attributes[$key] = $value;
+
+        return $this;
     }
 
+    /**
+     * Get the instance as an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * Convert the model to its string representation.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render();
+    }
+
+    /**
+     * Dynamically retrieve attributes on the view.
+     *
+     * @param  string $key
+     *
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->getAttribute($key);
+    }
+
+    /**
+     * Dynamically set attributes on the view.
+     *
+     * @param  string $key
+     * @param  mixed  $value
+     *
+     * @return void
+     */
+    public function __set($key, $value)
+    {
+        $this->setAttribute($key, $value);
+    }
 }
