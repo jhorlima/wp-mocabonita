@@ -51,13 +51,6 @@ class MbWpUser extends MbModel
     protected $primaryKey = 'ID';
 
     /**
-     * Stored metas of the User
-     *
-     * @var Collection
-     */
-    protected $metas = null;
-
-    /**
      * Stored if table has timestamps
      *
      * @var bool
@@ -100,6 +93,16 @@ class MbWpUser extends MbModel
         'user_status',
     ];
 
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'user_registered' => 'datetime',
+    ];
+
     /**
      * Get the table associated with the model.
      *
@@ -133,16 +136,11 @@ class MbWpUser extends MbModel
     /**
      * Get user meta
      *
-     * @return Collection
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function getMetas()
+    public function metas()
     {
-        if (is_null($this->metas)) {
-            $this->metas = $this->hasMany(MbWpUserMeta::class, 'user_id')->getResults();
-            $this->metas->keyBy("meta_key");
-        }
-
-        return $this->metas;
+        return $this->hasMany(MbWpUserMeta::class, 'user_id');
     }
 
     /**

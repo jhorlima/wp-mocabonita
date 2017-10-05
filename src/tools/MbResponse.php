@@ -140,7 +140,7 @@ class MbResponse extends Response
         } elseif (is_string($content)) {
             $content = ['content' => $content];
         } elseif (!is_array($content) && !$content instanceof \Exception) {
-            return $this->ajaxContent(new \Exception("No valid content has been submitted!",  BaseResponse::HTTP_BAD_REQUEST));
+            return $this->ajaxContent(new \Exception("No valid content has been submitted!", BaseResponse::HTTP_BAD_REQUEST));
         } elseif ($content instanceof \Exception) {
 
             $this->setStatusCode($content->getCode() < 300 ? BaseResponse::HTTP_BAD_REQUEST : $content->getCode());
@@ -262,6 +262,6 @@ class MbResponse extends Response
      */
     public function adminNoticeTemplate($message, $type = 'error')
     {
-        return "<div class='notice notice-{$type}'><p>{$message}</p></div>";
+        return "<div class='notice notice-{$type} is-dismissible'>{$message}</div>";
     }
 }

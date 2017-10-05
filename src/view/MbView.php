@@ -384,7 +384,7 @@ class MbView implements View
         if (file_exists($filePiece)) {
             include $filePiece;
         } else {
-            MbException::registerError(new \Exception("The file {$filePiece} not found!"));
+            echo $this->getMbResponse()->adminNoticeTemplate("The file {$filePiece} not found!");
         }
     }
 
