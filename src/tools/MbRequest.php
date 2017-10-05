@@ -191,7 +191,7 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewQuery(array $query)
+    public function urlQuery(array $query)
     {
         return $this->url() . '?' . http_build_query($query);
     }
@@ -204,7 +204,7 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewAction($action, array $query = [])
+    public function urlAction($action, array $query = [])
     {
         $query['action'] = $action;
         $query = array_replace($this->query(), $query);
@@ -220,7 +220,7 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewPagination($pagination, array $query = [])
+    public function urlPagination($pagination, array $query = [])
     {
         $query[MbDatabaseQueryBuilder::getPagination()] = $pagination;
         $query = array_replace($this->query(), $query);
@@ -239,6 +239,19 @@ class MbRequest extends Request
     public function adminUrlQuery(array $query, $adminPage = "admin.php")
     {
         return admin_url($adminPage . '?' . http_build_query($query));
+    }
+
+    /**
+     * Get the full URL home with new query for the requests.
+     *
+     * @param array  $query
+     * @param string $homePage
+     *
+     * @return string
+     */
+    public function homeUrlQuery(array $query, $homePage = "/")
+    {
+        return home_url($homePage . '?' . http_build_query($query));
     }
 
     /**

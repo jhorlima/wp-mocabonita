@@ -504,7 +504,7 @@ final class MocaBonita extends MbSingleton
                 }
 
                 //Get url without pagination query
-                $urlWihtouPagination = $this->mbRequest->fullUrlWithNewQuery($paramsQuery);
+                $urlWihtouPagination = $this->mbRequest->urlQuery($paramsQuery);
 
                 //Set url without pagination query to the Paginator Resolver
                 Paginator::currentPathResolver(function () use ($urlWihtouPagination) {
