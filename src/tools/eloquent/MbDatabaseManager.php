@@ -4,6 +4,8 @@ namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\Query\Grammars\Grammar;
+use Illuminate\Database\Query\Grammars\MySqlGrammar;
+use Illuminate\Database\Query\Processors\MySqlProcessor;
 use Illuminate\Database\Query\Processors\Processor;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\QueryException;
@@ -61,8 +63,8 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
     {
         global $wpdb;
         $this->wpdb = $wpdb;
-        $this->queryGrammar = new Grammar();
-        $this->postProcessor = new Processor();
+        $this->queryGrammar = new MySqlGrammar();
+        $this->postProcessor = new MySqlProcessor();
     }
 
     /**
