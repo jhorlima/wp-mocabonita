@@ -23,7 +23,7 @@ use MocaBonita\tools\MbResponse;
  * @copyright Universidade Estadual do Maranhão - UEMA
  *
  */
-class MbView implements View, Arrayable
+class MbView implements View
 {
     /**
      * Template name
@@ -441,16 +441,6 @@ class MbView implements View, Arrayable
         $this->attributes[$key] = $value;
 
         return $this;
-    }
-
-    /**
-     * Get the instance as an array.
-     *
-     * @return array
-     */
-    public function toArray()
-    {
-        return $this->attributes;
     }
 
     /**
