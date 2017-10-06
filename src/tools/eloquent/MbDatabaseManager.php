@@ -55,6 +55,20 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
     public $transactionCount = 0;
 
     /**
+     * All of the queries run against the connection.
+     *
+     * @var array
+     */
+    protected $queryLog = [];
+
+    /**
+     * Indicates whether queries are being logged.
+     *
+     * @var bool
+     */
+    protected $loggingQueries = false;
+
+    /**
      * Method to be started
      *
      * @return void
@@ -107,15 +121,23 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      */
     public function selectOne($query, $bindings = [])
     {
-        $query = $this->bind_params($query, $bindings);
+        $start = $this->getLogTime();
 
-        $result = $this->wpdb->get_row($query);
+        try {
 
-        if ($result === false || $this->wpdb->last_error) {
-            throw new QueryException($query, $bindings, new \Exception($this->wpdb->last_error));
+            $result = $this->wpdb->get_row($this->bindParams($query, $bindings));
+
+            if ($result === false || $this->wpdb->last_error) {
+                throw new QueryException($query, $bindings, new \Exception($this->wpdb->last_error));
+            }
+
+            return $result;
+
+        } catch (QueryException $e) {
+            throw $e;
+        } finally {
+            $this->logQuery($query, $bindings, $this->getElapsedTime($start));
         }
-
-        return $result;
     }
 
     /**
@@ -130,15 +152,24 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      */
     public function select($query, $bindings = [])
     {
-        $query = $this->bind_params($query, $bindings);
 
-        $result = $this->wpdb->get_results($query);
+        $start = $this->getLogTime();
 
-        if ($result === false || $this->wpdb->last_error) {
-            throw new QueryException($query, $bindings, new \Exception($this->wpdb->last_error));
+        try {
+
+            $result = $this->wpdb->get_results($this->bindParams($query, $bindings));
+
+            if ($result === false || $this->wpdb->last_error) {
+                throw new QueryException($query, $bindings, new \Exception($this->wpdb->last_error));
+            }
+
+            return $result;
+
+        } catch (QueryException $e) {
+            throw $e;
+        } finally {
+            $this->logQuery($query, $bindings, $this->getElapsedTime($start));
         }
-
-        return $result;
     }
 
     /**
@@ -150,7 +181,7 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      *
      * @return mixed
      */
-    private function bind_params($query, $bindings, $update = false)
+    private function bindParams($query, $bindings, $update = false)
     {
         $query = str_replace('"', '`', $query);
         $bindings = $this->prepareBindings($bindings);
@@ -185,17 +216,25 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      *
      * @return array
      */
-    public function bind_and_run($query, $bindings = [])
+    public function bindAndRun($query, $bindings = [])
     {
-        $new_query = $this->bind_params($query, $bindings);
+        $start = $this->getLogTime();
 
-        $result = $this->wpdb->query($new_query);
+        try {
 
-        if ($result === false || $this->wpdb->last_error) {
-            throw new QueryException($new_query, $bindings, new \Exception($this->wpdb->last_error));
+            $result = $this->wpdb->query($this->bindParams($query, $bindings));
+
+            if ($result === false || $this->wpdb->last_error) {
+                throw new QueryException($query, $bindings, new \Exception($this->wpdb->last_error));
+            }
+
+            return (array)$result;
+
+        } catch (QueryException $e) {
+            throw $e;
+        } finally {
+            $this->logQuery($query, $bindings, $this->getElapsedTime($start));
         }
-
-        return (array)$result;
     }
 
     /**
@@ -247,7 +286,7 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      */
     public function statement($query, $bindings = [])
     {
-        $new_query = $this->bind_params($query, $bindings, true);
+        $new_query = $this->bindParams($query, $bindings, true);
 
         return $this->unprepared($new_query);
     }
@@ -262,15 +301,23 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      */
     public function affectingStatement($query, $bindings = [])
     {
-        $new_query = $this->bind_params($query, $bindings, true);
+        $start = $this->getLogTime();
 
-        $result = $this->wpdb->query($new_query);
+        try {
 
-        if ($result === false || $this->wpdb->last_error) {
-            throw new QueryException($new_query, $bindings, new \Exception($this->wpdb->last_error));
+            $result = $this->wpdb->query($this->bindParams($query, $bindings, true));
+
+            if ($result === false || $this->wpdb->last_error) {
+                throw new QueryException($query, $bindings, new \Exception($this->wpdb->last_error));
+            }
+
+            return intval($result);
+
+        } catch (QueryException $e) {
+            throw $e;
+        } finally {
+            $this->logQuery($query, $bindings, $this->getElapsedTime($start));
         }
-
-        return intval($result);
     }
 
     /**
@@ -284,13 +331,24 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
      */
     public function unprepared($query)
     {
-        $result = $this->wpdb->query($query);
+        $start = $this->getLogTime();
 
-        if ($result === false || $this->wpdb->last_error) {
-            throw new QueryException($query, [], new \Exception($this->wpdb->last_error));
+        try {
+
+            $result = $this->wpdb->query($query);
+
+            if ($result === false || $this->wpdb->last_error) {
+                throw new QueryException($query, [], new \Exception($this->wpdb->last_error));
+            }
+
+            return $result;
+
+        } catch (QueryException $e) {
+            throw $e;
+        } finally {
+            $this->logQuery($query, [], $this->getElapsedTime($start));
         }
 
-        return $result;
     }
 
     /**
@@ -347,7 +405,7 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
             }
         } while (--$attempts > 0);
 
-        if($data instanceof \Exception){
+        if ($data instanceof \Exception) {
             throw $data;
         }
 
@@ -497,5 +555,93 @@ class MbDatabaseManager extends MbSingleton implements ConnectionInterface
     public function getName()
     {
         return "wpdb";
+    }
+
+    /**
+     * Log a query in the connection's query log.
+     *
+     * @param  string     $query
+     * @param  array      $bindings
+     * @param  float|null $time
+     *
+     * @return void
+     */
+    public function logQuery($query, $bindings, $time = null)
+    {
+        if ($this->loggingQueries) {
+            $this->queryLog[] = compact('query', 'bindings', 'time');
+        }
+    }
+
+    /**
+     * Get the connection query log.
+     *
+     * @return array
+     */
+    public function getQueryLog()
+    {
+        return $this->queryLog;
+    }
+
+    /**
+     * Clear the query log.
+     *
+     * @return void
+     */
+    public function flushQueryLog()
+    {
+        $this->queryLog = [];
+    }
+
+    /**
+     * Enable the query log on the connection.
+     *
+     * @return void
+     */
+    public function enableQueryLog()
+    {
+        $this->loggingQueries = true;
+    }
+
+    /**
+     * Disable the query log on the connection.
+     *
+     * @return void
+     */
+    public function disableQueryLog()
+    {
+        $this->loggingQueries = false;
+    }
+
+    /**
+     * Determine whether we're logging queries.
+     *
+     * @return bool
+     */
+    public function logging()
+    {
+        return $this->loggingQueries;
+    }
+
+    /**
+     * Get the elapsed time since a given starting point.
+     *
+     * @param  int $start
+     *
+     * @return float
+     */
+    protected function getElapsedTime($start)
+    {
+        return $this->loggingQueries ? round((microtime(true) - $start) * 1000, 2) : 0;
+    }
+
+    /**
+     * Get the current time
+     *
+     * @return float
+     */
+    protected function getLogTime()
+    {
+        return $this->loggingQueries ? microtime(true) : 0;
     }
 }
