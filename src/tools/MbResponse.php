@@ -60,6 +60,8 @@ class MbResponse extends Response
      * @param mixed $content
      *
      * @return MbResponse
+     *
+     * @throws MbException
      */
     public function setContent($content)
     {
@@ -172,6 +174,7 @@ class MbResponse extends Response
      * @param $content
      *
      * @return void
+     * @throws MbException
      */
     protected function htmlContent($content)
     {
@@ -262,6 +265,6 @@ class MbResponse extends Response
      */
     public function adminNoticeTemplate($message, $type = 'error')
     {
-        return "<div class='notice notice-{$type} is-dismissible'>{$message}</div>";
+        return "<div class='notice notice-{$type} is-dismissible'><p><strong>{$message}</strong></p></div>";
     }
 }

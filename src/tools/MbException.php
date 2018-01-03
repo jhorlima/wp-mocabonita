@@ -119,6 +119,6 @@ class MbException extends \Exception
      */
     public static function registerError(\Exception $e)
     {
-        MocaBonita::getInstance()->getMbResponse()->adminNotice("<p><strong>{$e->getMessage()}</strong></p>", 'error');
+        MocaBonita::getInstance()->getMbResponse()->adminNotice($e->getMessage(), 'error');
     }
 }
