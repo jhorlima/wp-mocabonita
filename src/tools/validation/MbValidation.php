@@ -319,7 +319,7 @@ class MbValidation implements Arrayable
 
         if ($exceptionOnError && $this->isError()) {
             throw new MbException(
-                "Seus não são válidos!", 400, $this, array_merge(["Seus não são válidos!"], $this->errorMessages)
+                "Seus não são válidos!", 400, $this, array_merge(["error" => "Seus não são válidos!"], $this->errorMessages)
             );
         }
 

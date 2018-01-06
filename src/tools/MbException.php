@@ -70,11 +70,11 @@ class MbException extends \Exception
     }
 
     /**
-     * @return string[]
+     * @return string[]|string
      */
     public function getMessages()
     {
-        return is_null($this->messages) ? [$this->getMessage()] : $this->messages;
+        return is_null($this->messages) ? $this->getMessage() : $this->messages;
     }
 
     /**
