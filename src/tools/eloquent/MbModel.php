@@ -125,6 +125,8 @@ class MbModel extends Model
         if (!MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
                 $table->engine = 'InnoDB';
+                $table->charset = 'utf8mb4';
+                $table->collation = 'utf8mb4_general_ci';
                 $model->createSchema($table);
             });
         } elseif ($deleteIfExists) {
