@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Str;
 use MocaBonita\tools\MbMigration;
+use MocaBonita\tools\MbPivot;
 use MocaBonita\tools\validation\MbValidation;
 use Illuminate\Support\Arr;
 
@@ -125,8 +126,6 @@ class MbModel extends Model
         if (!MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->create($model->getTable(), function (Blueprint $table) use ($model) {
                 $table->engine = 'InnoDB';
-                $table->charset = 'utf8mb4';
-                $table->collation = 'utf8mb4_general_ci';
                 $model->createSchema($table);
             });
         } elseif ($deleteIfExists) {
@@ -165,8 +164,6 @@ class MbModel extends Model
         if (MbMigration::schema()->hasTable($model->getTable())) {
             MbMigration::schema()->table($model->getTable(), function (Blueprint $table) use ($model) {
                 $table->engine = 'InnoDB';
-                $table->charset = 'utf8mb4';
-                $table->collation = 'utf8mb4_general_ci';
                 $model->updateSchema($table);
             });
         } else {
@@ -190,6 +187,7 @@ class MbModel extends Model
      * @param  array $options
      *
      * @return bool
+     * @throws \MocaBonita\tools\MbException
      */
     public function save(array $options = [])
     {
@@ -283,5 +281,20 @@ class MbModel extends Model
         } catch (InvalidArgumentException $e) {
             return Carbon::parse($value);
         }
+    }
+
+    /**
+     * Create a new pivot model instance.
+     *
+     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @param  array  $attributes
+     * @param  string  $table
+     * @param  bool  $exists
+     *
+     * @return MbPivot
+     */
+    public function newPivot(Model $parent, array $attributes, $table, $exists)
+    {
+        return new MbPivot($parent, $attributes, $table, $exists);
     }
 }
