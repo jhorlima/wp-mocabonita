@@ -43,8 +43,9 @@ class MbPivot extends MbModel
      * @param  array  $attributes
      * @param  string $table
      * @param  bool   $exists
+     * @param null    $using
      */
-    public function __construct(Model $parent, $attributes, $table, $exists = false)
+    public function __construct(Model $parent, $attributes, $table, $exists = false, $using = null)
     {
         parent::__construct();
 
@@ -72,14 +73,14 @@ class MbPivot extends MbModel
     /**
      * Create a new pivot model from raw values returned from a query.
      *
-     * @param MbModel $parent
+     * @param Model   $parent
      * @param  array  $attributes
      * @param  string $table
      * @param  bool   $exists
      *
      * @return static
      */
-    public static function fromRawAttributes(MbModel $parent, $attributes, $table, $exists = false)
+    public static function fromRawAttributes(Model $parent, $attributes, $table, $exists = false)
     {
         $instance = new static($parent, $attributes, $table, $exists);
 
