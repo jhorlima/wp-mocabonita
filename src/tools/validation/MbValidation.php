@@ -282,7 +282,12 @@ class MbValidation implements Arrayable
         foreach ($attributes as $attribute) {
 
             $attributeExists = array_key_exists($attribute, $this->data);
-            $attributeNull = $attributeExists ? is_null($this->data[$attribute]) || empty($this->data[$attribute]) : true;
+            $attributeNull = true;
+
+            if($attributeExists){
+                $attributeNull = is_bool($this->data[$attribute]) ? false : is_null($this->data[$attribute]) || empty($this->data[$attribute]);
+            }
+
             $isNullable = in_array($attribute, $this->getNullable());
             $attirbuteRoles = $this->getValidations($attribute);
 
