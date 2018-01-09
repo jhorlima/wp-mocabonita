@@ -286,14 +286,16 @@ class MbModel extends Model
     /**
      * Create a new pivot model instance.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
-     * @param  array  $attributes
-     * @param  string  $table
-     * @param  bool  $exists
+     * @param  \Illuminate\Database\Eloquent\Model $parent
+     * @param  array                               $attributes
+     * @param  string                              $table
+     * @param  bool                                $exists
+     *
+     * @param null                                 $using
      *
      * @return MbPivot
      */
-    public function newPivot(Model $parent, array $attributes, $table, $exists)
+    public function newPivot(Model $parent, array $attributes, $table, $exists, $using = null)
     {
         return new MbPivot($parent, $attributes, $table, $exists);
     }

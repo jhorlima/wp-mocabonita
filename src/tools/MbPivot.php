@@ -43,9 +43,8 @@ class MbPivot extends MbModel
      * @param  array  $attributes
      * @param  string $table
      * @param  bool   $exists
-     * @param null    $using
      */
-    public function __construct(Model $parent, $attributes, $table, $exists = false, $using = null)
+    public function __construct(Model $parent, $attributes, $table, $exists = false)
     {
         parent::__construct();
 
