@@ -285,7 +285,7 @@ class MbValidation implements Arrayable
             $attributeNull = true;
 
             if($attributeExists){
-                $attributeNull = is_bool($this->data[$attribute]) ? false : is_null($this->data[$attribute]) || empty($this->data[$attribute]);
+                $attributeNull = is_bool($this->data[$attribute]) || is_int($this->data[$attribute]) ? false : is_null($this->data[$attribute]) || empty($this->data[$attribute]);
             }
 
             $isNullable = in_array($attribute, $this->getNullable());
