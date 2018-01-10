@@ -74,7 +74,7 @@ class MbException extends \Exception
      */
     public function getMessages()
     {
-        return is_null($this->messages) ? $this->getMessage() : $this->messages;
+        return !is_array($this->messages) ? [] : $this->messages;
     }
 
     /**

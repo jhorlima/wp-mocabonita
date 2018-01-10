@@ -147,11 +147,11 @@ class MbResponse extends Response
 
             $this->setStatusCode($content->getCode() < 300 ? BaseResponse::HTTP_BAD_REQUEST : $content->getCode());
 
+            $message = $content->getMessage();
+
             if ($content instanceof MbException) {
-                $message = $content->getMessages();
-                $content = $content->getData();
+                $content = $content->getMessages();
             } else {
-                $message = $content->getMessage();
                 $content = null;
             }
         }
