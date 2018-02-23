@@ -32,14 +32,14 @@ use Illuminate\Pagination\Paginator;
  * @copyright Núcleo de Tecnologia da Informação - NTI
  * @copyright Universidade Estadual do Maranhão - UEMA
  *
- * @version   3.3.0
+ * @version   3.3.3
  */
 final class MocaBonita extends MbSingleton
 {
     /**
      * Current version of MocaBonita.
      */
-    const VERSION = "3.3.9";
+    const VERSION = "3.3.3";
 
     /**
      * List of MocaBonita Pages
