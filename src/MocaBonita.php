@@ -39,7 +39,7 @@ final class MocaBonita extends MbSingleton
     /**
      * Current version of MocaBonita.
      */
-    const VERSION = "3.3.0";
+    const VERSION = "3.3.9";
 
     /**
      * List of MocaBonita Pages
@@ -314,14 +314,6 @@ final class MocaBonita extends MbSingleton
         $this->mbPages = new Collection();
 
         MbMigration::enableWpdbConnection();
-
-        $this->mbRequest->setUserResolver(function () {
-            try {
-                return MbWpUser::getCurrentUser();
-            } catch (\Exception $e) {
-                return false;
-            }
-        });
     }
 
     /**
@@ -343,9 +335,7 @@ final class MocaBonita extends MbSingleton
 
         MbWPActionHook::addActionCallback('plugins_loaded', function () use ($pluginStructure, $mocaBonita) {
             try {
-                call_user_func_array($pluginStructure, [
-                    $mocaBonita,
-                ]);
+                call_user_func_array($pluginStructure, [$mocaBonita]);
                 $mocaBonita->runPlugin();
             } catch (\Exception $e) {
                 $mocaBonita->mbResponse->setContent($e);
@@ -369,11 +359,8 @@ final class MocaBonita extends MbSingleton
 
         register_activation_hook(MbPath::pBaseN(), function () use ($active, $mocaBonita) {
             try {
-                self::checkApplication();
                 MbMigration::enablePdoConnection();
-                call_user_func_array($active, [
-                    $mocaBonita,
-                ]);
+                call_user_func_array($active, [$mocaBonita]);
             } catch (\Exception $e) {
                 deactivate_plugins(basename(MbPath::pBaseN()));
                 wp_die($e->getMessage());
@@ -395,9 +382,7 @@ final class MocaBonita extends MbSingleton
         register_deactivation_hook(MbPath::pBaseN(), function () use ($deactive, $mocaBonita) {
             try {
                 MbMigration::enablePdoConnection();
-                call_user_func_array($deactive, [
-                    $mocaBonita,
-                ]);
+                call_user_func_array($deactive, [$mocaBonita]);
             } catch (\Exception $e) {
                 MbException::registerError($e);
                 wp_die($e->getMessage());
@@ -417,40 +402,9 @@ final class MocaBonita extends MbSingleton
         if (defined('WP_UNINSTALL_PLUGIN')) {
             $mocaBonita = self::getInstance();
             MbMigration::enablePdoConnection();
-            call_user_func_array($unistall, [
-                $mocaBonita,
-            ]);
+            call_user_func_array($unistall, [$mocaBonita]);
         } else {
             wp_die("Você não pode executar este método fora do arquivo uninstall.php");
-        }
-    }
-
-    /**
-     * Check the Mocabonita requirements to activate the plugin
-     *
-     * @return void
-     */
-    private static function checkApplication()
-    {
-        $exception = null;
-
-        if (version_compare(PHP_VERSION, '5.6', '<') || version_compare(get_bloginfo('version'), '4.5', '<')) {
-            $exception = new \Exception(
-                "Your PHP or WP is outdated and some MocaBonita features may not work!"
-            );
-        } elseif (!is_writable(MbPath::pDir())) {
-            $exception = new \Exception(
-                "MocaBonita does not have write permission in the plugin directory!"
-            );
-        }
-
-        if ($exception instanceof \Exception) {
-            MbException::registerError($exception);
-
-            MbWPActionHook::addActionCallback('init', function () {
-                require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-                deactivate_plugins(MbPath::pBaseN());
-            });
         }
     }
 
@@ -571,11 +525,6 @@ final class MocaBonita extends MbSingleton
             $mbAction->setCapability($mbPage->getCapability());
         }
 
-        //Set rule of page if the capability of MbAction is not defined
-        if (is_null($mbAction->getRules())) {
-            $mbAction->setRules($mbPage->getRules());
-        }
-
         //Check if MbAction requires login and if there is any user logged in
         if ($mbAction->isRequiresLogin() && !$this->mbRequest->isLogged()) {
             throw new MbException(
@@ -585,11 +534,6 @@ final class MocaBonita extends MbSingleton
         elseif ($mbAction->isRequiresLogin() && !current_user_can($mbAction->getCapability())) {
             throw new MbException(
                 "The action {$this->action} of the page {$this->page} requires a user with more access permissions!"
-            );
-        } //Check if MbAction rule is allowed
-        elseif ($mbAction->isRequiresLogin() && !MbWpUser::getCurrentUser()->checkRules($mbAction->getRules())) {
-            throw new MbException(
-                "The action {$this->action} of the page {$this->page} requires a user with other profile rule!"
             );
         } //Check if MbAction requires a MbRequest ajax
         elseif ($mbAction->isRequiresAjax() && !$this->mbRequest->isAjax()) {
@@ -634,11 +578,6 @@ final class MocaBonita extends MbSingleton
             $actionResponse = $e;
         } finally {
             MbEvent::callEvents($this, MbEvent::FINISH_ACTION, $mbAction);
-            $controllerPrint = ob_get_contents();
-        }
-
-        if ($controllerPrint != "") {
-            error_log($controllerPrint);
         }
 
         if (is_null($actionResponse) && !$this->mbRequest->isAjax()) {

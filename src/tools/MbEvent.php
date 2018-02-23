@@ -85,7 +85,6 @@ abstract class MbEvent extends MbSingleton
      * @param string     $dispatch
      * @param object     $complement
      *
-     * @throws MbException
      *
      * @return void
      */

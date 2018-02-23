@@ -83,13 +83,6 @@ class MbAction
     protected $capability;
 
     /**
-     * Page rules
-     *
-     * @var string[]
-     */
-    protected $rules;
-
-    /**
      * Stores data to return
      *
      * @var mixed
@@ -343,41 +336,6 @@ class MbAction
     }
 
     /**
-     * @return string[]
-     */
-    public function getRules()
-    {
-        return $this->rules;
-    }
-
-    /**
-     * @param string[] $rules
-     *
-     * @return MbAction
-     */
-    public function setRules($rules)
-    {
-        $this->rules = $rules;
-
-        return $this;
-    }
-
-    /**
-     * @param string $rule
-     *
-     * @return MbAction
-     */
-    public function setRule($rule)
-    {
-        if (!is_array($this->rules)) {
-            $this->rules = [];
-        }
-        $this->rules[] = $rule;
-
-        return $this;
-    }
-
-    /**
      * @return mixed
      */
     public function getData()
@@ -454,23 +412,15 @@ class MbAction
      *
      * @param MbPage $mbPage
      * @param string $actionName
-     * @param bool   $requiresLogin
-     * @param bool   $requiresAjax
-     * @param string $requiresMethod
      */
-    public function __construct(
-        MbPage $mbPage,
-        $actionName,
-        $requiresLogin = true,
-        $requiresAjax = false,
-        $requiresMethod = null
-    ) {
+    public function __construct(MbPage $mbPage, $actionName)
+    {
         $this->setMbPage($mbPage)
             ->setName($actionName)
             ->setFunctionName(Str::camel($actionName))
-            ->setRequiresLogin($requiresLogin)
-            ->setRequiresAjax($requiresAjax)
-            ->setRequiresMethod($requiresMethod)
+            ->setRequiresLogin(true)
+            ->setRequiresAjax(false)
+            ->setRequiresMethod(null)
             ->setFunctionComplement('Action')
             ->setShortcode(false)
             ->setRequiredParams([])
@@ -481,6 +431,7 @@ class MbAction
      * Check if the function exist
      *
      * @return boolean
+     * @throws MbException
      */
     public function functionExist()
     {

@@ -105,7 +105,7 @@ class MbRequest extends Request
      */
     public function isAjax()
     {
-        return $this->ajax();
+        return $this->ajax;
     }
 
     /**
@@ -179,9 +179,10 @@ class MbRequest extends Request
     {
         if (is_null($this->ajax)) {
             $this->ajax = (bool)(defined('DOING_AJAX') && DOING_AJAX);
+            $this->ajax = (bool)($this->ajax || parent::ajax());
         }
 
-        return (bool)($this->ajax || parent::ajax());
+        return $this->ajax;
     }
 
     /**

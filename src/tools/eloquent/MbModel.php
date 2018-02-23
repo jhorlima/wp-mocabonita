@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Str;
 use MocaBonita\tools\MbMigration;
-use MocaBonita\tools\MbPivot;
 use MocaBonita\tools\validation\MbValidation;
 use Illuminate\Support\Arr;
 
@@ -158,7 +157,6 @@ class MbModel extends Model
      */
     public final static function updateSchemaModel()
     {
-
         $model = new static();
 
         if (MbMigration::schema()->hasTable($model->getTable())) {

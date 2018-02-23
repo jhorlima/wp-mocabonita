@@ -39,6 +39,6 @@ class MbWpUserMeta extends MbModel
      */
     public function getTable()
     {
-        return $this->getWpdb()->prefix . "usermeta";
+        return $this->getWpdb()->base_prefix . "usermeta";
     }
 }

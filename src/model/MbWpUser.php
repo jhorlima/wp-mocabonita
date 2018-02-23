@@ -23,13 +23,6 @@ class MbWpUser extends MbModel
 {
 
     /**
-     * Stores the rule attribute name
-     *
-     * @var string
-     */
-    const RULE_ATTR_DEFAULT = "rule_user";
-
-    /**
      * Stores the current User
      *
      * @var MbWpUser
@@ -110,27 +103,7 @@ class MbWpUser extends MbModel
      */
     public function getTable()
     {
-        return $this->getWpdb()->prefix . "users";
-    }
-
-    /**
-     * Get rule attr
-     *
-     * @return string
-     */
-    public static function getRuleAttr()
-    {
-        return is_null(self::$ruleAttr) ? self::RULE_ATTR_DEFAULT : self::$ruleAttr;
-    }
-
-    /**
-     * Set rule attr
-     *
-     * @param string $ruleAttr
-     */
-    public static function setRuleAttr($ruleAttr)
-    {
-        self::$ruleAttr = $ruleAttr;
+        return $this->getWpdb()->base_prefix . "users";
     }
 
     /**
@@ -155,35 +128,5 @@ class MbWpUser extends MbModel
         }
 
         return self::$currentUser;
-    }
-
-    /**
-     * Add user rule
-     *
-     * @param string $rule
-     *
-     * @return MbWpUser
-     */
-    public function addRule($rule)
-    {
-        update_user_meta($this->getKey(), self::getRuleAttr(), $rule);
-
-        return $this;
-    }
-
-    /**
-     * Check user rule
-     *
-     * @param string[]|null $rules
-     *
-     * @return bool
-     */
-    public function checkRules($rules)
-    {
-        if (is_array($rules)) {
-            return in_array(get_user_meta($this->getKey(), self::getRuleAttr(), true), $rules);
-        } else {
-            return true;
-        }
     }
 }

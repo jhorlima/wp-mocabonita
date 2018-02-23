@@ -2,7 +2,6 @@
 
 namespace MocaBonita\view;
 
-use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
 use MocaBonita\tools\MbException;

@@ -1,10 +1,9 @@
 <?php
 
-namespace MocaBonita\tools;
+namespace MocaBonita\tools\eloquent;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use MocaBonita\tools\eloquent\MbModel;
 
 class MbPivot extends MbModel
 {

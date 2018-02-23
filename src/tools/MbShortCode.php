@@ -43,6 +43,13 @@ class MbShortCode
     private $mbAsset;
 
     /**
+     * Shortcode Parameters
+     *
+     * @var array
+     */
+    private $parameters;
+
+    /**
      * Get name
      *
      * @return string
@@ -115,6 +122,30 @@ class MbShortCode
     }
 
     /**
+     * getParameters
+     *
+     * @return array
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * setParameters
+     *
+     * @param array $parameters
+     *
+     * @return MbShortCode
+     */
+    public function setParameters($parameters)
+    {
+        $this->parameters = $parameters;
+
+        return $this;
+    }
+
+    /**
      * Shortcode construct
      *
      * @param string   $name nome do shortcode
@@ -142,95 +173,78 @@ class MbShortCode
         $shortCode = $this;
 
         //Initialize Shorcode
-        add_shortcode($this->getName(),
+        add_shortcode($this->getName(), function ($attributes, $content, $tags) use ($shortCode, $mbAsset, $mbRequest, $mbResponse) {
 
-            function ($attributes, $content, $tags) use ($shortCode, $mbAsset, $mbRequest, $mbResponse) {
+            try {
+
+                $shortCode->setParameters([
+                    'attributes' => $attributes,
+                    'content'    => $content,
+                    'tags'       => $tags,
+                ]);
+
+                $mbRequest->setMbPage($shortCode->getMbAction()->getMbPage());
+                $mbRequest->setMbAction($shortCode->getMbAction());
+
+                $mbRequest->setShortcode(true);
+
+                //Add plugin assets
+                $mbAsset->setActionEnqueue('front')->runAssets('plugin', true);
+
+                //Add page assets
+                $mbRequest->getMbPage()
+                    ->getMbAsset()
+                    ->setActionEnqueue('front')
+                    ->runAssets($shortCode->getName(), true);
+
+                //Add shortcode assets
+                $shortCode->getMbAsset()
+                    ->setActionEnqueue('front')
+                    ->runAssets($shortCode->getName(), true);
+
+                MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_SHORTCODE, $shortCode);
 
                 try {
 
-                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_SHORTCODE, $shortCode);
+                    ob_start();
 
-                    $mbRequest->setMbPage($shortCode->getMbAction()->getMbPage());
+                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_ACTION, $shortCode->getMbAction());
 
-                    $mbRequest->setShortcode(true);
+                    $mbView = new MbView();
 
-                    //Add plugin assets
-                    $mbAsset->setActionEnqueue('front')
-                        ->runAssets('plugin', true);
+                    $mbView->setMbRequest($mbRequest)
+                        ->setMbResponse($mbResponse)
+                        ->setView('shortcode', 'shortcode', $shortCode->getMbAction()->getName());
 
-                    //Add page assets
-                    $mbRequest->getMbPage()
-                        ->getMbAsset()
-                        ->setActionEnqueue('front')
-                        ->runAssets($shortCode->getName(), true);
+                    $actionResponse = MocaBonita::getInstance()->runAction($shortCode->getMbAction(), $mbView, [
+                        $mbRequest,
+                        $mbResponse,
+                        $shortCode,
+                    ]);
 
-                    //Add shortcode assets
-                    $shortCode->getMbAsset()
-                        ->setActionEnqueue('front')
-                        ->runAssets($shortCode->getName(), true);
-
-                    try {
-                        ob_start();
-
-                        MbEvent::callEvents(
-                            MocaBonita::getInstance(),
-                            MbEvent::BEFORE_ACTION,
-                            $shortCode->getMbAction()
-                        );
-
-                        $mbView = new MbView();
-
-                        $mbView->setMbRequest($mbRequest)
-                            ->setMbResponse($mbResponse)
-                            ->setView('shortcode', 'shortcode', $shortCode->getMbAction()->getName());
-
-                        $actionResponse = MocaBonita::getInstance()->runAction($shortCode->getMbAction(), $mbView, [
-                            $mbRequest,
-                            $mbResponse,
-                            [
-                                'attributes' => $attributes,
-                                'content'    => $content,
-                                'tags'       => $tags,
-                            ],
-                            $mbView,
-                        ]);
-
-                        MbEvent::callEvents(
-                            MocaBonita::getInstance(),
-                            MbEvent::AFTER_ACTION,
-                            $shortCode->getMbAction()
-                        );
-
-                    } catch (\Exception $e) {
-                        MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::EXCEPTION_ACTION, $e);
-                        $actionResponse = $e->getMessage();
-                    } finally {
-                        MbEvent::callEvents(
-                            MocaBonita::getInstance(),
-                            MbEvent::FINISH_ACTION,
-                            $shortCode->getMbAction()
-                        );
-
-                        $controllerLog = ob_get_contents();
-                        ob_end_clean();
-                    }
-
-                    if ($controllerLog != "") {
-                        error_log($controllerLog);
-                    }
-
-                    if (is_null($actionResponse)) {
-                        $actionResponse = $shortCode->getMbAction()->getMbPage()->getController()->getMbView();
-                    }
-
-                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::AFTER_SHORTCODE, $shortCode);
+                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::AFTER_ACTION, $shortCode->getMbAction());
 
                 } catch (\Exception $e) {
+                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::EXCEPTION_ACTION, $e);
                     $actionResponse = $e->getMessage();
                 } finally {
-                    $mbResponse->setContent($actionResponse);
-                    $mbResponse->sendContent();
+                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::FINISH_ACTION, $shortCode->getMbAction());
+                    ob_end_clean();
                 }
-            });
+
+                if (is_null($actionResponse)) {
+                    $actionResponse = $shortCode->getMbAction()->getMbPage()->getController()->getMbView();
+                }
+
+                MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::AFTER_SHORTCODE, $shortCode);
+
+            } catch (\Exception $e) {
+                $actionResponse = $e->getMessage();
+            } finally {
+                $mbResponse->setContent($actionResponse);
+                $mbResponse->sendContent();
+            }
+        });
     }
+
 }

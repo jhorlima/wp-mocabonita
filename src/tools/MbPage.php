@@ -2,7 +2,6 @@
 
 namespace MocaBonita\tools;
 
-use Illuminate\Support\Arr;
 use MocaBonita\controller\MbController;
 use MocaBonita\MocaBonita;
 
@@ -120,18 +119,12 @@ class MbPage
     private $mbAsset;
 
     /**
-     * Page rules
-     *
-     * @var string[]
-     */
-    private $rules;
-
-    /**
      * MbPage construct
      *
      * @param MbPage $parentPage
      * @param bool   $mainMenu
      * @param int    $position
+     *
      */
     public function __construct(MbPage $parentPage = null, $mainMenu = true, $position = 1)
     {
@@ -304,8 +297,6 @@ class MbPage
      *
      * @param MbPage $parentPage
      *
-     * @throws MbException
-     *
      * @return MbPage
      */
     public function setParentPage(MbPage $parentPage = null)
@@ -358,7 +349,7 @@ class MbPage
      */
     public function getSubPage($pageSlug)
     {
-        return Arr::get($this->subPages, $pageSlug, null);
+        return $this->subPages[$pageSlug];
     }
 
     /**
@@ -370,7 +361,7 @@ class MbPage
      */
     public function setSubPage(MbPage $mbPage)
     {
-        Arr::set($this->subPages, $mbPage->getSlug(), $mbPage);
+        $this->subPages[$mbPage->getSlug()] = $mbPage;
 
         $mbPage->setParentPage($this);
 
@@ -387,11 +378,9 @@ class MbPage
      */
     public function addSubPage($name, $slug = null)
     {
-        $subpage = self::create($name)
-            ->setSlug(is_null($slug) ? $name : $slug)
-            ->setParentPage($this);
+        $subpage = self::create($name)->setSlug(is_null($slug) ? $name : $slug);
 
-        Arr::set($this->subPages, $subpage->getSlug(), $subpage);
+        $this->setSubPage($subpage);
 
         return $subpage;
     }
@@ -453,9 +442,13 @@ class MbPage
      */
     public function getController()
     {
+        if ($this->controller instanceof MbController) {
+            return $this->controller;
+        }
+
         if (is_string($this->controller)) {
             $this->controller = MbController::create($this->controller);
-        } elseif (is_null($this->controller) || !$this->controller instanceof MbController) {
+        } else {
             throw new MbException("No Controller has been set for the page {$this->getName()}.");
         }
 
@@ -509,7 +502,7 @@ class MbPage
      */
     public function getMbAction($actionName)
     {
-        return Arr::get($this->mbActions, $actionName, null);
+        return $this->mbActions[$actionName];
     }
 
     /**
@@ -521,7 +514,7 @@ class MbPage
      */
     public function setMbAction(MbAction $mbAction)
     {
-        Arr::set($this->mbActions, $mbAction->getName(), $mbAction);
+        $this->mbActions[$mbAction->getName()] = $mbAction;
 
         return $mbAction;
     }
@@ -571,45 +564,10 @@ class MbPage
     }
 
     /**
-     * @return string[]
-     */
-    public function getRules()
-    {
-        return $this->rules;
-    }
-
-    /**
-     * @param string[] $rules
-     *
-     * @return MbPage
-     */
-    public function setRules($rules)
-    {
-        $this->rules = $rules;
-
-        return $this;
-    }
-
-    /**
-     * @param string $rule
-     *
-     * @return MbPage
-     */
-    public function setRule($rule)
-    {
-        if (!is_array($this->rules)) {
-            $this->rules = [];
-        }
-
-        $this->rules[] = $rule;
-
-        return $this;
-    }
-
-    /**
      * Add Menu in Wordpress
      *
      * @return void
+     * @throws MbException
      */
     public function addMenuWordpress()
     {
