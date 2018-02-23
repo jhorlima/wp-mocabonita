@@ -4,6 +4,7 @@ namespace MocaBonita\view;
 
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\Macroable;
 use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbPath;
 use MocaBonita\tools\MbRequest;
@@ -24,6 +25,8 @@ use MocaBonita\tools\MbResponse;
  */
 class MbView implements View
 {
+    use Macroable;
+
     /**
      * Template name
      *

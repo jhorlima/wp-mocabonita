@@ -5,6 +5,7 @@ namespace MocaBonita;
 use Illuminate\Support\Collection;
 use MocaBonita\model\MbWpUser;
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
+use MocaBonita\tools\MbPageStructure;
 use MocaBonita\tools\MbPath;
 use MocaBonita\tools\MbMigration;
 use MocaBonita\tools\MbResponse;
@@ -619,10 +620,11 @@ final class MocaBonita extends MbSingleton
                     ->setMbRequest($this->mbRequest)
                     ->setMbResponse($this->mbResponse);
 
-                //Set the MbView to Controller
+                //Set the MbView e actionResolver to Controller
                 $mbAction->getMbPage()
                     ->getController()
-                    ->setMbView($mbView);
+                    ->setMbView($mbView)
+                    ->actionResolver($mbAction);
 
                 return call_user_func_array(
                     [$mbAction->getMbPage()->getController(), $mbAction->getFunction(),],
@@ -761,6 +763,19 @@ final class MocaBonita extends MbSingleton
         }
 
         return $this->mbShortCodes->get($shortcodeName);
+    }
+
+    /**
+     * Add page structure
+     *
+     * @param                 $pageName
+     * @param MbPageStructure $mbPageStructure
+     */
+    public function addMbPageStructure($pageName, MbPageStructure $mbPageStructure)
+    {
+        $mbPageStructure->setMbPage(MbPage::create($pageName));
+        $mbPageStructure->enablePage();
+        $mbPageStructure->execute($this->getMbRequest(), $this->getMbResponse(), $this);
     }
 
     /**

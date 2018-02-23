@@ -2,6 +2,8 @@
 
 namespace MocaBonita\controller;
 
+use MocaBonita\tools\MbAction;
+use MocaBonita\tools\MbPage;
 use MocaBonita\tools\MbResponse;
 use MocaBonita\tools\MbRequest;
 use MocaBonita\tools\MbException;
@@ -138,9 +140,21 @@ abstract class MbController
      */
     public final function setMbView(MbView $mbView)
     {
-        $this->mbView = $mbView;
+        $this->mbView = $this->viewResolver($mbView);
 
         return $this;
+    }
+
+    /**
+     * resolver view of controller
+     *
+     * @param MbView $mbView
+     *
+     * @return MbView
+     */
+    public function viewResolver(MbView $mbView)
+    {
+        return $mbView;
     }
 
     /**
@@ -199,5 +213,17 @@ abstract class MbController
     {
         $className = static::class;
         throw new MbException("Method [{$method}] does not exist in {$className}.");
+    }
+
+    /**
+     * resolver action of controller
+     *
+     * @param MbAction $mbAction
+     *
+     * @return void
+     */
+    public function actionResolver(MbAction $mbAction)
+    {
+        //
     }
 }
