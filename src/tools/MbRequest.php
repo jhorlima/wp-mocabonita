@@ -4,6 +4,7 @@ namespace MocaBonita\tools;
 
 use Illuminate\Http\Request;
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 /**
  * Main class of the MocaBonita Request
@@ -195,6 +196,15 @@ class MbRequest extends Request
     public function urlQuery(array $query)
     {
         return $this->url() . '?' . http_build_query($query);
+    }
+
+    /**
+     * @return FlashBagInterface
+     *
+     */
+    public function getFlashBag()
+    {
+        return $this->session()->getFlashBag();
     }
 
     /**

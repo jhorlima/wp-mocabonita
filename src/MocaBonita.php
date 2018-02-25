@@ -20,6 +20,8 @@ use MocaBonita\tools\MbSingleton;
 use MocaBonita\tools\MbWPActionHook;
 use MocaBonita\view\MbView;
 use Illuminate\Pagination\Paginator;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Main class of the MocaBonita framework
@@ -298,12 +300,18 @@ final class MocaBonita extends MbSingleton
             date_default_timezone_set($timezone);
         }
 
-        $this->setMbRequest(MbRequest::capture());
-        $this->setMbResponse(MbResponse::create());
-        $this->getMbResponse()->setMbRequest($this->mbRequest);
-        $this->setPage($this->mbRequest->query('page'));
-        $this->setAction($this->mbRequest->query('action'));
-        $this->getMbRequest()->setBlogAdmin(is_blog_admin());
+        $mbRequest = MbRequest::capture();
+        $mbResponse = MbResponse::create();
+
+        $mbRequest->setBlogAdmin(is_blog_admin());
+
+        $mbResponse->setMbRequest($mbRequest);
+
+        $this->setPage($mbRequest->query('page'));
+        $this->setAction($mbRequest->query('action'));
+
+        $this->setMbRequest($mbRequest);
+        $this->setMbResponse($mbResponse);
 
         $this->mbAssets = new Collection([
             'plugin'    => new MbAsset(),
@@ -315,6 +323,40 @@ final class MocaBonita extends MbSingleton
         $this->mbPages = new Collection();
 
         MbMigration::enableWpdbConnection();
+    }
+
+    /**
+     * Enable session
+     *
+     * @param SessionInterface $session
+     *
+     * @return MocaBonita
+     */
+    public function enableSession($session = null)
+    {
+
+        $session = $session instanceof SessionInterface ?: new Session();
+        $this->getMbRequest()->setSession($session);
+
+        return $this;
+    }
+
+    /**
+     * Enable flash session
+     *
+     * @param SessionInterface $session
+     *
+     * @return MocaBonita
+     */
+    public function enableFlash($session = null)
+    {
+        if(!$this->getMbRequest()->hasSession()) {
+            $this->enableSession($session);
+        }
+
+        $this->getMbRequest()->session()->getFlashBag();
+
+        return $this;
     }
 
     /**
@@ -562,9 +604,7 @@ final class MocaBonita extends MbSingleton
             //Set page parameter to View
             $mbView = new MbView();
 
-            $mbView->setMbRequest($this->mbRequest)
-                ->setMbResponse($this->mbResponse)
-                ->setView('index', $this->page, $this->action);
+            $mbView->setView('index', $this->page, $this->action);
 
             $actionResponse = $this->runAction($mbAction, $mbView, [
                 $this->mbRequest,
@@ -623,8 +663,17 @@ final class MocaBonita extends MbSingleton
                 //Set the MbView e actionResolver to Controller
                 $mbAction->getMbPage()
                     ->getController()
-                    ->setMbView($mbView)
                     ->actionResolver($mbAction);
+
+                if(is_null($mbAction->getMbPage()->getController()->getMbView())) {
+                    $mbAction->getMbPage()->getController()->setMbView($mbView);
+                }
+
+                $mbAction->getMbPage()
+                    ->getController()
+                    ->getMbView()
+                    ->setMbRequest($this->mbRequest)
+                    ->setMbResponse($this->mbResponse);
 
                 return call_user_func_array(
                     [$mbAction->getMbPage()->getController(), $mbAction->getFunction(),],
@@ -822,20 +871,15 @@ final class MocaBonita extends MbSingleton
     /**
      * Add a MbShortCode to MocaBonita
      *
-     * @param string  $name
-     * @param MbPage  $mbPage
-     * @param string  $method
-     * @param MbAsset $mbAsset
+     * @param string                $name
+     * @param MbPage                $mbPage
+     * @param string|callable|mixed $method
      *
      * @return MbShortCode
      */
-    public function addMbShortcode($name, MbPage $mbPage, $method, MbAsset $mbAsset = null)
+    public function addMbShortcode($name, MbPage $mbPage, $method)
     {
-        $mbAction = new MbAction($mbPage, $method);
-
-        $mbAction->setShortcode(true)->setFunctionComplement('Shortcode');
-
-        $shortcode = new MbShortCode($name, $mbAction, is_null($mbAsset) ? new MbAsset() : $mbAsset);
+        $shortcode = new MbShortCode($name, $mbPage, $method);
 
         $this->mbShortCodes->put($name, $shortcode);
 

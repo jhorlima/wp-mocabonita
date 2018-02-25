@@ -522,21 +522,18 @@ class MbPage
     /**
      * add new MbAction
      *
-     * @param string        $actionName
-     * @param \Closure|null $callback
+     * @param string                $actionName
+     * @param string|callable|mixed $action
      *
      * @return MbAction
      *
      */
-    public function addMbAction($actionName, \Closure $callback = null)
+    public function addMbAction($actionName, $action = null)
     {
-        $action = new MbAction($this, $actionName);
+        $mbAction = new MbAction($this, $actionName);
+        $mbAction->actionResolver($action);
 
-        if($callback instanceof \Closure){
-            $action->setCallback($callback);
-        }
-
-        return $this->setMbAction($action);
+        return $this->setMbAction($mbAction);
     }
 
     /**

@@ -174,28 +174,35 @@ class MbResponse extends Response
      * @param $content
      *
      * @return void
-     * @throws MbException
      */
     protected function htmlContent($content)
     {
-        if ($content instanceof \Exception) {
-            if ($this->getMbRequest()->isBlogAdmin()) {
-                $this->adminNotice($content->getMessage(), 'error');
-            } else {
-                $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
-            }
-        } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()) {
-            $this->downloadFile($content);
-        } elseif (!is_string($content) && !$content instanceof Renderable) {
-            ob_start();
-            (new Dumper)->dump($content);
-            $this->original = ob_get_contents();
-            ob_end_clean();
-        } else {
-            $this->original = $content;
-        }
+        try {
 
-        parent::setContent($this->original);
+            if ($content instanceof \Exception) {
+                throw $content;
+            } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()) {
+                $this->downloadFile($content);
+            } elseif (!is_string($content) && !$content instanceof Renderable) {
+                ob_start();
+                (new Dumper)->dump($content);
+                $this->original = ob_get_contents();
+                ob_end_clean();
+            } else {
+                $this->original = $content;
+            }
+
+            parent::setContent($this->original);
+
+        } catch (\Exception $e) {
+            if ($this->getMbRequest()->isBlogAdmin()) {
+                $this->adminNotice($e->getMessage(), 'error');
+            } else {
+                $this->original = "<strong>Erro:</strong> {$e->getMessage()}<br>";
+            }
+
+            parent::setContent($this->original);
+        }
     }
 
     /**

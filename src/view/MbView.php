@@ -91,6 +91,123 @@ class MbView implements View
     protected $mbResponse;
 
     /**
+     * @param string $type
+     * @param string|array $message
+     *
+     * @return MbView
+     */
+    public function addFlash($type, $message)
+    {
+        if (is_array($message)) {
+            $this->getMbRequest()->getFlashBag()->set($type, $message);
+        } else {
+            $this->getMbRequest()->getFlashBag()->add($type, $message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param array  $default
+     */
+    public function getFlash($name, array $default = [])
+    {
+        $this->getMbRequest()->getFlashBag()->get($name, $default);
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getFlashes()
+    {
+        return $this->getMbRequest()->getFlashBag()->all();
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasFlash($name)
+    {
+        return $this->getMbRequest()->getFlashBag()->has($name);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @return MbView
+     */
+    public function successFlash($message)
+    {
+        return $this->addFlash('success', $message);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @return MbView
+     */
+    public function errorFlash($message)
+    {
+        return $this->addFlash('error', $message);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @return MbView
+     */
+    public function infoFlash($message)
+    {
+        return $this->addFlash('info', $message);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @return MbView
+     */
+    public function warnFlash($message)
+    {
+        return $this->addFlash('warn', $message);
+    }
+
+    /**
+     * @param \Exception $exception
+     *
+     * @return MbView
+     */
+    public function exceptionFlash(\Exception $exception)
+    {
+        if ($exception instanceof MbException) {
+            $messages = $exception->getMessages();
+
+            if (empty($messages)) {
+                return $this->errorFlash($exception->getMessage());
+            } else {
+                $erros = [];
+
+                foreach ($messages as $item => $message) {
+                    if (is_array($message)) {
+                        foreach ($message as $erro) {
+                            $erros[] = "<strong>{$item}</strong>: {$erro}";
+                        }
+                    } else {
+                        $erros[] = $message;
+                    }
+                }
+
+                return $this->errorFlash($erros);
+            }
+
+        } else {
+            return $this->errorFlash($exception->getMessage());
+        }
+    }
+
+    /**
      * View construct.
      */
     public function __construct()

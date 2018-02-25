@@ -20,6 +20,13 @@ use MocaBonita\tools\eloquent\MbModel;
 class MbPostMeta extends MbModel
 {
     /**
+     * Use table base or current blog (MultiSite).
+     *
+     * @var boolean
+     */
+    protected $baseTable = false;
+
+    /**
      * Disable timestamps.
      *
      * @var boolean
@@ -43,6 +50,23 @@ class MbPostMeta extends MbModel
         'meta_value',
     ];
 
+
+    /**
+     * @return bool
+     */
+    public function isBaseTable()
+    {
+        return $this->baseTable;
+    }
+
+    /**
+     * @param bool $baseTable
+     */
+    public function setBaseTable($baseTable = true)
+    {
+        $this->baseTable = $baseTable;
+    }
+
     /**
      * Get the table associated with the model.
      *
@@ -50,7 +74,8 @@ class MbPostMeta extends MbModel
      */
     public function getTable()
     {
-        return $this->getWpdb()->prefix . "postmeta";
+        $prefix = $this->isBaseTable() ? $this->getWpdb()->base_prefix : $this->getWpdb()->prefix ;
+        return "{$prefix}posts";
     }
 
     /**

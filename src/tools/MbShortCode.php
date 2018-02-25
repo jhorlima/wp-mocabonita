@@ -22,6 +22,13 @@ class MbShortCode
 {
 
     /**
+     * Stores the current MbView of the action
+     *
+     * @var MbView
+     */
+    protected $mbView;
+
+    /**
      * Shortcode name
      *
      * @var string
@@ -33,7 +40,14 @@ class MbShortCode
      *
      * @var MbAction
      */
-    private $mbAction;
+    private $shortcodeAction;
+
+    /**
+     * Shortcode post MbAction
+     *
+     * @var MbAction
+     */
+    private $shortcodePostAction;
 
     /**
      * Shortcode MbAsset
@@ -48,6 +62,13 @@ class MbShortCode
      * @var array
      */
     private $parameters;
+
+    /**
+     * Data  Parameters
+     *
+     * @var mixed
+     */
+    private $postData;
 
     /**
      * Get name
@@ -76,23 +97,50 @@ class MbShortCode
     /**
      * Get MbAction
      *
+     *
      * @return MbAction
      */
-    public function getMbAction()
+    public function shortcodeAction()
     {
-        return $this->mbAction;
+        return $this->shortcodeAction;
     }
 
     /**
      * Set MbAction
      *
-     * @param MbAction $mbAction
+     * @param MbAction $shortcodeAction
      *
      * @return MbShortCode
      */
-    public function setMbAction(MbAction $mbAction)
+    public function setAction(MbAction $shortcodeAction)
     {
-        $this->mbAction = $mbAction;
+        $this->shortcodeAction = $shortcodeAction;
+
+        return $this;
+    }
+
+    /**
+     * @return MbAction
+     */
+    public function shortcodePostAction()
+    {
+        return $this->shortcodePostAction;
+    }
+
+    /**
+     * @param string|callable|mixed $action
+     *
+     * @return MbShortCode
+     *
+     * @throws MBException
+     */
+    public function addPostAction($action)
+    {
+        $mbAction = new MbAction($this->shortcodeAction()->getMbPage(), $this->getName());
+
+        $mbAction->setShortcode(true)->actionResolver($action);
+
+        $this->shortcodePostAction = $mbAction;
 
         return $this;
     }
@@ -146,17 +194,64 @@ class MbShortCode
     }
 
     /**
+     * @return MbView
+     */
+    public function getMbView()
+    {
+        return $this->mbView;
+    }
+
+    /**
+     * @param MbView $mbView
+     *
+     * @return MbShortCode
+     */
+    public function setMbView(MbView $mbView)
+    {
+        $this->mbView = $mbView;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPostData()
+    {
+        return $this->postData;
+    }
+
+    /**
+     * @param mixed $postData
+     *
+     * @return MbShortCode
+     */
+    public function setPostData($postData)
+    {
+        $this->postData = $postData;
+
+        return $this;
+    }
+
+    /**
      * Shortcode construct
      *
-     * @param string   $name nome do shortcode
-     * @param MbAction $mbAction
-     * @param MbAsset  $mbAsset
+     * @param string                $name nome do shortcode
+     * @param MbPage                $mbPage
+     * @param string|callable|mixed $action
      */
-    public function __construct($name, MbAction $mbAction, MbAsset $mbAsset)
+    public function __construct($name, MbPage $mbPage, $action)
     {
+
+        $mbAction = new MbAction($mbPage, $name);
+
+        $mbAction->setShortcode(true)
+            ->setFunctionComplement('Shortcode')
+            ->actionResolver($action);
+
         $this->setName($name)
-            ->setMbAction($mbAction)
-            ->setMbAsset($mbAsset);
+            ->setAction($mbAction)
+            ->setMbAsset(new MbAsset());
     }
 
     /**
@@ -177,14 +272,18 @@ class MbShortCode
 
             try {
 
+                if(is_null($shortCode->getMbView())){
+                    $shortCode->setMbView(new MbView());
+                }
+
                 $shortCode->setParameters([
                     'attributes' => $attributes,
                     'content'    => $content,
                     'tags'       => $tags,
                 ]);
 
-                $mbRequest->setMbPage($shortCode->getMbAction()->getMbPage());
-                $mbRequest->setMbAction($shortCode->getMbAction());
+                $mbRequest->setMbPage($shortCode->shortcodeAction()->getMbPage());
+                $mbRequest->setMbAction($shortCode->shortcodeAction());
 
                 $mbRequest->setShortcode(true);
 
@@ -202,41 +301,49 @@ class MbShortCode
                     ->setActionEnqueue('front')
                     ->runAssets($shortCode->getName(), true);
 
-                MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_SHORTCODE, $shortCode);
+                $mocaBonita = MocaBonita::getInstance();
+
+                MbEvent::callEvents($mocaBonita, MbEvent::BEFORE_SHORTCODE, $shortCode);
 
                 try {
 
                     ob_start();
 
-                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::BEFORE_ACTION, $shortCode->getMbAction());
+                    MbEvent::callEvents($mocaBonita, MbEvent::BEFORE_ACTION, $shortCode->shortcodeAction());
 
-                    $mbView = new MbView();
+                    $shortCode->getMbView()->setView('shortcode', 'shortcode', $shortCode->shortcodeAction()->getName());
 
-                    $mbView->setMbRequest($mbRequest)
-                        ->setMbResponse($mbResponse)
-                        ->setView('shortcode', 'shortcode', $shortCode->getMbAction()->getName());
+                    if($mbRequest->isMethod('post') && $shortCode->shortcodePostAction() instanceof MbAction) {
+                        $actionPostResponse = $mocaBonita->runAction($shortCode->shortcodePostAction(), $shortCode->getMbView(), [
+                            $mbRequest,
+                            $mbResponse,
+                            $shortCode,
+                        ]);
 
-                    $actionResponse = MocaBonita::getInstance()->runAction($shortCode->getMbAction(), $mbView, [
+                        $shortCode->setPostData($actionPostResponse);
+                    }
+
+                    $actionResponse = $mocaBonita->runAction($shortCode->shortcodeAction(), $shortCode->getMbView(), [
                         $mbRequest,
                         $mbResponse,
                         $shortCode,
                     ]);
 
-                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::AFTER_ACTION, $shortCode->getMbAction());
+                    MbEvent::callEvents($mocaBonita, MbEvent::AFTER_ACTION, $shortCode->shortcodeAction());
 
                 } catch (\Exception $e) {
-                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::EXCEPTION_ACTION, $e);
+                    MbEvent::callEvents($mocaBonita, MbEvent::EXCEPTION_ACTION, $e);
                     $actionResponse = $e->getMessage();
                 } finally {
-                    MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::FINISH_ACTION, $shortCode->getMbAction());
+                    MbEvent::callEvents($mocaBonita, MbEvent::FINISH_ACTION, $shortCode->shortcodeAction());
                     ob_end_clean();
                 }
 
                 if (is_null($actionResponse)) {
-                    $actionResponse = $shortCode->getMbAction()->getMbPage()->getController()->getMbView();
+                    $actionResponse = $shortCode->shortcodeAction()->getMbPage()->getController()->getMbView();
                 }
 
-                MbEvent::callEvents(MocaBonita::getInstance(), MbEvent::AFTER_SHORTCODE, $shortCode);
+                MbEvent::callEvents($mocaBonita, MbEvent::AFTER_SHORTCODE, $shortCode);
 
             } catch (\Exception $e) {
                 $actionResponse = $e->getMessage();
@@ -245,6 +352,34 @@ class MbShortCode
                 $mbResponse->sendContent();
             }
         });
+    }
+
+    /**
+     * Get MbAction
+     *
+     * @deprecated use MbShortCode::shortcodeAction()
+     *
+     * @return MbAction
+     */
+    public function getMbAction()
+    {
+        return $this->shortcodeAction;
+    }
+
+    /**
+     * Set MbAction
+     *
+     * @param MbAction $mbAction
+     *
+     * @deprecated use MbShortCode::setAction($mbAction)
+     *
+     * @return MbShortCode
+     */
+    public function setMbAction(MbAction $mbAction)
+    {
+        $this->shortcodeAction = $mbAction;
+
+        return $this;
     }
 
 }

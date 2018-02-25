@@ -428,6 +428,26 @@ class MbAction
     }
 
     /**
+     * Action resolver
+     *
+     * @param string|callable|mixed $action
+     *
+     * @return MbAction
+     */
+    public function actionResolver($action)
+    {
+        if(is_string($action)) {
+            $this->setFunctionName(Str::camel($action));
+        } elseif (is_callable($action)) {
+            $this->setCallback($action);
+        } else {
+            $this->setData($action);
+        }
+
+        return $this;
+    }
+
+    /**
      * Check if the function exist
      *
      * @return boolean

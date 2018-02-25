@@ -154,11 +154,11 @@ abstract class MbPageStructure extends MbSingleton
     }
 
     /**
-     * @param MbPage $mbPage
+     * @param MbPage $medicoSlz
      *
      * @return void
      */
-    abstract public function structure(MbPage $mbPage);
+    abstract public function structure(MbPage $medicoSlz);
 
     /**
      * @param MbRequest  $mbRequest
@@ -173,7 +173,7 @@ abstract class MbPageStructure extends MbSingleton
 
         $this->structure($this->getMbPage());
 
-        if($this->isEnablePage()){
+        if ($this->isEnablePage()) {
             $this->getMocaBonita()->addMbPage($this->getMbPage());
         }
     }
@@ -181,13 +181,13 @@ abstract class MbPageStructure extends MbSingleton
     /**
      * Add a MbShortCode to MocaBonita
      *
-     * @param string $shortcode
-     * @param string $method
+     * @param string                $shortcode
+     * @param string|callable|mixed $action
      *
      * @return MbShortCode
      */
-    public function shortCode($shortcode, $method)
+    public function shortCode($shortcode, $action)
     {
-        return $this->getMocaBonita()->addMbShortcode($shortcode, $this->getMbPage(), $method);
+        return $this->getMocaBonita()->addMbShortcode($shortcode, $this->getMbPage(), $action);
     }
 }

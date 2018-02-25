@@ -26,6 +26,13 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 class MbPost extends MbModel
 {
     /**
+     * Use table base or current blog (MultiSite).
+     *
+     * @var boolean
+     */
+    protected $baseTable = false;
+
+    /**
      * The primary key for the model.
      *
      * @var string
@@ -85,13 +92,30 @@ class MbPost extends MbModel
     ];
 
     /**
+     * @return bool
+     */
+    public function isBaseTable()
+    {
+        return $this->baseTable;
+    }
+
+    /**
+     * @param bool $baseTable
+     */
+    public function setBaseTable($baseTable = true)
+    {
+        $this->baseTable = $baseTable;
+    }
+
+    /**
      * Get the table associated with the model.
      *
      * @return string
      */
     public function getTable()
     {
-        return $this->getWpdb()->prefix . "posts";
+        $prefix = $this->isBaseTable() ? $this->getWpdb()->base_prefix : $this->getWpdb()->prefix ;
+        return "{$prefix}posts";
     }
 
     /**
