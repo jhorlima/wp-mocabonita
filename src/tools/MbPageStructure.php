@@ -154,11 +154,11 @@ abstract class MbPageStructure extends MbSingleton
     }
 
     /**
-     * @param MbPage $medicoSlz
+     * @param MbPage $mbPage
      *
      * @return void
      */
-    abstract public function structure(MbPage $medicoSlz);
+    abstract public function structure(MbPage $mbPage);
 
     /**
      * @param MbRequest  $mbRequest
