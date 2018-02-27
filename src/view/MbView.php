@@ -137,55 +137,65 @@ class MbView implements View
     /**
      * @param string|array $message
      *
+     * @param string       $type
+     *
      * @return MbView
      */
-    public function successFlash($message)
+    public function successFlash($message, $type = 'success')
     {
-        return $this->addFlash('success', $message);
+        return $this->addFlash($type, $message);
     }
 
     /**
      * @param string|array $message
      *
+     * @param string       $type
+     *
      * @return MbView
      */
-    public function errorFlash($message)
+    public function errorFlash($message, $type = 'error')
     {
-        return $this->addFlash('error', $message);
+        return $this->addFlash($type, $message);
     }
 
     /**
      * @param string|array $message
      *
+     * @param string       $type
+     *
      * @return MbView
      */
-    public function infoFlash($message)
+    public function infoFlash($message, $type = 'info')
     {
-        return $this->addFlash('info', $message);
+        return $this->addFlash($type, $message);
     }
 
     /**
      * @param string|array $message
      *
+     * @param string       $type
+     *
      * @return MbView
      */
-    public function warnFlash($message)
+    public function warnFlash($message, $type = 'warn')
     {
-        return $this->addFlash('warn', $message);
+        return $this->addFlash($type, $message);
     }
 
     /**
      * @param \Exception $exception
      *
+     * @param string     $type
+     *
      * @return MbView
      */
-    public function exceptionFlash(\Exception $exception)
+    public function exceptionFlash(\Exception $exception, $type = 'error')
     {
         if ($exception instanceof MbException) {
             $messages = $exception->getMessages();
 
             if (empty($messages)) {
-                return $this->errorFlash($exception->getMessage());
+                return $this->errorFlash($exception->getMessage(), $type);
             } else {
                 $erros = [];
 
@@ -199,11 +209,11 @@ class MbView implements View
                     }
                 }
 
-                return $this->errorFlash($erros);
+                return $this->errorFlash($erros, $type);
             }
 
         } else {
-            return $this->errorFlash($exception->getMessage());
+            return $this->errorFlash($exception->getMessage(), $type);
         }
     }
 

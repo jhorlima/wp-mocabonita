@@ -5,6 +5,7 @@ namespace MocaBonita\tools;
 use Illuminate\Http\Request;
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * Main class of the MocaBonita Request
@@ -205,6 +206,18 @@ class MbRequest extends Request
     public function getFlashBag()
     {
         return $this->session()->getFlashBag();
+    }
+
+    /**
+     * Get the session associated with the request.
+     *
+     * @return Session|\Illuminate\Session\Store
+     *
+     * @throws \RuntimeException
+     */
+    public function session()
+    {
+        return parent::session();
     }
 
     /**

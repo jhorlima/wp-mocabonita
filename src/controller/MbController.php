@@ -178,28 +178,6 @@ abstract class MbController
     }
 
     /**
-     * Clone Not allowed
-     *
-     * @throws MbException
-     */
-    public function __clone()
-    {
-        $className = static::class;
-        throw new MbException("Clone not allowed in {$className}!");
-    }
-
-    /**
-     * WakeUp Not allowed.
-     *
-     * @throws MbException
-     */
-    public function __wakeup()
-    {
-        $className = static::class;
-        throw new MbException("WakeUp not allowed in {$className}!");
-    }
-
-    /**
      * Handle calls to missing methods on the controller.
      *
      * @param  string $method

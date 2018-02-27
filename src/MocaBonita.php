@@ -328,14 +328,14 @@ final class MocaBonita extends MbSingleton
     /**
      * Enable session
      *
-     * @param SessionInterface $session
+     * @param Session $session
      *
      * @return MocaBonita
      */
     public function enableSession($session = null)
     {
 
-        $session = $session instanceof SessionInterface ?: new Session();
+        $session = $session instanceof Session ?: new Session();
         $this->getMbRequest()->setSession($session);
 
         return $this;
@@ -344,7 +344,7 @@ final class MocaBonita extends MbSingleton
     /**
      * Enable flash session
      *
-     * @param SessionInterface $session
+     * @param Session $session
      *
      * @return MocaBonita
      */
@@ -362,12 +362,14 @@ final class MocaBonita extends MbSingleton
     /**
      * Set the callback that has the plugin's structure
      *
-     * @param      $pluginStructure \Closure Callback that will be called
-     * @param bool $development     Set status development of the plugin
+     * @param        $pluginStructure \Closure Callback that will be called
+     * @param bool   $development     Set status development of the plugin
+     *
+     * @param string $tag
      *
      * @return void
      */
-    public static function plugin(\Closure $pluginStructure, $development = false)
+    public static function plugin(\Closure $pluginStructure, $development = false, $tag = "plugins_loaded")
     {
         $mocaBonita = self::getInstance();
         $mocaBonita->development = (bool)$development;
@@ -376,7 +378,7 @@ final class MocaBonita extends MbSingleton
             $mocaBonita->disableCache();
         }
 
-        MbWPActionHook::addActionCallback('plugins_loaded', function () use ($pluginStructure, $mocaBonita) {
+        MbWPActionHook::addActionCallback($tag, function () use ($pluginStructure, $mocaBonita) {
             try {
                 call_user_func_array($pluginStructure, [$mocaBonita]);
                 $mocaBonita->runPlugin();
