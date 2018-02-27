@@ -197,7 +197,7 @@ class MbView implements View
             if (empty($messages)) {
                 return $this->errorFlash($exception->getMessage(), $type);
             } else {
-                $erros = [];
+                $erros = [$exception->getMessage()];
 
                 foreach ($messages as $item => $message) {
                     if (is_array($message)) {
