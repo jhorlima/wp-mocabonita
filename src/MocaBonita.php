@@ -468,6 +468,30 @@ final class MocaBonita extends MbSingleton
         //Call the MbAsset from WordPress
         $this->getMbAssets(true)->runAssets('*');
 
+        //Get all query params from url
+        $paramsQuery = $this->mbRequest->query();
+
+        //Check if there is a pagination attribute
+        if (isset($paramsQuery[MbDatabaseQueryBuilder::getPagination()])) {
+            $pagination = $paramsQuery[MbDatabaseQueryBuilder::getPagination()];
+            unset($paramsQuery[MbDatabaseQueryBuilder::getPagination()]);
+        } else {
+            $pagination = 1;
+        }
+
+        //Get url without pagination query
+        $urlWihtouPagination = $this->mbRequest->urlQuery($paramsQuery);
+
+        //Set url without pagination query to the Paginator Resolver
+        Paginator::currentPathResolver(function () use ($urlWihtouPagination) {
+            return $urlWihtouPagination;
+        });
+
+        //Set current pagination to the Paginator Resolver
+        Paginator::currentPageResolver(function () use ($pagination) {
+            return is_numeric($pagination) ? (int)$pagination : 1;
+        });
+
         //Call the Shortcode from plugin
         foreach ($this->mbShortCodes as $shortcode) {
             $shortcode->runShortcode($this->getMbAssets(), $this->mbRequest, $this->mbResponse);
@@ -490,30 +514,6 @@ final class MocaBonita extends MbSingleton
 
                 //Call MvEvent from page (BEFORE_PAGE)
                 MbEvent::callEvents($this, MbEvent::BEFORE_PAGE, $mbPage);
-
-                //Get all query params from url
-                $paramsQuery = $this->mbRequest->query();
-
-                //Check if there is a pagination attribute
-                if (isset($paramsQuery[MbDatabaseQueryBuilder::getPagination()])) {
-                    $pagination = $paramsQuery[MbDatabaseQueryBuilder::getPagination()];
-                    unset($paramsQuery[MbDatabaseQueryBuilder::getPagination()]);
-                } else {
-                    $pagination = 1;
-                }
-
-                //Get url without pagination query
-                $urlWihtouPagination = $this->mbRequest->urlQuery($paramsQuery);
-
-                //Set url without pagination query to the Paginator Resolver
-                Paginator::currentPathResolver(function () use ($urlWihtouPagination) {
-                    return $urlWihtouPagination;
-                });
-
-                //Set current pagination to the Paginator Resolver
-                Paginator::currentPageResolver(function () use ($pagination) {
-                    return is_numeric($pagination) ? (int)$pagination : 1;
-                });
 
                 //Call the MbAsset from plugin
                 $this->getMbAssets()->runAssets('plugin');
