@@ -139,7 +139,7 @@ class MbResponse extends Response
             $this->statusCode = $this->isSuccessful() ? $this->statusCode : BaseResponse::HTTP_BAD_REQUEST;
         }
 
-        if($this->isBuffer()){
+        if($this->isBuffer() && !$this->getMbRequest()->isBlogAdmin() && !$this->getMbRequest()->isAjax()){
             $this->original = $content;
         } elseif ($this->mbRequest->isAjax()) {
             $this->ajaxContent($content);
