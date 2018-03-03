@@ -270,6 +270,8 @@ class MbShortCode
         //Initialize Shorcode
         add_shortcode($this->getName(), function ($attributes, $content, $tags) use ($shortCode, $mbAsset, $mbRequest, $mbResponse) {
 
+            $mocaBonita = MocaBonita::getInstance();
+
             try {
 
                 if(is_null($shortCode->getMbView())){
@@ -300,8 +302,6 @@ class MbShortCode
                 $shortCode->getMbAsset()
                     ->setActionEnqueue('front')
                     ->runAssets($shortCode->getName(), true);
-
-                $mocaBonita = MocaBonita::getInstance();
 
                 MbEvent::callEvents($mocaBonita, MbEvent::BEFORE_SHORTCODE, $shortCode);
 
@@ -349,6 +349,7 @@ class MbShortCode
                 $actionResponse = $e->getMessage();
             } finally {
                 $mbResponse->setContent($actionResponse);
+                $mocaBonita->getMbAudit()->setResponseType('shortcode');
                 $mbResponse->sendContent();
             }
         });

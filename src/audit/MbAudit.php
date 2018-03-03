@@ -182,16 +182,30 @@ class MbAudit implements Arrayable
     {
         if ($this->responseData instanceof MbView) {
 
-            $this->setResponseData([
-                'content'    => $this->responseData->getContent(),
-                'view'       => $this->responseData->name(),
-                'template'   => $this->responseData->getTemplate(),
-                'path'       => [
-                    'view'     => $this->responseData->getViewFullPath(),
-                    'template' => $this->responseData->getTemplateFullPath(),
-                ],
-                'attributes' => $this->responseData->getAttribute(),
-            ]);
+            if ($this->isStoreView()) {
+
+                $this->setResponseData([
+                    'content'    => $this->responseData->getContent(),
+                    'view'       => $this->responseData->name(),
+                    'template'   => $this->responseData->getTemplate(),
+                    'path'       => [
+                        'view'     => $this->responseData->getViewFullPath(),
+                        'template' => $this->responseData->getTemplateFullPath(),
+                    ],
+                    'attributes' => $this->responseData->getAttribute(),
+                ]);
+
+            } else {
+
+                $this->setResponseData([
+                    'view'     => $this->responseData->name(),
+                    'template' => $this->responseData->getTemplate(),
+                    'path'     => [
+                        'view'     => $this->responseData->getViewFullPath(),
+                        'template' => $this->responseData->getTemplateFullPath(),
+                    ],
+                ]);
+            }
 
         } elseif ($this->responseData instanceof Arrayable) {
             $this->setResponseData($this->responseData->toArray());
