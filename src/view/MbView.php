@@ -91,6 +91,20 @@ class MbView implements View
     protected $mbResponse;
 
     /**
+     * Stores the view full
+     *
+     * @var string
+     */
+    protected $viewFullPath;
+
+    /**
+     * Stores the template full
+     *
+     * @var string
+     */
+    protected $templateFullPath;
+
+    /**
      * @param string $type
      * @param string|array $message
      *
@@ -225,6 +239,46 @@ class MbView implements View
         $this->setAttributes([]);
         $this->setExtension("phtml");
         $this->setViewPath(MbPath::pViewDir());
+    }
+
+    /**
+     * @return string
+     */
+    public function getViewFullPath()
+    {
+        return $this->viewFullPath;
+    }
+
+    /**
+     * @param string $viewFullPath
+     *
+     * @return MbView
+     */
+    public function setViewFullPath($viewFullPath)
+    {
+        $this->viewFullPath = $viewFullPath;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTemplateFullPath()
+    {
+        return $this->templateFullPath;
+    }
+
+    /**
+     * @param string $templateFullPath
+     *
+     * @return MbView
+     */
+    public function setTemplateFullPath($templateFullPath)
+    {
+        $this->templateFullPath = $templateFullPath;
+
+        return $this;
     }
 
     /**
@@ -523,25 +577,25 @@ class MbView implements View
      */
     public function render()
     {
-        $viewPath = $this->getFileFullPath();
-        $templatePath = $this->getFileFullPath('template');
+        $this->setViewFullPath($this->getFileFullPath());
+        $this->setTemplateFullPath($this->getFileFullPath('template'));
 
-        if (file_exists($viewPath)) {
+        if (file_exists($this->getViewPath())) {
             ob_start();
-            include $viewPath;
+            include $this->getViewPath();
             $this->setContent(ob_get_contents());
             ob_end_clean();
         } else {
-            MbException::registerError(new \Exception("The file {$viewPath} not found!"));
+            MbException::registerError(new \Exception("The file {$this->getViewPath()} not found!"));
         }
 
-        if (file_exists($templatePath)) {
+        if (file_exists($this->getTemplateFullPath())) {
             ob_start();
-            include $templatePath;
+            include $this->getTemplateFullPath();
             $this->setContent(ob_get_contents());
             ob_end_clean();
         } else {
-            MbException::registerError(new \Exception("The file {$templatePath} not found!"));
+            MbException::registerError(new \Exception("The file {$this->getTemplateFullPath()} not found!"));
         }
 
         return $this->getContent();

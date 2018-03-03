@@ -119,12 +119,31 @@ class MbWpUser extends MbModel
     /**
      * Get current user logged
      *
+     * @param bool $dontThrowException
+     *
      * @return MbWpUser
+     *
+     * @throws \Exception
      */
-    public static function getCurrentUser()
+    public static function getCurrentUser($dontThrowException = false)
     {
-        if (is_null(self::$currentUser)) {
-            self::$currentUser = self::findOrFail(get_current_user_id());
+        if (!self::$currentUser instanceof MbWpUser) {
+
+            try {
+                self::$currentUser = self::findOrFail(get_current_user_id());
+            } catch (\Exception $e) {
+                self::$currentUser = new self();
+                self::$currentUser->forceFill([
+                    'ID'            => 0,
+                    'user_login'    => 'Anonymous',
+                    'user_nicename' => 'Anonymous',
+                    'display_name'  => 'Anonymous',
+                ]);
+            }
+        }
+
+        if (!self::$currentUser->exists && !$dontThrowException) {
+            throw new \Exception("No users have been logged in!");
         }
 
         return self::$currentUser;

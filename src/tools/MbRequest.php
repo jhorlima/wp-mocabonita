@@ -84,7 +84,14 @@ class MbRequest extends Request
      *
      * @var boolean
      */
-    private $blogAdmin;
+    protected $blogAdmin;
+
+    /**
+     * Checks if the current page is a page of MocaBonita
+     *
+     * @var boolean
+     */
+    protected $mocaBonitaPage;
 
     /**
      * Is admin
@@ -409,4 +416,26 @@ class MbRequest extends Request
 
         return true;
     }
+
+    /**
+     * Check if the current page is a Mocabonita page
+     *
+     * @return bool
+     */
+    public function isMocaBonitaPage()
+    {
+        return $this->mocaBonitaPage;
+    }
+
+    /**
+     * @param bool $mocaBonitaPage
+     *
+     * @return MbRequest
+     */
+    public function setMocaBonitaPage($mocaBonitaPage)
+    {
+        $this->mocaBonitaPage = $mocaBonitaPage;
+        return $this;
+    }
+
 }
