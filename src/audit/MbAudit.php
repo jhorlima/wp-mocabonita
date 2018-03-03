@@ -134,6 +134,9 @@ class MbAudit implements Arrayable
                 'header' => $this->request->headers->all(),
                 'source' => $this->request->inputSource(),
                 'files'  => $this->request->files->all(),
+                'method' => $this->request->method(),
+                'ip'     => $this->request->getClientIp(),
+                'path'   => $this->request->getPathInfo(),
             ];
         }
 
@@ -345,6 +348,7 @@ class MbAudit implements Arrayable
     public function toArray()
     {
         return [
+            'time'             => time(),
             'user'             => $this->getUser(),
             'request'          => $this->getRequest(),
             'response'         => [

@@ -580,13 +580,13 @@ class MbView implements View
         $this->setViewFullPath($this->getFileFullPath());
         $this->setTemplateFullPath($this->getFileFullPath('template'));
 
-        if (file_exists($this->getViewPath())) {
+        if (file_exists($this->getViewFullPath())) {
             ob_start();
-            include $this->getViewPath();
+            include $this->getViewFullPath();
             $this->setContent(ob_get_contents());
             ob_end_clean();
         } else {
-            MbException::registerError(new \Exception("The file {$this->getViewPath()} not found!"));
+            MbException::registerError(new \Exception("The file {$this->getViewFullPath()} not found!"));
         }
 
         if (file_exists($this->getTemplateFullPath())) {

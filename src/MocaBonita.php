@@ -425,11 +425,12 @@ final class MocaBonita extends MbSingleton
             try {
                 call_user_func_array($pluginStructure, [$mocaBonita]);
                 $mocaBonita->runPlugin();
-            } catch
-            (\Exception $e) {
+            } catch (\Exception $e) {
                 $mocaBonita->mbResponse->setContent($e);
             } finally {
                 $mocaBonita->runHookCurrentAction();
+                $mocaBonita->getMbAudit()->setResponseStatusCode($mocaBonita->mbResponse->status());
+                $mocaBonita->getMbAudit()->setResponseHeader($mocaBonita->mbResponse->headers->all());
                 $mocaBonita->mbResponse->sendHeaders();
                 MbDatabase::disableQueryLog();
             }
@@ -632,7 +633,7 @@ final class MocaBonita extends MbSingleton
                 "The action {$this->action} of the page {$this->page} needs to be requested in admin-ajax.php!"
             );
         } //Check if the method request defined in MbAction is allowed
-        elseif (!is_null($mbAction->getRequiresMethod() && $mbAction->getRequiresMethod() != $this->mbRequest->method())) {
+        elseif (!is_null($mbAction->getRequiresMethod()) && $mbAction->getRequiresMethod() != $this->mbRequest->method()) {
             throw new MbException(
                 "The action {$this->action} of the page {$this->page} must be called by request method {$mbAction->getRequiresMethod()}!"
             );
@@ -654,11 +655,18 @@ final class MocaBonita extends MbSingleton
 
             $mbView->setView('index', $this->page, $this->action);
 
+            ob_start();
             $actionResponse = $this->runAction($mbAction, $mbView, [
                 $this->mbRequest,
                 $this->mbResponse,
                 $mbView,
             ]);
+            $buffer = (ob_get_contents());
+            ob_end_clean();
+
+            if($this->mbResponse->isBuffer()) {
+                $actionResponse = $buffer;
+            }
 
             MbEvent::callEvents($this, MbEvent::AFTER_ACTION, $mbAction);
 
@@ -669,11 +677,14 @@ final class MocaBonita extends MbSingleton
             MbEvent::callEvents($this, MbEvent::FINISH_ACTION, $mbAction);
         }
 
-        if (is_null($actionResponse) && !$this->mbRequest->isAjax()) {
-            $actionResponse = $mbAction->getMbPage()->getController()->getMbView();
-        }
+        if(!$this->mbResponse->isRedirection()) {
 
-        $this->mbResponse->setContent($actionResponse);
+            if (is_null($actionResponse) && !$this->mbRequest->isAjax()) {
+                $actionResponse = $mbAction->getMbPage()->getController()->getMbView();
+            }
+
+            $this->mbResponse->setContent($actionResponse);
+        }
     }
 
     /**

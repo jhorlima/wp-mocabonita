@@ -37,7 +37,14 @@ class MbResponse extends Response
      *
      * @var MbAudit
      */
-    private $mbAudit;
+    protected $mbAudit;
+
+    /**
+     * Stores if controller is buffer
+     *
+     * @var boolean
+     */
+    protected $buffer = false;
 
     /**
      * Get MbRequest
@@ -84,6 +91,26 @@ class MbResponse extends Response
     }
 
     /**
+     * @return bool
+     */
+    public function isBuffer()
+    {
+        return $this->buffer;
+    }
+
+    /**
+     * @param bool $buffer
+     *
+     * @return MbResponse
+     */
+    public function setBuffer($buffer)
+    {
+        $this->buffer = $buffer;
+
+        return $this;
+    }
+
+    /**
      * Set the content on the response.
      *
      * @param mixed $content
@@ -112,14 +139,13 @@ class MbResponse extends Response
             $this->statusCode = $this->isSuccessful() ? $this->statusCode : BaseResponse::HTTP_BAD_REQUEST;
         }
 
-        if ($this->mbRequest->isAjax()) {
+        if($this->isBuffer()){
+            $this->original = $content;
+        } elseif ($this->mbRequest->isAjax()) {
             $this->ajaxContent($content);
         } else {
             $this->htmlContent($content);
         }
-
-        $this->getMbAudit()->setResponseStatusCode($this->status());
-        $this->getMbAudit()->setResponseHeader($this->headers->all());
 
         return $this;
     }
@@ -154,7 +180,15 @@ class MbResponse extends Response
             $url .= "?" . http_build_query($params);
         }
 
-        return wp_redirect($url, $status);
+        $this->statusCode = $status;
+        $this->headers->set('Location', $url);
+
+        $this->getMbAudit()->setResponseType('redirect');
+        $this->getMbAudit()->setResponseData([
+            'url' => $url,
+        ]);
+
+        return true;
     }
 
     /**
