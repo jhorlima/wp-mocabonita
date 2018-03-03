@@ -665,7 +665,10 @@ final class MocaBonita extends MbSingleton
             ob_end_clean();
 
             if($this->mbResponse->isBuffer() && !$this->getMbRequest()->isBlogAdmin() && !$this->getMbRequest()->isAjax()) {
+                $this->mbResponse->setBuffer(true);
                 $actionResponse = $buffer;
+            } else {
+                $this->mbResponse->setBuffer(false);
             }
 
             MbEvent::callEvents($this, MbEvent::AFTER_ACTION, $mbAction);
