@@ -301,6 +301,7 @@ final class MocaBonita extends MbSingleton
     public function setMbAudit($mbAudit)
     {
         $this->mbAudit = $mbAudit;
+
         return $this;
     }
 
@@ -374,7 +375,7 @@ final class MocaBonita extends MbSingleton
      */
     public function enableFlash($session = null)
     {
-        if(!$this->getMbRequest()->hasSession()) {
+        if (!$this->getMbRequest()->hasSession()) {
             $this->enableSession($session);
         }
 
@@ -398,17 +399,34 @@ final class MocaBonita extends MbSingleton
         $mocaBonita = self::getInstance();
         $mocaBonita->audit = (bool) $audit;
 
-        if ($audit) {
-            MbDatabase::enableQueryLog();
-            $mocaBonita->getMbAudit()->setMocaBonita($mocaBonita);
-            $mocaBonita->getMbAudit()->setUser(MbWpUser::getCurrentUser(true));
+        if ($mocaBonita->audit) {
+
+            MbWPActionHook::addActionCallback('plugins_loaded', function () use ($mocaBonita) {
+                try {
+                    MbDatabase::enableQueryLog();
+                    $mocaBonita->getMbAudit()->setMocaBonita($mocaBonita);
+                    $mocaBonita->getMbAudit()->setUser(MbWpUser::getCurrentUser(true));
+                } catch (\Exception $e) {
+                    $mocaBonita->getMbResponse()->setContent($e);
+                }
+            });
+
+            MbWPActionHook::addActionCallback('shutdown', function () use ($mocaBonita) {
+                try {
+                    $mocaBonita->getMbAudit()->run();
+                } catch (\Exception $e) {
+                    $mocaBonita->getMbResponse()->setContent($e);
+                }
+            });
+
         }
 
         MbWPActionHook::addActionCallback($tag, function () use ($pluginStructure, $mocaBonita) {
             try {
                 call_user_func_array($pluginStructure, [$mocaBonita]);
                 $mocaBonita->runPlugin();
-            } catch (\Exception $e) {
+            } catch
+            (\Exception $e) {
                 $mocaBonita->mbResponse->setContent($e);
             } finally {
                 $mocaBonita->runHookCurrentAction();
@@ -565,10 +583,6 @@ final class MocaBonita extends MbSingleton
         //Call MbEvent from wordpress (FINISH_WORDPRESS)
         MbEvent::callEvents($this, MbEvent::FINISH_WORDPRESS, $this);
 
-        //Run MbAudit
-        if($this->audit) {
-            $this->getMbAudit()->run();
-        }
     }
 
     /**
@@ -699,7 +713,7 @@ final class MocaBonita extends MbSingleton
                     ->getController()
                     ->actionResolver($mbAction);
 
-                if(is_null($mbAction->getMbPage()->getController()->getMbView())) {
+                if (is_null($mbAction->getMbPage()->getController()->getMbView())) {
                     $mbAction->getMbPage()->getController()->setMbView($mbView);
                 }
 
@@ -782,6 +796,7 @@ final class MocaBonita extends MbSingleton
     {
         if (is_null($this->page)) {
             $this->getMbRequest()->setMocaBonitaPage(false);
+
             return false;
         }
 
