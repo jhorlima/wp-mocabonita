@@ -402,7 +402,7 @@ class MbAudit implements Arrayable
      */
     public function run()
     {
-        if (!$this->request->isMocaBonitaPage() && $this->isOnlyMbPage()) {
+        if (!$this->request->isMocaBonitaPage() && !$this->request->isShortcode() && $this->isOnlyMbPage()) {
             return true;
         }
 
