@@ -7,7 +7,6 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Response;
 use Illuminate\Support\Debug\Dumper;
 use MocaBonita\audit\MbAudit;
-use MocaBonita\MocaBonita;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 /**
@@ -388,6 +387,21 @@ class MbResponse extends Response
     public function adminNoticeTemplate($message, $type = 'error')
     {
         return "<div class='notice notice-{$type} is-dismissible'><p><strong>{$message}</strong></p></div>";
+    }
+
+    /**
+     * @return BaseResponse
+     */
+    public function sendHeaders()
+    {
+        parent::sendHeaders();
+
+        if ($this->isRedirection()) {
+            MbWPActionHook::doAction('shutdown');
+            exit();
+        }
+
+        return $this;
     }
 
 }
