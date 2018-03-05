@@ -415,7 +415,9 @@ final class MocaBonita extends MbSingleton
                 try {
                     $mocaBonita->getMbAudit()->run();
                 } catch (\Exception $e) {
-                    $mocaBonita->getMbResponse()->setContent($e);
+                    error_log($e->getMessage());
+                } finally {
+                    MbDatabase::disableQueryLog();
                 }
             });
 
@@ -432,7 +434,6 @@ final class MocaBonita extends MbSingleton
                 $mocaBonita->getMbAudit()->setResponseStatusCode($mocaBonita->mbResponse->status());
                 $mocaBonita->getMbAudit()->setResponseHeader($mocaBonita->mbResponse->headers->all());
                 $mocaBonita->mbResponse->sendHeaders();
-                MbDatabase::disableQueryLog();
             }
         });
     }
@@ -511,76 +512,83 @@ final class MocaBonita extends MbSingleton
         //Call MbEvent from wordpress (START_WORDPRESS)
         MbEvent::callEvents($this, MbEvent::START_WORDPRESS, $this);
 
-        //Call the MbAsset from WordPress
-        $this->getMbAssets(true)->runAssets('*');
+        if (!$this->getMbResponse()->isRedirection()) {
 
-        //Get all query params from url
-        $paramsQuery = $this->mbRequest->query();
+            //Call the MbAsset from WordPress
+            $this->getMbAssets(true)->runAssets('*');
 
-        //Check if there is a pagination attribute
-        if (isset($paramsQuery[MbDatabaseQueryBuilder::getPagination()])) {
-            $pagination = $paramsQuery[MbDatabaseQueryBuilder::getPagination()];
-            unset($paramsQuery[MbDatabaseQueryBuilder::getPagination()]);
-        } else {
-            $pagination = 1;
-        }
+            //Get all query params from url
+            $paramsQuery = $this->mbRequest->query();
 
-        //Get url without pagination query
-        $urlWihtouPagination = $this->mbRequest->urlQuery($paramsQuery);
-
-        //Set url without pagination query to the Paginator Resolver
-        Paginator::currentPathResolver(function () use ($urlWihtouPagination) {
-            return $urlWihtouPagination;
-        });
-
-        //Set current pagination to the Paginator Resolver
-        Paginator::currentPageResolver(function () use ($pagination) {
-            return is_numeric($pagination) ? (int)$pagination : 1;
-        });
-
-        //Call the Shortcode from plugin
-        foreach ($this->mbShortCodes as $shortcode) {
-            $shortcode->runShortcode($this->getMbAssets(), $this->mbRequest, $this->mbResponse);
-        }
-
-        //Add wordpress administrative menu if needed
-        if ($this->getMbRequest()->isBlogAdmin()) {
-            MbWPActionHook::addAction('admin_menu', $this, 'addAdminMenuToWordpress');
-        }
-
-        if ($this->isMocabonitaPage()) {
-
-            //Get current MbPage
-            $mbPage = $this->getMbPage($this->page);
-
-            //Set current MbPage to MbRequest
-            $this->getMbRequest()->setMbPage($mbPage);
-
-            try {
-
-                //Call MvEvent from page (BEFORE_PAGE)
-                MbEvent::callEvents($this, MbEvent::BEFORE_PAGE, $mbPage);
-
-                //Call the MbAsset from plugin
-                $this->getMbAssets()->runAssets('plugin');
-
-                //Call the MbAsset from page
-                $mbPage->getMbAsset()->runAssets($this->page);
-
-                //Run current page
-                $this->runCurrentPage($mbPage);
-
-                //Call MvEvent from page (AFTER_PAGE)
-                MbEvent::callEvents($this, MbEvent::AFTER_PAGE, $mbPage);
-            } catch (\Exception $e) {
-                //Call MvEvent from page (EXCEPTION_PAGE)
-                MbEvent::callEvents($this, MbEvent::EXCEPTION_PAGE, $e);
-                throw $e;
-            } finally {
-                //Call MvEvent from page (FINISH_PAGE)
-                MbEvent::callEvents($this, MbEvent::FINISH_PAGE, $mbPage);
+            //Check if there is a pagination attribute
+            if (isset($paramsQuery[MbDatabaseQueryBuilder::getPagination()])) {
+                $pagination = $paramsQuery[MbDatabaseQueryBuilder::getPagination()];
+                unset($paramsQuery[MbDatabaseQueryBuilder::getPagination()]);
+            } else {
+                $pagination = 1;
             }
+
+            //Get url without pagination query
+            $urlWihtouPagination = $this->mbRequest->urlQuery($paramsQuery);
+
+            //Set url without pagination query to the Paginator Resolver
+            Paginator::currentPathResolver(function () use ($urlWihtouPagination) {
+                return $urlWihtouPagination;
+            });
+
+            //Set current pagination to the Paginator Resolver
+            Paginator::currentPageResolver(function () use ($pagination) {
+                return is_numeric($pagination) ? (int) $pagination : 1;
+            });
+
+            //Call the Shortcode from plugin
+            foreach ($this->mbShortCodes as $shortcode) {
+                $shortcode->runShortcode($this->getMbAssets(), $this->mbRequest, $this->mbResponse);
+            }
+
+            //Add wordpress administrative menu if needed
+            if ($this->getMbRequest()->isBlogAdmin()) {
+                MbWPActionHook::addAction('admin_menu', $this, 'addAdminMenuToWordpress');
+            }
+
+            if ($this->isMocabonitaPage()) {
+
+                //Get current MbPage
+                $mbPage = $this->getMbPage($this->page);
+
+                //Set current MbPage to MbRequest
+                $this->getMbRequest()->setMbPage($mbPage);
+
+                try {
+
+                    //Call MvEvent from page (BEFORE_PAGE)
+                    MbEvent::callEvents($this, MbEvent::BEFORE_PAGE, $mbPage);
+
+                    //Call the MbAsset from plugin
+                    $this->getMbAssets()->runAssets('plugin');
+
+                    //Call the MbAsset from page
+                    $mbPage->getMbAsset()->runAssets($this->page);
+
+                    //Run current page
+                    $this->runCurrentPage($mbPage);
+
+                    //Call MvEvent from page (AFTER_PAGE)
+                    MbEvent::callEvents($this, MbEvent::AFTER_PAGE, $mbPage);
+                } catch (\Exception $e) {
+                    //Call MvEvent from page (EXCEPTION_PAGE)
+                    MbEvent::callEvents($this, MbEvent::EXCEPTION_PAGE, $e);
+                    throw $e;
+                } finally {
+                    //Call MvEvent from page (FINISH_PAGE)
+                    MbEvent::callEvents($this, MbEvent::FINISH_PAGE, $mbPage);
+                }
+            }
+
+        } else {
+            $this->getMbResponse()->setContent(null);
         }
+
         //Call MbEvent from wordpress (FINISH_WORDPRESS)
         MbEvent::callEvents($this, MbEvent::FINISH_WORDPRESS, $this);
 
@@ -595,7 +603,6 @@ final class MocaBonita extends MbSingleton
      */
     private function runCurrentPage(MbPage $mbPage)
     {
-
         //Get MbAction from current action
         $mbAction = $mbPage->getMbAction($this->action);
 
@@ -664,11 +671,13 @@ final class MocaBonita extends MbSingleton
             $buffer = (ob_get_contents());
             ob_end_clean();
 
-            if($this->mbResponse->isBuffer() && !$this->getMbRequest()->isBlogAdmin() && !$this->getMbRequest()->isAjax()) {
-                $this->mbResponse->setBuffer(true);
-                $actionResponse = $buffer;
-            } else {
-                $this->mbResponse->setBuffer(false);
+
+            if($this->mbResponse->isBuffer()){
+                if($this->getMbRequest()->isBlogAdmin() || $this->getMbRequest()->isAjax() || $this->getMbRequest()->isShortcode()) {
+                    throw new MbException("the buffer is only available for admin-post.php");
+                } else {
+                    $actionResponse = $buffer;
+                }
             }
 
             MbEvent::callEvents($this, MbEvent::AFTER_ACTION, $mbAction);
