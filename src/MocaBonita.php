@@ -585,8 +585,6 @@ final class MocaBonita extends MbSingleton
                 }
             }
 
-        } else {
-            $this->getMbResponse()->setContent(null);
         }
 
         //Call MbEvent from wordpress (FINISH_WORDPRESS)
