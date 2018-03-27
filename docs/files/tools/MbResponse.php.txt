@@ -6,6 +6,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Response;
 use Illuminate\Support\Debug\Dumper;
+use MocaBonita\audit\MbAudit;
 use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 /**
@@ -29,6 +30,20 @@ class MbResponse extends Response
      * @var MbRequest
      */
     protected $mbRequest;
+
+    /**
+     * Stores the current audit
+     *
+     * @var MbAudit
+     */
+    protected $mbAudit;
+
+    /**
+     * Stores if controller is buffer
+     *
+     * @var boolean
+     */
+    protected $buffer = false;
 
     /**
      * Get MbRequest
@@ -55,11 +70,52 @@ class MbResponse extends Response
     }
 
     /**
+     * @return MbAudit
+     */
+    public function getMbAudit()
+    {
+        return $this->mbAudit;
+    }
+
+    /**
+     * @param MbAudit $mbAudit
+     *
+     * @return MbResponse
+     */
+    public function setMbAudit($mbAudit)
+    {
+        $this->mbAudit = $mbAudit;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isBuffer()
+    {
+        return $this->buffer;
+    }
+
+    /**
+     * @param bool $buffer
+     *
+     * @return MbResponse
+     */
+    public function setBuffer($buffer)
+    {
+        $this->buffer = $buffer;
+
+        return $this;
+    }
+
+    /**
      * Set the content on the response.
      *
      * @param mixed $content
      *
      * @return MbResponse
+     *
      */
     public function setContent($content)
     {
@@ -82,7 +138,9 @@ class MbResponse extends Response
             $this->statusCode = $this->isSuccessful() ? $this->statusCode : BaseResponse::HTTP_BAD_REQUEST;
         }
 
-        if ($this->mbRequest->isAjax()) {
+        if($this->isBuffer()){
+            $this->original = $content;
+        } elseif ($this->mbRequest->isAjax()) {
             $this->ajaxContent($content);
         } else {
             $this->htmlContent($content);
@@ -110,16 +168,26 @@ class MbResponse extends Response
      * @param string $url
      * @param array  $params
      *
+     * @param int    $status
+     *
+     * @return bool
      */
-    public function redirect($url, array $params = [])
+    public function redirect($url, array $params = [], $status = 302)
     {
         if (!empty($params)) {
             $url = rtrim(preg_replace('/\?.*/', '', $url), '/');
             $url .= "?" . http_build_query($params);
         }
 
-        header("Location: {$url}");
-        exit();
+        $this->statusCode = $status;
+        $this->headers->set('Location', $url);
+
+        $this->getMbAudit()->setResponseType('redirect');
+        $this->getMbAudit()->setResponseData([
+            'url' => $url,
+        ]);
+
+        return true;
     }
 
     /**
@@ -140,15 +208,16 @@ class MbResponse extends Response
         } elseif (is_string($content)) {
             $content = ['content' => $content];
         } elseif (!is_array($content) && !$content instanceof \Exception) {
-            return $this->ajaxContent(new \Exception("No valid content has been submitted!", 400));
+            return $this->ajaxContent(new \Exception("No valid content has been submitted!", BaseResponse::HTTP_BAD_REQUEST));
         } elseif ($content instanceof \Exception) {
+
             $this->setStatusCode($content->getCode() < 300 ? BaseResponse::HTTP_BAD_REQUEST : $content->getCode());
 
+            $message = $content->getMessage();
+
             if ($content instanceof MbException) {
-                $message = $content->getWpErrorMessages();
-                $content = $content->getExcepitonDataArray();
+                $content = $content->getMessages();
             } else {
-                $message = $content->getMessage();
                 $content = null;
             }
         }
@@ -161,8 +230,10 @@ class MbResponse extends Response
             'data' => $content,
         ];
 
-        return $this->original;
+        $this->getMbAudit()->setResponseType('ajax');
+        $this->getMbAudit()->setResponseData($this->original);
 
+        return $this->original;
     }
 
     /**
@@ -174,34 +245,49 @@ class MbResponse extends Response
      */
     protected function htmlContent($content)
     {
-        if ($content instanceof \Exception) {
-            if ($this->getMbRequest()->isBlogAdmin()) {
-                if ($content instanceof MbException) {
-                    foreach ($content->getWpErrorMessages(true) as $errorMessage) {
-                        $this->adminNotice($errorMessage, 'warning');
-                    }
-                    $this->original = $content->getExcepitonDataView();
-                } else {
-                    $this->adminNotice($content->getMessage(), 'error');
-                }
-            } else {
-                $this->original = "<strong>Erro:</strong> {$content->getMessage()}<br>";
-                if ($content instanceof MbException) {
-                    $this->original = $this->original . $content->getExcepitonDataView();
-                }
-            }
-        } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()) {
-            $this->downloadFile($content);
-        } elseif (!is_string($content) && !$content instanceof Renderable) {
-            ob_start();
-            (new Dumper)->dump($content);
-            $this->original = ob_get_contents();
-            ob_end_clean();
-        } else {
-            $this->original = $content;
-        }
+        try {
 
-        parent::setContent($this->original);
+            $this->getMbAudit()->setResponseType('html');
+
+            if ($content instanceof \Exception) {
+
+                throw $content;
+
+            } elseif ($content instanceof \SplFileInfo && !$this->getMbRequest()->isBlogAdmin()) {
+
+                $this->downloadFile($content);
+
+            } elseif (!is_string($content) && !$content instanceof Renderable) {
+
+                $this->getMbAudit()->setResponseType('debug');
+                $this->getMbAudit()->setResponseData($content);
+
+                ob_start();
+                (new Dumper)->dump($content);
+                $this->original = ob_get_contents();
+                ob_end_clean();
+
+            } else {
+
+                $this->getMbAudit()->setResponseData($content);
+                $this->original = $content;
+
+            }
+
+            parent::setContent($this->original);
+
+        } catch (\Exception $e) {
+
+            $this->getMbAudit()->setResponseData($e->getMessage());
+
+            if ($this->getMbRequest()->isBlogAdmin()) {
+                $this->adminNotice($e->getMessage(), 'error');
+            } else {
+                $this->original = "<strong>Erro:</strong> {$e->getMessage()}<br>";
+            }
+
+            parent::setContent($this->original);
+        }
     }
 
     /**
@@ -209,23 +295,52 @@ class MbResponse extends Response
      *
      * @param \SplFileInfo $content
      *
+     * @return bool
+     *
      * @throws MbException
      */
     public function downloadFile(\SplFileInfo $content)
     {
         if ($content->isFile()) {
+
             if (!$content->isReadable()) {
                 throw new MbException("The download file can not be read!");
             }
+
+            $this->getMbAudit()->setResponseType('download');
+
             $finfo = new \finfo;
-            header("Content-Type: {$finfo->file( $content->getRealPath(), FILEINFO_MIME)}");
-            header("Content-Length: {$content->getSize()}");
-            header("Content-Disposition: attachment; filename={$content->getBasename()}");
+
+            $this->header("Content-Type", $finfo->file($content->getRealPath(), FILEINFO_MIME));
+            $this->header("Content-Length", $content->getSize());
+            $this->header("Content-Disposition", "attachment; filename={$content->getBasename()}");
+
+            $this->sendHeaders();
+
+            $this->getMbAudit()->setResponseData([
+                'path'     => $content->getRealPath(),
+                'filename' => $content->getBasename(),
+                'size'     => $content->getSize(),
+            ]);
+
             readfile($content->getRealPath());
-            exit();
+
+            return true;
         } else {
             throw new MbException("The requested file for download is invalid!");
         }
+    }
+
+    /**
+     * Disable any type of page cache during access
+     *
+     * @return void
+     */
+    public function disableCache()
+    {
+        $this->header("Cache-Control", "no-cache, no-store, must-revalidate")
+            ->header("Pragma", "no-cache")
+            ->header("Expires", "0");
     }
 
     /**
@@ -271,6 +386,22 @@ class MbResponse extends Response
      */
     public function adminNoticeTemplate($message, $type = 'error')
     {
-        return "<div class='notice notice-{$type}'><p>{$message}</p></div>";
+        return "<div class='notice notice-{$type} is-dismissible'><p><strong>{$message}</strong></p></div>";
     }
+
+    /**
+     * @return BaseResponse
+     */
+    public function sendHeaders()
+    {
+        parent::sendHeaders();
+
+        if ($this->isRedirection()) {
+            MbWPActionHook::doAction('shutdown');
+            exit();
+        }
+
+        return $this;
+    }
+
 }

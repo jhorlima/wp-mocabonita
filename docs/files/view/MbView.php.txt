@@ -3,6 +3,8 @@
 namespace MocaBonita\view;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\Macroable;
 use MocaBonita\tools\MbException;
 use MocaBonita\tools\MbPath;
 use MocaBonita\tools\MbRequest;
@@ -23,6 +25,8 @@ use MocaBonita\tools\MbResponse;
  */
 class MbView implements View
 {
+    use Macroable;
+
     /**
      * Template name
      *
@@ -49,7 +53,7 @@ class MbView implements View
      *
      * @var mixed[]
      */
-    protected $variablesForView;
+    protected $attributes;
 
     /**
      * View content
@@ -87,13 +91,194 @@ class MbView implements View
     protected $mbResponse;
 
     /**
+     * Stores the view full
+     *
+     * @var string
+     */
+    protected $viewFullPath;
+
+    /**
+     * Stores the template full
+     *
+     * @var string
+     */
+    protected $templateFullPath;
+
+    /**
+     * @param string $type
+     * @param string|array $message
+     *
+     * @return MbView
+     */
+    public function addFlash($type, $message)
+    {
+        if (is_array($message)) {
+            $this->getMbRequest()->getFlashBag()->set($type, $message);
+        } else {
+            $this->getMbRequest()->getFlashBag()->add($type, $message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param array  $default
+     */
+    public function getFlash($name, array $default = [])
+    {
+        $this->getMbRequest()->getFlashBag()->get($name, $default);
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getFlashes()
+    {
+        return $this->getMbRequest()->getFlashBag()->all();
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasFlash($name)
+    {
+        return $this->getMbRequest()->getFlashBag()->has($name);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @param string       $type
+     *
+     * @return MbView
+     */
+    public function successFlash($message, $type = 'success')
+    {
+        return $this->addFlash($type, $message);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @param string       $type
+     *
+     * @return MbView
+     */
+    public function errorFlash($message, $type = 'error')
+    {
+        return $this->addFlash($type, $message);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @param string       $type
+     *
+     * @return MbView
+     */
+    public function infoFlash($message, $type = 'info')
+    {
+        return $this->addFlash($type, $message);
+    }
+
+    /**
+     * @param string|array $message
+     *
+     * @param string       $type
+     *
+     * @return MbView
+     */
+    public function warnFlash($message, $type = 'warn')
+    {
+        return $this->addFlash($type, $message);
+    }
+
+    /**
+     * @param \Exception $exception
+     *
+     * @param string     $type
+     *
+     * @return MbView
+     */
+    public function exceptionFlash(\Exception $exception, $type = 'error')
+    {
+        if ($exception instanceof MbException) {
+            $messages = $exception->getMessages();
+
+            if (empty($messages)) {
+                return $this->errorFlash($exception->getMessage(), $type);
+            } else {
+                $erros = [$exception->getMessage()];
+
+                foreach ($messages as $item => $message) {
+                    if (is_array($message)) {
+                        foreach ($message as $erro) {
+                            $erros[] = "<strong>{$item}</strong>: {$erro}";
+                        }
+                    } else {
+                        $erros[] = $message;
+                    }
+                }
+
+                return $this->errorFlash($erros, $type);
+            }
+
+        } else {
+            return $this->errorFlash($exception->getMessage(), $type);
+        }
+    }
+
+    /**
      * View construct.
      */
     public function __construct()
     {
-        $this->setVariablesForView([]);
+        $this->setAttributes([]);
         $this->setExtension("phtml");
         $this->setViewPath(MbPath::pViewDir());
+    }
+
+    /**
+     * @return string
+     */
+    public function getViewFullPath()
+    {
+        return $this->viewFullPath;
+    }
+
+    /**
+     * @param string $viewFullPath
+     *
+     * @return MbView
+     */
+    public function setViewFullPath($viewFullPath)
+    {
+        $this->viewFullPath = $viewFullPath;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTemplateFullPath()
+    {
+        return $this->templateFullPath;
+    }
+
+    /**
+     * @param string $templateFullPath
+     *
+     * @return MbView
+     */
+    public function setTemplateFullPath($templateFullPath)
+    {
+        $this->templateFullPath = $templateFullPath;
+
+        return $this;
     }
 
     /**
@@ -171,23 +356,25 @@ class MbView implements View
     /**
      * Get variables for view
      *
+     * @param null $name
+     *
      * @return mixed[]
      */
-    public function getVariablesForView()
+    public function getAttribute($name = null)
     {
-        return $this->variablesForView;
+        return is_null($name) ? $this->attributes : Arr::get($this->attributes, $name);
     }
 
     /**
      * Set variables for view
      *
-     * @param string[] $variablesForView
+     * @param string[] $attributes
      *
      * @return MbView
      */
-    public function setVariablesForView(array $variablesForView)
+    public function setAttributes(array $attributes)
     {
-        $this->variablesForView = $variablesForView;
+        $this->attributes = $attributes;
 
         return $this;
     }
@@ -200,9 +387,9 @@ class MbView implements View
      *
      * @return MbView
      */
-    public function setVariableForView($name, $value)
+    public function setAttribute($name, $value)
     {
-        $this->variablesForView[$name] = $value;
+        $this->attributes[$name] = $value;
 
         return $this;
     }
@@ -331,24 +518,19 @@ class MbView implements View
      * Set parameters for view
      *
      * @param string $templateName
-     * @param string $currentPage
-     * @param string $currentAction
-     * @param array  $variablesForView
+     * @param string $page
+     * @param string $action
+     * @param array  $attributes
      * @param string $extension
      *
      * @return MbView
      */
-    public function setView(
-        $templateName,
-        $currentPage,
-        $currentAction,
-        array $variablesForView = [],
-        $extension = "phtml"
-    ) {
+    public function setView($templateName, $page, $action, array $attributes = [], $extension = "phtml")
+    {
         $this->setTemplate($templateName);
-        $this->setPage($currentPage);
-        $this->setAction($currentAction);
-        $this->setVariablesForView($variablesForView);
+        $this->setPage($page);
+        $this->setAction($action);
+        $this->setAttributes($attributes);
         $this->setExtension($extension);
 
         return $this;
@@ -357,13 +539,13 @@ class MbView implements View
     /**
      * Get File Full Path with extension
      *
-     * @param string $typeFile If the file either is a view or is a template
+     * @param string $type If the file either is a view or is a template
      *
      * @return string
      */
-    protected function getFileFullPath($typeFile = 'action')
+    protected function getFileFullPath($type = 'action')
     {
-        if ($typeFile == 'action') {
+        if ($type == 'action') {
             return $this->viewPath . "{$this->page}/{$this->action}.{$this->extension}";
         } else {
             return $this->viewPath . "{$this->template}.{$this->extension}";
@@ -395,30 +577,25 @@ class MbView implements View
      */
     public function render()
     {
-        $viewPath = $this->getFileFullPath();
-        $templatePath = $this->getFileFullPath('template');
+        $this->setViewFullPath($this->getFileFullPath());
+        $this->setTemplateFullPath($this->getFileFullPath('template'));
 
-        //Assign defined variables to the view and template
-        foreach ($this->variablesForView as $attr => $value) {
-            $$attr = $value;
-        }
-
-        if (file_exists($viewPath)) {
+        if (file_exists($this->getViewFullPath())) {
             ob_start();
-            include $viewPath;
+            include $this->getViewFullPath();
             $this->setContent(ob_get_contents());
             ob_end_clean();
         } else {
-            MbException::registerError(new \Exception("The file {$viewPath} not found!"));
+            MbException::registerError(new \Exception("The file {$this->getViewFullPath()} not found!"));
         }
 
-        if (file_exists($templatePath)) {
+        if (file_exists($this->getTemplateFullPath())) {
             ob_start();
-            include $templatePath;
+            include $this->getTemplateFullPath();
             $this->setContent(ob_get_contents());
             ob_end_clean();
         } else {
-            MbException::registerError(new \Exception("The file {$templatePath} not found!"));
+            MbException::registerError(new \Exception("The file {$this->getTemplateFullPath()} not found!"));
         }
 
         return $this->getContent();
@@ -444,7 +621,43 @@ class MbView implements View
      */
     public function with($key, $value = null)
     {
-        return $this->variablesForView[$key] = $value;
+        $this->attributes[$key] = $value;
+
+        return $this;
     }
 
+    /**
+     * Convert the model to its string representation.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render();
+    }
+
+    /**
+     * Dynamically retrieve attributes on the view.
+     *
+     * @param  string $key
+     *
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->getAttribute($key);
+    }
+
+    /**
+     * Dynamically set attributes on the view.
+     *
+     * @param  string $key
+     * @param  mixed  $value
+     *
+     * @return void
+     */
+    public function __set($key, $value)
+    {
+        $this->setAttribute($key, $value);
+    }
 }

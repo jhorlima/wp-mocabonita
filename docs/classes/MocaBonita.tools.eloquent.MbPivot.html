@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/MocaBonita.html">\MocaBonita</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">123</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">1</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">2</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-2081857003"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-2081857003" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1219881620"></a>
+                                <a href="../namespaces/MocaBonita.html" style="margin-left: 30px; padding-left: 0">MocaBonita</a>
+            </div>
+            <div id="namespace-1219881620" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-651650233"></a>
+                                <a href="../namespaces/MocaBonita.audit.html" style="margin-left: 30px; padding-left: 0">audit</a>
+            </div>
+            <div id="namespace-651650233" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.audit.MbAudit.html">MbAudit</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-736737660"></a>
+                                <a href="../namespaces/MocaBonita.controller.html" style="margin-left: 30px; padding-left: 0">controller</a>
+            </div>
+            <div id="namespace-736737660" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.controller.MbController.html">MbController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-2105050486"></a>
+                                <a href="../namespaces/MocaBonita.model.html" style="margin-left: 30px; padding-left: 0">model</a>
+            </div>
+            <div id="namespace-2105050486" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.model.MbPost.html">MbPost</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.model.MbPostMeta.html">MbPostMeta</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.model.MbWpUser.html">MbWpUser</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.model.MbWpUserMeta.html">MbWpUserMeta</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-132320013"></a>
+                                <a href="../namespaces/MocaBonita.tools.html" style="margin-left: 30px; padding-left: 0">tools</a>
+            </div>
+            <div id="namespace-132320013" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-622210334"></a>
+                                <a href="../namespaces/MocaBonita.tools.eloquent.html" style="margin-left: 30px; padding-left: 0">eloquent</a>
+            </div>
+            <div id="namespace-622210334" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.tools.eloquent.MbConnectionResolver.html">MbConnectionResolver</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.eloquent.MbDatabase.html">MbDatabase</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.eloquent.MbDatabaseEloquentBuilder.html">MbDatabaseEloquentBuilder</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.eloquent.MbDatabaseManager.html">MbDatabaseManager</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.eloquent.MbDatabaseQueryBuilder.html">MbDatabaseQueryBuilder</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.eloquent.MbModel.html">MbModel</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.eloquent.MbPivot.html">MbPivot</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-303798797"></a>
+                                <a href="../namespaces/MocaBonita.tools.validation.html" style="margin-left: 30px; padding-left: 0">validation</a>
+            </div>
+            <div id="namespace-303798797" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbArrayValidation.html">MbArrayValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbBooleanValidation.html">MbBooleanValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbDateValidation.html">MbDateValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbFileValidation.html">MbFileValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbNumberValidation.html">MbNumberValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbObjectValidation.html">MbObjectValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbStringValidation.html">MbStringValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbValidation.html">MbValidation</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.validation.MbValidationBase.html">MbValidationBase</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbAction.html">MbAction</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbAsset.html">MbAsset</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbEvent.html">MbEvent</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbException.html">MbException</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbMigration.html">MbMigration</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbPage.html">MbPage</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbPageStructure.html">MbPageStructure</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbPath.html">MbPath</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbRequest.html">MbRequest</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbResponse.html">MbResponse</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbShortCode.html">MbShortCode</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbSingleton.html">MbSingleton</a></li>
+                                                    <li class="class"><a href="../classes/MocaBonita.tools.MbWPActionHook.html">MbWPActionHook</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-596899921"></a>
+                                <a href="../namespaces/MocaBonita.view.html" style="margin-left: 30px; padding-left: 0">view</a>
+            </div>
+            <div id="namespace-596899921" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.view.MbView.html">MbView</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/MocaBonita.MocaBonita.html">MocaBonita</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/MocaBonita.tools.eloquent.html">\MocaBonita\tools\eloquent</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\MocaBonita\tools\eloquent</small>MbPivot</h1>
+                    <p><em>Main class of the MocaBonita Model</em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_getTable" class="">getTable()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_newEloquentBuilder" class="">newEloquentBuilder()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_createSchema" class="">createSchema()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_createSchemaModel" class="">createSchemaModel()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_updateSchema" class="">updateSchema()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_updateSchemaModel" class="">updateSchemaModel()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_dropSchemaModel" class="">dropSchemaModel()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_save" class="">save()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_getSchema" class="">getSchema()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_newPivot" class="">newPivot()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_fromRawAttributes" class="">fromRawAttributes()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_delete" class="">delete()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_getForeignKey" class="">getForeignKey()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_getOtherKey" class="">getOtherKey()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_setPivotKeys" class="">setPivotKeys()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_hasTimestampAttributes" class="">hasTimestampAttributes()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_getCreatedAtColumn" class="">getCreatedAtColumn()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_getUpdatedAtColumn" class="">getUpdatedAtColumn()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_getWpdb" class="">getWpdb()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_newBaseQueryBuilder" class="">newBaseQueryBuilder()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_validation" class="">validation()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#method_asDateTime" class="">asDateTime()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_setKeysForSaveQuery" class="">setKeysForSaveQuery()</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#method_getDeleteQuery" class="">getDeleteQuery()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#property_wordpressPrefix" class="">$wordpressPrefix</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbModel.html#property_validation" class="">$validation</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#property_parent" class="">$parent</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#property_foreignKey" class="">$foreignKey</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#property_otherKey" class="">$otherKey</a><br />
+                                                                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html#property_guarded" class="">$guarded</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No private properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/tools.eloquent.MbPivot.html"><div class="path-wrapper">tools\eloquent\MbPivot.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">Default</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                        <div class="namespace-wrapper">\Illuminate\Database\Eloquent\Model</div>
+                                                                    
+                                        <div class="namespace-wrapper"><a href="../classes/MocaBonita.tools.eloquent.MbModel.html">\MocaBonita\tools\eloquent\MbModel</a></div>
+                                                                                                    <div class="namespace-wrapper">\MocaBonita\tools\eloquent\MbPivot</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr><td colspan="2"><em>None found</em></td></tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_wordpressPrefix" name="property_wordpressPrefix" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$wordpressPrefix</h3>
+                <pre class="signature">$wordpressPrefix : boolean</pre>
+                <p><em>Add wordpressPrefix table name</em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_validation" name="property_validation" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$validation</h3>
+                <pre class="signature">$validation : boolean</pre>
+                <p><em>Define whether you need to validate the data</em></p>
+                
+
+                                <h4>Type</h4>
+                boolean
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_parent" name="property_parent" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$parent</h3>
+                <pre class="signature">$parent : \Illuminate\Database\Eloquent\Model</pre>
+                <p><em>The parent model of the relationship.</em></p>
+                
+
+                                <h4>Type</h4>
+                \Illuminate\Database\Eloquent\Model
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_foreignKey" name="property_foreignKey" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$foreignKey</h3>
+                <pre class="signature">$foreignKey : string</pre>
+                <p><em>The name of the foreign key column.</em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_otherKey" name="property_otherKey" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$otherKey</h3>
+                <pre class="signature">$otherKey : string</pre>
+                <p><em>The name of the &quot;other key&quot; column.</em></p>
+                
+
+                                <h4>Type</h4>
+                string
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_guarded" name="property_guarded" class="anchor"></a>
+            <article class="property">
+                <h3 class="protected ">$guarded</h3>
+                <pre class="signature">$guarded : array</pre>
+                <p><em>The attributes that aren&#039;t mass assignable.</em></p>
+                
+
+                                <h4>Type</h4>
+                array
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getTable" name="method_getTable" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getTable()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getTable() : string</pre>
+                <p><em>Get the table associated with the model.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_newEloquentBuilder" name="method_newEloquentBuilder" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">newEloquentBuilder()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">newEloquentBuilder(\Illuminate\Database\Query\Builder  <span class="argument">$query</span>) : \Illuminate\Database\Eloquent\Builder|\MocaBonita\tools\eloquent\MbDatabaseEloquentBuilder</pre>
+                <p><em>Create a new Eloquent query builder for the model.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Query\Builder</td>
+                                <td>$query </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Illuminate\Database\Eloquent\Builder|<a href="../classes/MocaBonita.tools.eloquent.MbDatabaseEloquentBuilder.html">\MocaBonita\tools\eloquent\MbDatabaseEloquentBuilder</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createSchema" name="method_createSchema" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createSchema()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createSchema(\Illuminate\Database\Schema\Blueprint  <span class="argument">$table</span>) </pre>
+                <p><em>Implement method to create schemas</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Schema\Blueprint</td>
+                                <td>$table </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            use
+                        </th>
+                        <td>
+                                                                                            <p><a href="https://laravel.com/docs/5.2/migrations#creating-tables">https://laravel.com/docs/5.2/migrations#creating-tables</a></p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createSchemaModel" name="method_createSchemaModel" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createSchemaModel()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createSchemaModel(boolean  <span class="argument">$deleteIfExists = false</span>) </pre>
+                <p><em>Call createSchema when activating, deactivating or uninstalling plugin</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$deleteIfExists </td>
+                                <td><p>To recreate scheme</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                    <span class="label label-info">final</span>
+                                    <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_updateSchema" name="method_updateSchema" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">updateSchema()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">updateSchema(\Illuminate\Database\Schema\Blueprint  <span class="argument">$table</span>) </pre>
+                <p><em>Implement method to update schemas</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Schema\Blueprint</td>
+                                <td>$table </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr>
+                        <th>
+                            use
+                        </th>
+                        <td>
+                                                                                            <p><a href="https://laravel.com/docs/5.2/migrations#creating-tables">https://laravel.com/docs/5.2/migrations#creating-tables</a></p>
+                                                    </td>
+                    </tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_updateSchemaModel" name="method_updateSchemaModel" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">updateSchemaModel()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">updateSchemaModel() </pre>
+                <p><em>Call updateSchema when activating, deactivating or uninstalling plugin</em></p>
+                
+
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                    <span class="label label-info">final</span>
+                                    <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_dropSchemaModel" name="method_dropSchemaModel" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">dropSchemaModel()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">dropSchemaModel() </pre>
+                <p><em>Call delete scheme</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                    <span class="label label-info">final</span>
+                                    <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_save" name="method_save" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">save()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">save(array  <span class="argument">$options = array()</span>) : boolean</pre>
+                <p><em>Save the model to the database.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$options </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\MocaBonita\tools\MbException</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getSchema" name="method_getSchema" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getSchema()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getSchema() : \Illuminate\Database\Schema\Builder</pre>
+                <p><em>Get TableSchema Builder</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    \Illuminate\Database\Schema\Builder
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                    <span class="label label-info">final</span>
+                                    <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_newPivot" name="method_newPivot" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">newPivot()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">newPivot(\Illuminate\Database\Eloquent\Model  <span class="argument">$parent</span>, array  <span class="argument">$attributes</span>, string  <span class="argument">$table</span>, boolean  <span class="argument">$exists</span>, null  <span class="argument">$using = null</span>) : \MocaBonita\tools\eloquent\MbPivot</pre>
+                <p><em>Create a new pivot model instance.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Eloquent\Model</td>
+                                <td>$parent </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$attributes </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$table </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$exists </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>null</td>
+                                <td>$using </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/MocaBonita.tools.eloquent.MbPivot.html">\MocaBonita\tools\eloquent\MbPivot</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct(\Illuminate\Database\Eloquent\Model  <span class="argument">$parent</span>, array  <span class="argument">$attributes</span>, string  <span class="argument">$table</span>, boolean  <span class="argument">$exists = false</span>) </pre>
+                <p><em>Create a new pivot model instance.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Eloquent\Model</td>
+                                <td>$parent </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$attributes </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$table </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$exists </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_fromRawAttributes" name="method_fromRawAttributes" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">fromRawAttributes()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">fromRawAttributes(\Illuminate\Database\Eloquent\Model  <span class="argument">$parent</span>, array  <span class="argument">$attributes</span>, string  <span class="argument">$table</span>, boolean  <span class="argument">$exists = false</span>) : static</pre>
+                <p><em>Create a new pivot model from raw values returned from a query.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Eloquent\Model</td>
+                                <td>$parent </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$attributes </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$table </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$exists </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    static
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_delete" name="method_delete" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">delete()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">delete() : integer</pre>
+                <p><em>Delete the pivot model record from the database.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    integer
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getForeignKey" name="method_getForeignKey" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getForeignKey()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getForeignKey() : string</pre>
+                <p><em>Get the foreign key column name.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getOtherKey" name="method_getOtherKey" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getOtherKey()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getOtherKey() : string</pre>
+                <p><em>Get the &quot;other key&quot; column name.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setPivotKeys" name="method_setPivotKeys" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">setPivotKeys()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setPivotKeys(string  <span class="argument">$foreignKey</span>, string  <span class="argument">$otherKey</span>) : $this</pre>
+                <p><em>Set the key names for the pivot model instance.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$foreignKey </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$otherKey </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    $this
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_hasTimestampAttributes" name="method_hasTimestampAttributes" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">hasTimestampAttributes()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">hasTimestampAttributes() : boolean</pre>
+                <p><em>Determine if the pivot model has timestamp attributes.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getCreatedAtColumn" name="method_getCreatedAtColumn" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getCreatedAtColumn()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getCreatedAtColumn() : string</pre>
+                <p><em>Get the name of the &quot;created at&quot; column.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getUpdatedAtColumn" name="method_getUpdatedAtColumn" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getUpdatedAtColumn()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getUpdatedAtColumn() : string</pre>
+                <p><em>Get the name of the &quot;updated at&quot; column.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getWpdb" name="method_getWpdb" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">getWpdb()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getWpdb() : \wpdb</pre>
+                <p><em>Wordpress DB Manager</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    \wpdb
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_newBaseQueryBuilder" name="method_newBaseQueryBuilder" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">newBaseQueryBuilder()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">newBaseQueryBuilder() : \MocaBonita\tools\eloquent\MbDatabaseQueryBuilder</pre>
+                <p><em>New base query builder</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/MocaBonita.tools.eloquent.MbDatabaseQueryBuilder.html">\MocaBonita\tools\eloquent\MbDatabaseQueryBuilder</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_validation" name="method_validation" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">validation()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">validation(array  <span class="argument">$attributes</span>) : array|\MocaBonita\tools\validation\MbValidation|null</pre>
+                <p><em>Implement method to validation model</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$attributes </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array|<a href="../classes/MocaBonita.tools.validation.MbValidation.html">\MocaBonita\tools\validation\MbValidation</a>|null
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_asDateTime" name="method_asDateTime" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">asDateTime()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">asDateTime(mixed  <span class="argument">$value</span>) : \Carbon\Carbon</pre>
+                <p><em>Return a timestamp as DateTime object.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>mixed</td>
+                                <td>$value </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Carbon\Carbon
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                    <dt>Inherited from</dt>
+                    <dd><a href="../classes/MocaBonita.tools.eloquent.MbModel.html"><div class="path-wrapper">\MocaBonita\tools\eloquent\MbModel</div></a></dd>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_setKeysForSaveQuery" name="method_setKeysForSaveQuery" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">setKeysForSaveQuery()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">setKeysForSaveQuery(\Illuminate\Database\Eloquent\Builder  <span class="argument">$query</span>) : \Illuminate\Database\Eloquent\Builder</pre>
+                <p><em>Set the keys for a save update query.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Illuminate\Database\Eloquent\Builder</td>
+                                <td>$query </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Illuminate\Database\Eloquent\Builder
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getDeleteQuery" name="method_getDeleteQuery" class="anchor"></a>
+            <article class="method">
+                <h3 class="protected ">getDeleteQuery()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getDeleteQuery() : \Illuminate\Database\Eloquent\Builder</pre>
+                <p><em>Get the query builder for a delete operation on the pivot.</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    \Illuminate\Database\Eloquent\Builder
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">MbPivot.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/tools\eloquent\MbPivot.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/MocaBonita.html">\MocaBonita</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on March 27th, 2018 at 18:03.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

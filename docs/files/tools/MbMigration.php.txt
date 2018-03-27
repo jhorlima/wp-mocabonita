@@ -40,8 +40,8 @@ class MbMigration extends Manager
                 'database'  => DB_NAME,
                 'username'  => DB_USER,
                 'password'  => DB_PASSWORD,
-                'charset'   => DB_CHARSET,
-                'collation' => DB_COLLATE ?: $wpdb->collate,
+                'charset'   => 'utf8mb4',
+                'collation' => 'utf8mb4_general_ci',
             ]);
             $capsule->setAsGlobal();
             $capsule->bootEloquent();

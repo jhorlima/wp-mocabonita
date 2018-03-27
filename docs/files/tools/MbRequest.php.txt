@@ -4,6 +4,8 @@ namespace MocaBonita\tools;
 
 use Illuminate\Http\Request;
 use MocaBonita\tools\eloquent\MbDatabaseQueryBuilder;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * Main class of the MocaBonita Request
@@ -82,7 +84,14 @@ class MbRequest extends Request
      *
      * @var boolean
      */
-    private $blogAdmin;
+    protected $blogAdmin;
+
+    /**
+     * Checks if the current page is a page of MocaBonita
+     *
+     * @var boolean
+     */
+    protected $mocaBonitaPage;
 
     /**
      * Is admin
@@ -105,7 +114,7 @@ class MbRequest extends Request
      */
     public function isAjax()
     {
-        return $this->ajax();
+        return $this->ajax;
     }
 
     /**
@@ -179,9 +188,10 @@ class MbRequest extends Request
     {
         if (is_null($this->ajax)) {
             $this->ajax = (bool)(defined('DOING_AJAX') && DOING_AJAX);
+            $this->ajax = (bool)($this->ajax || parent::ajax());
         }
 
-        return (bool)($this->ajax || parent::ajax());
+        return $this->ajax;
     }
 
     /**
@@ -191,9 +201,30 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewQuery(array $query)
+    public function urlQuery(array $query)
     {
         return $this->url() . '?' . http_build_query($query);
+    }
+
+    /**
+     * @return FlashBagInterface
+     *
+     */
+    public function getFlashBag()
+    {
+        return $this->session()->getFlashBag();
+    }
+
+    /**
+     * Get the session associated with the request.
+     *
+     * @return Session|\Illuminate\Session\Store
+     *
+     * @throws \RuntimeException
+     */
+    public function session()
+    {
+        return parent::session();
     }
 
     /**
@@ -204,7 +235,7 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewAction($action, array $query = [])
+    public function urlAction($action, array $query = [])
     {
         $query['action'] = $action;
         $query = array_replace($this->query(), $query);
@@ -220,7 +251,7 @@ class MbRequest extends Request
      *
      * @return string
      */
-    public function fullUrlWithNewPagination($pagination, array $query = [])
+    public function urlPagination($pagination, array $query = [])
     {
         $query[MbDatabaseQueryBuilder::getPagination()] = $pagination;
         $query = array_replace($this->query(), $query);
@@ -239,6 +270,19 @@ class MbRequest extends Request
     public function adminUrlQuery(array $query, $adminPage = "admin.php")
     {
         return admin_url($adminPage . '?' . http_build_query($query));
+    }
+
+    /**
+     * Get the full URL home with new query for the requests.
+     *
+     * @param array  $query
+     * @param string $homePage
+     *
+     * @return string
+     */
+    public function homeUrlQuery(array $query, $homePage = "/")
+    {
+        return home_url($homePage . '?' . http_build_query($query));
     }
 
     /**
@@ -361,16 +405,37 @@ class MbRequest extends Request
      */
     public function hasQuery($key)
     {
-        $query = $this->query();
-        $arrayKeys = array_keys($query);
+        $arrayKeys = array_keys($_GET);
         $keys = is_array($key) ? $key : func_get_args();
 
         foreach ($keys as $value) {
-            if (!in_array($value, $arrayKeys) || trim((string)$query[$value]) === '') {
+            if (!in_array($value, $arrayKeys) || trim((string)$_GET[$value]) === '') {
                 return false;
             }
         }
 
         return true;
     }
+
+    /**
+     * Check if the current page is a Mocabonita page
+     *
+     * @return bool
+     */
+    public function isMocaBonitaPage()
+    {
+        return $this->mocaBonitaPage;
+    }
+
+    /**
+     * @param bool $mocaBonitaPage
+     *
+     * @return MbRequest
+     */
+    public function setMocaBonitaPage($mocaBonitaPage)
+    {
+        $this->mocaBonitaPage = $mocaBonitaPage;
+        return $this;
+    }
+
 }

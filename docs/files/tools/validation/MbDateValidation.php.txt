@@ -49,12 +49,12 @@ class MbDateValidation extends MbValidationBase
         $filter = Arr::get($arguments, 'filter', false);
 
         if (is_string($inputFormat)) {
-            $value = is_string($value) ? Carbon::createFromFormat($inputFormat, $value) : false;
+            $value = is_string($value) ? Carbon::createFromFormat($inputFormat, $value) : $value;
         } else {
             try {
-                $value = is_string($value) ? Carbon::parse($value) : false;
+                $value = is_string($value) ? Carbon::parse($value) : $value;
             } catch (\Exception $e) {
-                $value = false;
+                //
             }
         }
 

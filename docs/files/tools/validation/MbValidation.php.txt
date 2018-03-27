@@ -282,7 +282,12 @@ class MbValidation implements Arrayable
         foreach ($attributes as $attribute) {
 
             $attributeExists = array_key_exists($attribute, $this->data);
-            $attributeNull = $attributeExists ? is_null($this->data[$attribute]) : true;
+            $attributeNull = true;
+
+            if($attributeExists){
+                $attributeNull = is_bool($this->data[$attribute]) || is_int($this->data[$attribute]) ? false : is_null($this->data[$attribute]) || empty($this->data[$attribute]);
+            }
+
             $isNullable = in_array($attribute, $this->getNullable());
             $attirbuteRoles = $this->getValidations($attribute);
 
@@ -318,7 +323,7 @@ class MbValidation implements Arrayable
         $this->setErro(!empty($this->errorMessages) ? true : false);
 
         if ($exceptionOnError && $this->isError()) {
-            throw new MbException("Seus não são válidos!", 400, $this, $this->toWpError());
+            throw new MbException("Seus dados não passaram na validação!", 400, $this, $this->errorMessages);
         }
 
         return $this->isError();
@@ -336,27 +341,5 @@ class MbValidation implements Arrayable
             'messages' => $this->getErrorMessages(),
             'data'     => $this->getData(),
         ];
-    }
-
-    /**
-     * Get WpError.
-     *
-     * @return null|\WP_Error
-     */
-    public function toWpError()
-    {
-        if ($this->isError()) {
-            $wpError = new \WP_Error('denied', "Seus não são válidos!");
-
-            foreach ($this->getErrorMessages() as $type => $message) {
-                foreach ($message as $error) {
-                    $wpError->add('denied', $error);
-                }
-            }
-
-            return $wpError;
-        } else {
-            return null;
-        }
     }
 }

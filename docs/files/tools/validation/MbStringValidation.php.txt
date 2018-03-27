@@ -101,10 +101,6 @@ class MbStringValidation extends MbValidationBase
             $value = preg_replace("/[^a-zA-Z0-9]+/", "", $value);
         }
 
-        if ($alphaNumeric) {
-            $value = preg_replace("/[^a-zA-Z0-9]+/", "", $value);
-        }
-
         if ($email && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
             throw new Exception("O atributo '{$this->getAttribute()}' não é um e-mail válido!");
         }

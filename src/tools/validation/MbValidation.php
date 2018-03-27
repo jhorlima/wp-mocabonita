@@ -323,7 +323,7 @@ class MbValidation implements Arrayable
         $this->setErro(!empty($this->errorMessages) ? true : false);
 
         if ($exceptionOnError && $this->isError()) {
-            throw new MbException("Seus não são válidos!", 400, $this, $this->errorMessages);
+            throw new MbException("Seus dados não passaram na validação!", 400, $this, $this->errorMessages);
         }
 
         return $this->isError();
