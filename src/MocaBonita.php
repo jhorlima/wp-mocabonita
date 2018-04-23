@@ -326,6 +326,8 @@ final class MocaBonita extends MbSingleton
         $mbRequest = MbRequest::capture();
         $mbResponse = MbResponse::create();
 
+        $mbRequest->ajax();
+
         $mbRequest->setBlogAdmin(is_blog_admin());
 
         $mbAudit->setRequest($mbRequest);
