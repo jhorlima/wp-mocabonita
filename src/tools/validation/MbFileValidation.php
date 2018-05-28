@@ -75,7 +75,7 @@ class MbFileValidation extends MbValidationBase
             $mimetype = [$mimetype];
         }
 
-        if (is_array($mimetype) && !in_array((new \finfo)->file($value->getRealPath(), FILEINFO_MIME), $mimetype)) {
+        if (is_array($mimetype) && !in_array($value->getMimeType(), $mimetype)) {
             throw new MbException("O arquivo '{$this->getAttribute()}' tem um formato inválido!");
         }
 

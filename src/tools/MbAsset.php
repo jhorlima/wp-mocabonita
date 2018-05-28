@@ -76,6 +76,23 @@ class MbAsset
     }
 
     /**
+     * Merge MbAsset
+     *
+     * @param MbAsset $mbAsset
+     * @param boolean $priory
+     */
+    public function mergeAsset(MbAsset $mbAsset, $priory = false)
+    {
+        if($priory) {
+            $this->css = $mbAsset->getCss() + $this->css;
+            $this->js = $mbAsset->getJs() + $this->js;
+        } else {
+            $this->css = $this->css + $mbAsset->getCss();
+            $this->js = $this->js + $mbAsset->getJs();
+        }
+    }
+
+    /**
      * Set Javascript
      *
      * @param string      $jsPath

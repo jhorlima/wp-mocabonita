@@ -289,14 +289,8 @@ class MbShortCode
 
                 $mbRequest->setShortcode(true);
 
-                //Add plugin assets
-                $mbAsset->setActionEnqueue('front')->runAssets('plugin', true);
-
-                //Add page assets
-                $mbRequest->getMbPage()
-                    ->getMbAsset()
-                    ->setActionEnqueue('front')
-                    ->runAssets($shortCode->getName(), true);
+                $shortCode->getMbAsset()->mergeAsset($mbRequest->getMbPage()->getMbAsset(), true);
+                $shortCode->getMbAsset()->mergeAsset($mbAsset, true);
 
                 //Add shortcode assets
                 $shortCode->getMbAsset()
