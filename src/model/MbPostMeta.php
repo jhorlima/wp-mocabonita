@@ -75,7 +75,7 @@ class MbPostMeta extends MbModel
     public function getTable()
     {
         $prefix = $this->isBaseTable() ? $this->getWpdb()->base_prefix : $this->getWpdb()->prefix ;
-        return "{$prefix}posts";
+        return "{$prefix}postmeta";
     }
 
     /**
